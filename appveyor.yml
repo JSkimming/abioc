@@ -1,0 +1,99 @@
+﻿# Notes:
+#   - Minimal appveyor.yml file is an empty file. All sections are optional.
+#   - Indent each level of configuration with 2 spaces. Do not use tabs!
+#   - All section names are case-sensitive.
+#   - Section names should be unique on each level.
+
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+# version format
+version: 0.1.{build}
+pull_requests:
+  do_not_increment_build_number: true
+
+branches:
+  only:
+    - master
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# Operating system (build VM template)
+image: Visual Studio 2017
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  # This gives the login details for the build instance so you can RDP to it.
+  #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - git config --global core.autocrlf input
+
+configuration: Release
+
+# enable patching of AssemblyInfo.cs files
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+before_build:
+  - NuGet restore
+
+build:
+  project: abioc.sln
+  verbosity: minimal
+
+after_build:
+  - msbuild src\Abioc\Abioc.csproj /nologo /verbosity:minimal /t:pack /p:Configuration=%CONFIGURATION%;PackageVersion=%APPVEYOR_BUILD_VERSION%;IncludeSource=true /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+#---------------------------------#
+#      artifacts configuration    #
+#---------------------------------#
+
+artifacts:
+  - path: src\**\*.nupkg
+  - path: test\TestResults
+
+#---------------------------------#
+#       tests configuration       #
+#---------------------------------#
+
+test_script:
+  - coverage.cmd %CONFIGURATION%
+  - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
+  - pip install codecov
+  - codecov -f "test\TestResults\Test.Coverage.xml"
+
+#---------------------------------#
+#     deployment configuration    #
+#---------------------------------#
+
+#---------------------------------#
+#        global handlers          #
+#---------------------------------#
+
+#on_finish:
+#  # This blocks the build server from shutting down giving time to RDP onto it to help with diagnose build issues.
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+#---------------------------------#
+#         notifications           #
+#---------------------------------#
+
+notifications:
+
+  # Slack
+  - provider: Slack
+    auth_token:
+      secure: AkSNuuHmfzAFp2+Oq00NRQFOfrXl4ue08SHx0FC2WTeXSiZv8uVKI3ZBWns7HTcV
+    channel: abioc
+    on_build_success: false
+    on_build_status_changed: true
