@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{EC112844-9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abioc", "src\Abioc\Abioc.csproj", "{934CC730-8E23-4EF8-9BC5-3806FF3B490A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abioc.Tests", "test\Abioc.Tests\Abioc.Tests.csproj", "{64CA9BA9-374A-4BFF-B7E0-80B5629A101E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,11 +21,16 @@ Global
 		{934CC730-8E23-4EF8-9BC5-3806FF3B490A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{934CC730-8E23-4EF8-9BC5-3806FF3B490A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{934CC730-8E23-4EF8-9BC5-3806FF3B490A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64CA9BA9-374A-4BFF-B7E0-80B5629A101E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64CA9BA9-374A-4BFF-B7E0-80B5629A101E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64CA9BA9-374A-4BFF-B7E0-80B5629A101E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64CA9BA9-374A-4BFF-B7E0-80B5629A101E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{934CC730-8E23-4EF8-9BC5-3806FF3B490A} = {FC9BAFCA-F5CD-4679-A983-A40C8F028812}
+		{64CA9BA9-374A-4BFF-B7E0-80B5629A101E} = {EC112844-927D-4AE6-95AF-99CB853E8359}
 	EndGlobalSection
 EndGlobal
