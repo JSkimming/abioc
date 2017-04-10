@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>abioc</AssemblyName>
+    <TargetFrameworks>net462;netstandard1.5</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CodeAnalysisRuleSet>stylecop.ruleset</CodeAnalysisRuleSet>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Authors>James Skimming</Authors>
+    <Copyright>Copyright © 2017 James Skimming</Copyright>
+    <PackageLicenseUrl>https://github.com/JSkimming/abioc/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/JSkimming/abioc</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <!--
+  Force the net462 build to generate non Portable PDB until such time that OpenCover supports Portable PDBs
+  https://github.com/OpenCover/opencover/issues/610
+  -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+</Project>
