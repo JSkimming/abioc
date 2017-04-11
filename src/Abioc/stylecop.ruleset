@@ -2,7 +2,9 @@
 <RuleSet Name="Rules for StyleCop.Analyzers" Description="Code analysis rules." ToolsVersion="14.0">
   <Include Path="minimumrecommendedrules.ruleset" Action="Default" />
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
-    <Rule Id="SA1009" Action="None" />
+    <!-- SA1008 and SA1009 are suppressed until StyleCop is updated to handle C# 7 Tuples -->
+    <Rule Id="SA1008" Action="Info" />
+    <Rule Id="SA1009" Action="Info" />
     <Rule Id="SA1101" Action="None" />
     <Rule Id="SA1309" Action="None" />
     <Rule Id="SA1503" Action="None" />
