@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-#if NET462
+#if NET46
 [assembly: AssemblyTitle("abioc .NET Framework")]
 #else
 [assembly: AssemblyTitle("abioc .NET Standard")]
