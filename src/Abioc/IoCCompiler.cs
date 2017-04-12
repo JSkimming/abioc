@@ -246,7 +246,7 @@ private static {0} Create_{1}(
             if (constructors.Length == 0)
             {
                 string message = $"The service of type '{typeToCreate}' has no public constructors.";
-                throw new InvalidOperationException(message);
+                throw new IoCCompilationException(message);
             }
 
             // There must be just 1 public constructor.
@@ -254,7 +254,7 @@ private static {0} Create_{1}(
             {
                 string message = $"The service of type '{typeToCreate}' has {constructors.Length:N0} " +
                                  "public constructors. There must be just 1.";
-                throw new InvalidOperationException(message);
+                throw new IoCCompilationException(message);
             }
 
             ConstructorInfo constructorInfo = constructors[0];

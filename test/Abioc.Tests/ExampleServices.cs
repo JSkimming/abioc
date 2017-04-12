@@ -3,6 +3,8 @@
 
 namespace Abioc
 {
+    using System;
+
     public interface ISimpleInterface
     {
     }
@@ -13,6 +15,63 @@ namespace Abioc
 
     public class SimpleClass2WithoutDependencies : ISimpleInterface
     {
+    }
+
+    public class ClassWithoutAPublicConstructor
+    {
+        private ClassWithoutAPublicConstructor()
+        {
+        }
+
+        public static ClassWithoutAPublicConstructor Create()
+        {
+            return new ClassWithoutAPublicConstructor();
+        }
+    }
+
+    public class ClassWithMultiplePublicConstructors
+    {
+        public ClassWithMultiplePublicConstructors()
+            : this(ClassWithoutAPublicConstructor.Create())
+        {
+        }
+
+        public ClassWithMultiplePublicConstructors(ClassWithoutAPublicConstructor other)
+        {
+            Other = other;
+        }
+
+        public ClassWithoutAPublicConstructor Other { get; }
+    }
+
+    public class ClassWithAPrivateAndPublicConstructor
+    {
+        private ClassWithAPrivateAndPublicConstructor()
+            : this(new SimpleClass1WithoutDependencies())
+        {
+        }
+
+        public ClassWithAPrivateAndPublicConstructor(SimpleClass1WithoutDependencies other)
+        {
+            Other = other;
+        }
+
+        public SimpleClass1WithoutDependencies Other { get; }
+    }
+
+    public class ClassWithAnInternalAndPublicConstructor
+    {
+        internal ClassWithAnInternalAndPublicConstructor()
+            : this(new SimpleClass1WithoutDependencies())
+        {
+        }
+
+        public ClassWithAnInternalAndPublicConstructor(SimpleClass1WithoutDependencies other)
+        {
+            Other = other;
+        }
+
+        public SimpleClass1WithoutDependencies Other { get; }
     }
 }
 
