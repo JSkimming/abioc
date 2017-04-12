@@ -7,7 +7,15 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
 
-    public class SimpleClassWithoutDependencies
+    public interface ISimpleInterface
+    {
+    }
+
+    public class SimpleClass1WithoutDependencies : ISimpleInterface
+    {
+    }
+
+    public class SimpleClass2WithoutDependencies : ISimpleInterface
     {
     }
 }
