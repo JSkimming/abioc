@@ -54,10 +54,10 @@ namespace Abioc
         /// <returns>
         /// The service that is defined in the <paramref name="mapping"/> for the <paramref name="serviceType"/>.
         /// </returns>
-        /// <exception cref="DiExcception">There are no mappings or more than one mapping.</exception>
+        /// <exception cref="DiException">There are no mappings or more than one mapping.</exception>
         /// <remarks>
         /// There must be one and only one mapping defined for the <paramref name="serviceType"/>; otherwise a
-        /// <see cref="DiExcception"/> is thrown.
+        /// <see cref="DiException"/> is thrown.
         /// </remarks>
         public static object GetService<TContructionContext>(
             this IReadOnlyDictionary<Type, IReadOnlyList<Func<TContructionContext, object>>> mapping,
@@ -85,12 +85,12 @@ namespace Abioc
                 if (factories.Count > 1)
                 {
                     message = $"There are multiple registered factories to create services of type '{serviceType}'.";
-                    throw new DiExcception(message);
+                    throw new DiException(message);
                 }
             }
 
             message = $"There is no registered factory to create services of type '{serviceType}'.";
-            throw new DiExcception(message);
+            throw new DiException(message);
         }
     }
 }

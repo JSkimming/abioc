@@ -55,7 +55,7 @@ namespace Abioc
 
             // Assert
             action
-                .ShouldThrow<DiExcception>()
+                .ShouldThrow<DiException>()
                 .WithMessage(expectedMessage);
         }
 
@@ -124,7 +124,7 @@ namespace Abioc
 
             // Assert
             action
-                .ShouldThrow<DiExcception>()
+                .ShouldThrow<DiException>()
                 .WithMessage(expectedMessage);
         }
 

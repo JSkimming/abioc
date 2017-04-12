@@ -67,10 +67,10 @@ namespace Abioc
         /// <returns>
         /// The service that is defined in the <paramref name="mapping"/> for the <typeparamref name="TService"/>.
         /// </returns>
-        /// <exception cref="DiExcception">There are no mappings or more than one mapping.</exception>
+        /// <exception cref="DiException">There are no mappings or more than one mapping.</exception>
         /// <remarks>
         /// There must be one and only one mapping defined for the <typeparamref name="TService"/>; otherwise a
-        /// <see cref="DiExcception"/> is thrown.
+        /// <see cref="DiException"/> is thrown.
         /// </remarks>
         public static TService GetService<TContructionContext, TService>(
             this IReadOnlyDictionary<Type, IReadOnlyList<Func<TContructionContext, object>>> mapping,
@@ -89,10 +89,10 @@ namespace Abioc
         /// <returns>
         /// The service that is defined in the <paramref name="mapping"/> for the <typeparamref name="TService"/>.
         /// </returns>
-        /// <exception cref="DiExcception">There are no mappings or more than one mapping.</exception>
+        /// <exception cref="DiException">There are no mappings or more than one mapping.</exception>
         /// <remarks>
         /// There must be one and only one mapping defined for the <typeparamref name="TService"/>; otherwise a
-        /// <see cref="DiExcception"/> is thrown.
+        /// <see cref="DiException"/> is thrown.
         /// </remarks>
         public static TService GetService<TService>(
             this IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> mapping,
@@ -109,10 +109,10 @@ namespace Abioc
         /// <returns>
         /// The service that is defined in the <paramref name="mapping"/> for the <typeparamref name="TService"/>.
         /// </returns>
-        /// <exception cref="DiExcception">There are no mappings or more than one mapping.</exception>
+        /// <exception cref="DiException">There are no mappings or more than one mapping.</exception>
         /// <remarks>
         /// There must be one and only one mapping defined for the <typeparamref name="TService"/>; otherwise a
-        /// <see cref="DiExcception"/> is thrown.
+        /// <see cref="DiException"/> is thrown.
         /// </remarks>
         public static TService GetService<TService>(
             this IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> mapping)
