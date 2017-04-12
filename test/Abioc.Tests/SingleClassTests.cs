@@ -58,6 +58,16 @@ namespace Abioc
                 .ShouldThrow<DiExcception>()
                 .WithMessage(expectedMessage);
         }
+
+        [Fact]
+        public void ItShouldReturnAnEmptyListIfGettingUnregisteredServices()
+        {
+            // Act
+            IEnumerable<SimpleClass2WithoutDependencies> actual = _mappings.GetServices<SimpleClass2WithoutDependencies>();
+
+            // Assert
+            actual.Should().BeEmpty();
+        }
     }
 
     public class WhenFactoringASimpleClassWithoutDependencies
@@ -116,6 +126,16 @@ namespace Abioc
             action
                 .ShouldThrow<DiExcception>()
                 .WithMessage(expectedMessage);
+        }
+
+        [Fact]
+        public void ItShouldReturnAnEmptyListIfGettingUnregisteredServices()
+        {
+            // Act
+            IEnumerable<SimpleClass2WithoutDependencies> actual = _mappings.GetServices<SimpleClass2WithoutDependencies>();
+
+            // Assert
+            actual.Should().BeEmpty();
         }
     }
 }
