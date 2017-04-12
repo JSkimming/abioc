@@ -91,7 +91,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbiocCustomization.cs" />
+    <Compile Include="CommonInterfaceTests.cs" />
+    <Compile Include="ConstructorErrorTests.cs" />
+    <Compile Include="CreateObjectGraphTests.cs" />
     <Compile Include="ExampleServices.cs" />
+    <Compile Include="NestedClassTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequiresArgNullEx.cs" />
     <Compile Include="RequiresArgNullExAutoMoqAttribute.cs" />

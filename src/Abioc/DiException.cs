@@ -8,17 +8,17 @@ namespace Abioc
     /// <summary>
     /// An exception caused during DI.
     /// </summary>
-    public class DiExcception : Exception
+    public class DiException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DiExcception"/> class with a specified error
+        /// Initializes a new instance of the <see cref="DiException"/> class with a specified error
         /// <paramref name="message"/> and a reference to the <paramref name="innerException"/> that is the cause of
         /// this exception.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception, or a
         /// <see langword="null"/> reference if no inner exception is specified.</param>
-        public DiExcception(string message, Exception innerException = null)
+        public DiException(string message, Exception innerException = null)
             : base(message, innerException)
         {
             if (message == null)

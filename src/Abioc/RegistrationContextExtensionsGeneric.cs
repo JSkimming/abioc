@@ -34,8 +34,7 @@ namespace Abioc
             this RegistrationContext<TContructionContext> registration,
             Func<TContructionContext, TImplementation> factory = null)
             where TContructionContext : IContructionContext
-            where TImplementation : class
-            where TService : TImplementation
+            where TImplementation : class, TService
         {
             return registration.Register(typeof(TService), typeof(TImplementation), factory);
         }
@@ -59,8 +58,7 @@ namespace Abioc
         public static RegistrationContext<DefaultContructionContext> Register<TService, TImplementation>(
             this RegistrationContext<DefaultContructionContext> registration,
             Func<DefaultContructionContext, TImplementation> factory = null)
-            where TImplementation : class
-            where TService : TImplementation
+            where TImplementation : class, TService
         {
             return registration.Register<TService, TImplementation, DefaultContructionContext>(factory);
         }

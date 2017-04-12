@@ -11,70 +11,131 @@ namespace Abioc
 
     public class WhenCreatingASimpleClassWithoutDependencies
     {
-        [Fact]
-        public void ItShouldCreateTheServiceIfGivenNoFactory()
+        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+
+        public WhenCreatingASimpleClassWithoutDependencies()
         {
-            // Arrange
-            IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> mappings =
-                new RegistrationContext<DefaultContructionContext>()
-                    .Register<SimpleClassWithoutDependencies>()
-                    .Compile(GetType().Assembly);
+            _mappings = new RegistrationContext<DefaultContructionContext>()
+                .Register<SimpleClass1WithoutDependencies>()
+                .Compile(GetType().Assembly);
+        }
 
+        [Fact]
+        public void ItShouldCreateTheService()
+        {
             // Act
-            SimpleClassWithoutDependencies actual = mappings.GetService<SimpleClassWithoutDependencies>();
+            SimpleClass1WithoutDependencies actual = _mappings.GetService<SimpleClass1WithoutDependencies>();
 
+            // Assert
             actual.Should().NotBeNull();
         }
 
         [Fact]
-        public void ItShouldCreateServicesIfGivenNoFactory()
+        public void ItShouldCreateServices()
         {
-            // Arrange
-            IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> mappings =
-                new RegistrationContext<DefaultContructionContext>()
-                    .Register<SimpleClassWithoutDependencies>()
-                    .Compile(GetType().Assembly);
-
             // Act
-            IReadOnlyList<SimpleClassWithoutDependencies> actual =
-                mappings.GetServices<SimpleClassWithoutDependencies>().ToList();
+            IReadOnlyList<SimpleClass1WithoutDependencies> actual =
+                _mappings.GetServices<SimpleClass1WithoutDependencies>().ToList();
 
+            // Assert
             actual.Should().HaveCount(1);
             actual[0].Should().NotBeNull();
         }
 
         [Fact]
-        public void ItShouldCreateTheServiceUsingAGivenFactory()
+        public void ItShouldThrowADiExceptionIfGettingAnUnregisteredService()
         {
             // Arrange
-            var expected = new SimpleClassWithoutDependencies();
-
-            IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> mappings =
-                new RegistrationContext<DefaultContructionContext>()
-                    .Register(c => expected)
-                    .Compile(GetType().Assembly);
+            string expectedMessage =
+                "There is no registered factory to create services of type" +
+                $" '{typeof(SimpleClass2WithoutDependencies)}'.";
 
             // Act
-            SimpleClassWithoutDependencies actual = mappings.GetService<SimpleClassWithoutDependencies>();
+            Action action = () => _mappings.GetService<SimpleClass2WithoutDependencies>();
 
-            actual.Should().NotBeNull().And.BeSameAs(expected);
+            // Assert
+            action
+                .ShouldThrow<DiException>()
+                .WithMessage(expectedMessage);
         }
 
         [Fact]
-        public void ItShouldCreateServicesUsingAGivenFactory()
+        public void ItShouldReturnAnEmptyListIfGettingUnregisteredServices()
+        {
+            // Act
+            IEnumerable<SimpleClass2WithoutDependencies> actual = _mappings.GetServices<SimpleClass2WithoutDependencies>();
+
+            // Assert
+            actual.Should().BeEmpty();
+        }
+    }
+
+    public class WhenFactoringASimpleClassWithoutDependencies
+    {
+        private readonly SimpleClass1WithoutDependencies _expected;
+
+        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+
+        public WhenFactoringASimpleClassWithoutDependencies()
         {
             // Arrange
-            var expected = new SimpleClassWithoutDependencies();
+            _expected = new SimpleClass1WithoutDependencies();
 
-            IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> mappings =
-                new RegistrationContext<DefaultContructionContext>()
-                    .Register(c => expected)
-                    .Compile(GetType().Assembly);
+            _mappings = new RegistrationContext<DefaultContructionContext>()
+                .Register(c => _expected)
+                .Compile(GetType().Assembly);
+        }
+
+        [Fact]
+        public void ItShouldCreateTheServiceUsingTheGivenFactory()
+        {
+            // Act
+            SimpleClass1WithoutDependencies actual = _mappings.GetService<SimpleClass1WithoutDependencies>();
+
+            // Assert
+            actual
+                .Should()
+                .NotBeNull()
+                .And.BeSameAs(_expected);
+        }
+
+        [Fact]
+        public void ItShouldCreateServicesUsingTheGivenFactory()
+        {
+            // Act
+            IReadOnlyList<SimpleClass1WithoutDependencies> actual =
+                _mappings.GetServices<SimpleClass1WithoutDependencies>().ToList();
+
+            // Assert
+            actual.Should().HaveCount(1);
+            actual[0].Should().BeSameAs(_expected);
+        }
+
+        [Fact]
+        public void ItShouldThrowADiExceptionIfGettingAnUnregisteredService()
+        {
+            // Arrange
+            string expectedMessage =
+                "There is no registered factory to create services of type" +
+                $" '{typeof(SimpleClass2WithoutDependencies)}'.";
 
             // Act
-            SimpleClassWithoutDependencies actual = mappings.GetService<SimpleClassWithoutDependencies>();
+            Action action = () => _mappings.GetService<SimpleClass2WithoutDependencies>();
 
-            actual.Should().NotBeNull().And.BeSameAs(expected);
+            // Assert
+            action
+                .ShouldThrow<DiException>()
+                .WithMessage(expectedMessage);
+        }
+
+        [Fact]
+        public void ItShouldReturnAnEmptyListIfGettingUnregisteredServices()
+        {
+            // Act
+            IEnumerable<SimpleClass2WithoutDependencies> actual = _mappings.GetServices<SimpleClass2WithoutDependencies>();
+
+            // Assert
+            actual.Should().BeEmpty();
         }
     }
 }
