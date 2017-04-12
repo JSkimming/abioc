@@ -97,11 +97,12 @@ namespace Abioc
                 type.GetTypeInfo().GetMethod("GetCreateMap", BindingFlags.NonPublic | BindingFlags.Static);
             var createMap = (Dictionary<Type, Func<TContructionContext, object>>)getCreateMapMethod.Invoke(null, null);
 
-            IReadOnlyDictionary<Type, IReadOnlyList<Func<TContructionContext, object>>> compiledContext =
-                createMap.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => (IReadOnlyList<Func<TContructionContext, object>>)new[] { kvp.Value });
-            return compiledContext;
+            IEnumerable<KeyValuePair<Type, IReadOnlyList<Func<TContructionContext, object>>>> iocMappings =
+                from kvp in registration.Context
+                let createFuncs = kvp.Value.Select(v => createMap[v.implementationType]).ToArray()
+                select new KeyValuePair<Type, IReadOnlyList<Func<TContructionContext, object>>>(kvp.Key, createFuncs);
+
+            return iocMappings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         private static string ToCompileName(this Type type)
