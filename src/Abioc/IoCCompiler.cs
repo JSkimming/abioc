@@ -40,7 +40,7 @@ namespace Abioc
                 throw new ArgumentNullException(nameof(srcAssembly));
 
             CompilationContext compilationContext = new CompilationContext();
-            string contructionContext = typeof(TContructionContext).FullName.Replace('+', '.');
+            string contructionContext = typeof(TContructionContext).ToCompileName();
 
             // Start with all the implementations where there is a factory method.
             IReadOnlyCollection<(Type implementationType, Func<TContructionContext, object> factory)> factoredTypes =
@@ -105,7 +105,13 @@ namespace Abioc
             return iocMappings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
-        private static string ToCompileName(this Type type)
+        /// <summary>
+        /// Gets the full name of a <paramref name="type"/> that is compilable as part of a method name, e.g. namespace
+        /// and nested class delimiters <c>'.'</c> and <c>'+'</c> are replaced with valid characters for a method name.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> for which to return the compilable method name part.</param>
+        /// <returns>The full name of a <paramref name="type"/> that is compilable as part of a method name.</returns>
+        private static string ToCompileMethodName(this Type type)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -114,9 +120,18 @@ namespace Abioc
             return name;
         }
 
-        private static string ToFactorFunctionFieldName(this Type type)
+        /// <summary>
+        /// Gets the full name of a <paramref name="type"/> that is compilable, e.g. nested classes have a <c>'+'</c>
+        /// delimiter. This is replaced with a <c>'.'</c> to ensure compilation succeeds.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> for which to return the compilable name.</param>
+        /// <returns>The full name of a <paramref name="type"/> that is compilable.</returns>
+        private static string ToCompileName(this Type type)
         {
-            string name = "Factor_" + type.ToCompileName();
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            string name = type.FullName.Replace('+', '.');
             return name;
         }
 
@@ -132,7 +147,7 @@ namespace Abioc
             int index = 0;
             foreach (Type factoredType in factoredTypes)
             {
-                string factorFunctionFieldName = factoredType.ToFactorFunctionFieldName();
+                string factorFunctionFieldName = "Factor_" + factoredType.ToCompileMethodName();
 
                 string field = $"private static System.Func<{contructionContext}, object> {factorFunctionFieldName};";
                 string initializer = $"{factorFunctionFieldName} = facs[{index++}];";
@@ -166,7 +181,7 @@ namespace Abioc
                 throw new ArgumentNullException(nameof(contructionContext));
 
             IEnumerable<string> initializers =
-                createdTypes.Select(t => $"{{typeof({t.FullName}), Create_{t.ToCompileName()}}},");
+                createdTypes.Select(t => $"{{typeof({t.ToCompileName()}), Create_{t.ToCompileMethodName()}}},");
 
             string method = string.Format(
                 @"
@@ -210,8 +225,8 @@ private static {0} Create_{1}(
     string message = $""The factory method to create an instance of '{0}' returned an instance of '{{obj.GetType()}}'."";
     throw new System.InvalidOperationException(message);
 }}",
-                typeToCreate.FullName,
                 typeToCreate.ToCompileName(),
+                typeToCreate.ToCompileMethodName(),
                 contructionContext);
 
             return method;
@@ -246,7 +261,7 @@ private static {0} Create_{1}(
             ParameterInfo[] parameters = constructorInfo.GetParameters();
 
             IEnumerable<string> paramCalls =
-                parameters.Select(p => $"Create_{p.ParameterType.ToCompileName()}(context)");
+                parameters.Select(p => $"Create_{p.ParameterType.ToCompileMethodName()}(context)");
             string paramArgs = string.Join(",\r\n        ", paramCalls);
 
             string method = string.Format(
@@ -258,8 +273,8 @@ private static {0} Create_{1}(
         {3}
     );
 }}",
-                typeToCreate.FullName,
                 typeToCreate.ToCompileName(),
+                typeToCreate.ToCompileMethodName(),
                 contructionContext,
                 paramArgs);
 
