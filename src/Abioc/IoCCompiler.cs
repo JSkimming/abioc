@@ -28,10 +28,31 @@ namespace Abioc
         /// <param name="registration">The registration context.</param>
         /// <param name="srcAssembly">The source assembly for the types top create.</param>
         /// <returns>The compiled function mappings.</returns>
-        public static IReadOnlyDictionary<Type, IReadOnlyList<Func<TContructionContext, object>>>
-            Compile<TContructionContext>(
-                this RegistrationContext<TContructionContext> registration,
-                Assembly srcAssembly)
+        public static CompilationContext<TContructionContext> Compile<TContructionContext>(
+            this RegistrationContext<TContructionContext> registration,
+            Assembly srcAssembly)
+            where TContructionContext : IContructionContext
+        {
+            Assembly assembly = InternalCompile(registration, srcAssembly);
+            Type type = assembly.GetType("I_ɸ_C.IoC_ɸ_Contruction");
+
+            MethodInfo getCreateMapMethod =
+                type.GetTypeInfo().GetMethod("GetCreateMap", BindingFlags.NonPublic | BindingFlags.Static);
+            var createMap = (Dictionary<Type, Func<TContructionContext, object>>)getCreateMapMethod.Invoke(null, null);
+
+            IEnumerable<KeyValuePair<Type, IReadOnlyList<Func<TContructionContext, object>>>> iocMappings =
+                from kvp in registration.Context
+                let createFuncs = kvp.Value.Select(v => createMap[v.implementationType]).ToArray()
+                select new KeyValuePair<Type, IReadOnlyList<Func<TContructionContext, object>>>(kvp.Key, createFuncs);
+
+            return iocMappings
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+                .ToCompilationContext();
+        }
+
+        private static Assembly InternalCompile<TContructionContext>(
+            this RegistrationContext<TContructionContext> registration,
+            Assembly srcAssembly)
             where TContructionContext : IContructionContext
         {
             if (registration == null)
@@ -94,16 +115,7 @@ namespace Abioc
                 initialiseFactoryMethod.Invoke(null, new object[] { factoredTypes.Select(f => f.factory).ToList() });
             }
 
-            MethodInfo getCreateMapMethod =
-                type.GetTypeInfo().GetMethod("GetCreateMap", BindingFlags.NonPublic | BindingFlags.Static);
-            var createMap = (Dictionary<Type, Func<TContructionContext, object>>)getCreateMapMethod.Invoke(null, null);
-
-            IEnumerable<KeyValuePair<Type, IReadOnlyList<Func<TContructionContext, object>>>> iocMappings =
-                from kvp in registration.Context
-                let createFuncs = kvp.Value.Select(v => createMap[v.implementationType]).ToArray()
-                select new KeyValuePair<Type, IReadOnlyList<Func<TContructionContext, object>>>(kvp.Key, createFuncs);
-
-            return iocMappings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            return assembly;
         }
 
         /// <summary>

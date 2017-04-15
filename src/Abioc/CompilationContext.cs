@@ -107,7 +107,14 @@ namespace Abioc
                 return factory(contructionContext);
             }
 
-            throw new DiException($"There is no registered factory to create services of type '{serviceType}'.");
+            // Produce a descriptive exception message, depending on where there are no mappings or multiple.
+            if (!MultiMappings.ContainsKey(serviceType))
+            {
+                throw new DiException($"There is no registered factory to create services of type '{serviceType}'.");
+            }
+
+            throw new DiException(
+                $"There are multiple registered factories to create services of type '{serviceType}'.");
         }
 
         /// <summary>

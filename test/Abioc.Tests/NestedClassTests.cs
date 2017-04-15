@@ -11,11 +11,11 @@ namespace Abioc
 
     public class WhenCreatingNestedClasses
     {
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenCreatingNestedClasses()
         {
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<NestedClass1>()
                 .Register<NestedClass2>()
                 .Register<NestedClass3>()
@@ -26,7 +26,7 @@ namespace Abioc
         public void ItShouldCreateTheService()
         {
             // Act
-            NestedClass3 actual = _mappings.GetService<NestedClass3>();
+            NestedClass3 actual = _context.GetService<NestedClass3>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -65,13 +65,13 @@ namespace Abioc
     {
         private readonly WhenCreatingNestedClasses.NestedClass1 _expected;
 
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenFactoringNestedClasses()
         {
             _expected = new WhenCreatingNestedClasses.NestedClass1();
 
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register(c => _expected)
                 .Register<WhenCreatingNestedClasses.NestedClass2>()
                 .Register<WhenCreatingNestedClasses.NestedClass3>()
@@ -82,7 +82,8 @@ namespace Abioc
         public void ItShouldCreateTheServiceUsingTheGivenFactory()
         {
             // Act
-            WhenCreatingNestedClasses.NestedClass3 actual = _mappings.GetService<WhenCreatingNestedClasses.NestedClass3>();
+            WhenCreatingNestedClasses.NestedClass3 actual =
+                _context.GetService<WhenCreatingNestedClasses.NestedClass3>();
 
             // Assert
             actual.Should().NotBeNull();

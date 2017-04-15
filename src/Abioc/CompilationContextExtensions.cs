@@ -44,6 +44,9 @@ namespace Abioc
         /// <exception cref="DiException">There are no mappings for the <typeparamref name="TService"/>.</exception>
         public static TService GetService<TService>(this CompilationContext<DefaultContructionContext> context)
         {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
             return context.GetService<TService>(new DefaultContructionContext());
         }
     }
