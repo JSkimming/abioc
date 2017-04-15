@@ -11,11 +11,11 @@ namespace Abioc
 
     public class WhenCreatingAnObjectGraphOfClasses
     {
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenCreatingAnObjectGraphOfClasses()
         {
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<Example.Ns1.MyClass1>()
                 .Register<Example.Ns1.MyClass2>()
                 .Register<Example.Ns1.MyClass3>()
@@ -28,7 +28,7 @@ namespace Abioc
         public void ItShouldCreateTheHeadClassWithDependencies()
         {
             // Act
-            Example.Ns1.MyClass3 actual = _mappings.GetService<Example.Ns1.MyClass3>();
+            Example.Ns1.MyClass3 actual = _context.GetService<Example.Ns1.MyClass3>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -45,7 +45,7 @@ namespace Abioc
         public void ItShouldCreateAnIntermediateClassWithDependencies()
         {
             // Act
-            Example.Ns2.MyClass2 actual = _mappings.GetService<Example.Ns2.MyClass2>();
+            Example.Ns2.MyClass2 actual = _context.GetService<Example.Ns2.MyClass2>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -57,7 +57,7 @@ namespace Abioc
         public void ItShouldCreateATailClass()
         {
             // Act
-            Example.Ns1.MyClass1 actual = _mappings.GetService<Example.Ns1.MyClass1>();
+            Example.Ns1.MyClass1 actual = _context.GetService<Example.Ns1.MyClass1>();
 
             // Assert
             actual.Should().NotBeNull();

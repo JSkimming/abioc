@@ -83,11 +83,11 @@ namespace Abioc
 
     public class WhenRegisteringAbstractDependencies
     {
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenRegisteringAbstractDependencies()
         {
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<IInterface, InterfaceImplementation>()
                 .Register<AbstractBaseClass, BaseClassImplementation>()
                 .Register<ClassWithInterfaceDependencies>()
@@ -100,7 +100,7 @@ namespace Abioc
         public void ItShouldCreateAClassWithInterfaceDependencies()
         {
             // Act
-            ClassWithInterfaceDependencies actual = _mappings.GetService<ClassWithInterfaceDependencies>();
+            ClassWithInterfaceDependencies actual = _context.GetService<ClassWithInterfaceDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -115,7 +115,7 @@ namespace Abioc
         {
             // Act
             ClassWithAbstractBaseClassDependencies actual =
-                _mappings.GetService<ClassWithAbstractBaseClassDependencies>();
+                _context.GetService<ClassWithAbstractBaseClassDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -130,7 +130,7 @@ namespace Abioc
         {
             // Act
             ClassWithMixedDependencies actual =
-                _mappings.GetService<ClassWithMixedDependencies>();
+                _context.GetService<ClassWithMixedDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -159,11 +159,11 @@ namespace Abioc
 
     public class WhenRegisteringAClassThatImplementsMultipleAbstractions
     {
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenRegisteringAClassThatImplementsMultipleAbstractions()
         {
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<IInterface, BothImplementation>()
                 .Register<AbstractBaseClass, BothImplementation>()
                 .Register<InterfaceImplementation>()
@@ -178,7 +178,7 @@ namespace Abioc
         public void ItShouldCreateAClassWithInterfaceDependencies()
         {
             // Act
-            ClassWithInterfaceDependencies actual = _mappings.GetService<ClassWithInterfaceDependencies>();
+            ClassWithInterfaceDependencies actual = _context.GetService<ClassWithInterfaceDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -193,7 +193,7 @@ namespace Abioc
         {
             // Act
             ClassWithAbstractBaseClassDependencies actual =
-                _mappings.GetService<ClassWithAbstractBaseClassDependencies>();
+                _context.GetService<ClassWithAbstractBaseClassDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -208,7 +208,7 @@ namespace Abioc
         {
             // Act
             ClassWithMixedDependencies actual =
-                _mappings.GetService<ClassWithMixedDependencies>();
+                _context.GetService<ClassWithMixedDependencies>();
 
             // Assert
             actual.Should().NotBeNull();

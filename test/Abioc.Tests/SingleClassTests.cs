@@ -11,11 +11,11 @@ namespace Abioc
 
     public class WhenCreatingASimpleClassWithoutDependencies
     {
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenCreatingASimpleClassWithoutDependencies()
         {
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<SimpleClass1WithoutDependencies>()
                 .Compile(GetType().Assembly);
         }
@@ -24,7 +24,7 @@ namespace Abioc
         public void ItShouldCreateTheService()
         {
             // Act
-            SimpleClass1WithoutDependencies actual = _mappings.GetService<SimpleClass1WithoutDependencies>();
+            SimpleClass1WithoutDependencies actual = _context.GetService<SimpleClass1WithoutDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -35,7 +35,7 @@ namespace Abioc
         {
             // Act
             IReadOnlyList<SimpleClass1WithoutDependencies> actual =
-                _mappings.GetServices<SimpleClass1WithoutDependencies>().ToList();
+                _context.GetServices<SimpleClass1WithoutDependencies>().ToList();
 
             // Assert
             actual.Should().HaveCount(1);
@@ -51,7 +51,7 @@ namespace Abioc
                 $" '{typeof(SimpleClass2WithoutDependencies)}'.";
 
             // Act
-            Action action = () => _mappings.GetService<SimpleClass2WithoutDependencies>();
+            Action action = () => _context.GetService<SimpleClass2WithoutDependencies>();
 
             // Assert
             action
@@ -63,8 +63,10 @@ namespace Abioc
         public void ItShouldReturnAnEmptyListIfGettingUnregisteredServices()
         {
             // Act
-            IEnumerable<SimpleClass2WithoutDependencies> actual = _mappings.GetServices<SimpleClass2WithoutDependencies>();
+            IEnumerable<SimpleClass2WithoutDependencies> actual =
+                _context.GetServices<SimpleClass2WithoutDependencies>();
 
+            // Assert
             // Assert
             actual.Should().BeEmpty();
         }
@@ -74,14 +76,14 @@ namespace Abioc
     {
         private readonly SimpleClass1WithoutDependencies _expected;
 
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenFactoringASimpleClassWithoutDependencies()
         {
             // Arrange
             _expected = new SimpleClass1WithoutDependencies();
 
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register(c => _expected)
                 .Compile(GetType().Assembly);
         }
@@ -90,7 +92,7 @@ namespace Abioc
         public void ItShouldCreateTheServiceUsingTheGivenFactory()
         {
             // Act
-            SimpleClass1WithoutDependencies actual = _mappings.GetService<SimpleClass1WithoutDependencies>();
+            SimpleClass1WithoutDependencies actual = _context.GetService<SimpleClass1WithoutDependencies>();
 
             // Assert
             actual
@@ -104,7 +106,7 @@ namespace Abioc
         {
             // Act
             IReadOnlyList<SimpleClass1WithoutDependencies> actual =
-                _mappings.GetServices<SimpleClass1WithoutDependencies>().ToList();
+                _context.GetServices<SimpleClass1WithoutDependencies>().ToList();
 
             // Assert
             actual.Should().HaveCount(1);
@@ -120,7 +122,7 @@ namespace Abioc
                 $" '{typeof(SimpleClass2WithoutDependencies)}'.";
 
             // Act
-            Action action = () => _mappings.GetService<SimpleClass2WithoutDependencies>();
+            Action action = () => _context.GetService<SimpleClass2WithoutDependencies>();
 
             // Assert
             action
@@ -132,7 +134,8 @@ namespace Abioc
         public void ItShouldReturnAnEmptyListIfGettingUnregisteredServices()
         {
             // Act
-            IEnumerable<SimpleClass2WithoutDependencies> actual = _mappings.GetServices<SimpleClass2WithoutDependencies>();
+            IEnumerable<SimpleClass2WithoutDependencies> actual =
+                _context.GetServices<SimpleClass2WithoutDependencies>();
 
             // Assert
             actual.Should().BeEmpty();

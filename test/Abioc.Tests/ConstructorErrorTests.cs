@@ -67,14 +67,14 @@ namespace Abioc
         private readonly ClassWithoutAPublicConstructor _expectedNoPublicConstructor;
         private readonly ClassWithMultiplePublicConstructors _expectedMultiplePublicConstructors;
 
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenFactoringClassesWithInvalidConstructors()
         {
             _expectedNoPublicConstructor = ClassWithoutAPublicConstructor.Create();
             _expectedMultiplePublicConstructors = new ClassWithMultiplePublicConstructors();
 
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register(c => _expectedNoPublicConstructor)
                 .Register(c => _expectedMultiplePublicConstructors)
                 .Compile(GetType().Assembly);
@@ -84,7 +84,7 @@ namespace Abioc
         public void ItShouldFactorAClassWithoutAPublicConstructor()
         {
             // Act
-            ClassWithoutAPublicConstructor actual = _mappings.GetService<ClassWithoutAPublicConstructor>();
+            ClassWithoutAPublicConstructor actual = _context.GetService<ClassWithoutAPublicConstructor>();
 
             // Assert
             actual
@@ -97,7 +97,7 @@ namespace Abioc
         public void ItShouldFactorAClassWithMultiplePublicConstructors()
         {
             // Act
-            ClassWithMultiplePublicConstructors actual = _mappings.GetService<ClassWithMultiplePublicConstructors>();
+            ClassWithMultiplePublicConstructors actual = _context.GetService<ClassWithMultiplePublicConstructors>();
 
             // Assert
             actual
@@ -109,11 +109,11 @@ namespace Abioc
 
     public class WhenCreatingClassesWithASinglePublicConstructor
     {
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenCreatingClassesWithASinglePublicConstructor()
         {
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<SimpleClass1WithoutDependencies>()
                 .Register<ClassWithAPrivateAndPublicConstructor>()
                 .Register<ClassWithAnInternalAndPublicConstructor>()
@@ -124,7 +124,8 @@ namespace Abioc
         public void ItShouldCreateAClassWithAPrivateAndPublicConstructor()
         {
             // Act
-            ClassWithAPrivateAndPublicConstructor actual = _mappings.GetService<ClassWithAPrivateAndPublicConstructor>();
+            ClassWithAPrivateAndPublicConstructor actual =
+                _context.GetService<ClassWithAPrivateAndPublicConstructor>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -135,7 +136,8 @@ namespace Abioc
         public void ItShouldCreateAClassWithAnInternalAndPublicConstructor()
         {
             // Act
-            ClassWithAnInternalAndPublicConstructor actual = _mappings.GetService<ClassWithAnInternalAndPublicConstructor>();
+            ClassWithAnInternalAndPublicConstructor actual =
+                _context.GetService<ClassWithAnInternalAndPublicConstructor>();
 
             // Assert
             actual.Should().NotBeNull();

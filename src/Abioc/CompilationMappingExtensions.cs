@@ -10,87 +10,29 @@ namespace Abioc
     /// <summary>
     /// Resolve extension methods on a compilation mapping.
     /// </summary>
-    public static class CompilationMappingExtensions
+    internal static class CompilationMappingExtensions
     {
         /// <summary>
-        /// Gets any services that are defined in the <paramref name="mapping"/> for the
-        /// <paramref name="serviceType"/>.
+        /// Creates a new instance of the <see cref="CompilationContext{TContructionContext}"/> class.
         /// </summary>
-        /// <typeparam name="TContructionContext">The type of the <paramref name="contructionContext"/>.</typeparam>
-        /// <param name="mapping">The compilation mapping.</param>
-        /// <param name="contructionContext">The construction context.</param>
-        /// <param name="serviceType">The type of the service to get.</param>
-        /// <returns>Any services for which there is a <paramref name="mapping"/>.</returns>
-        public static IEnumerable<object> GetServices<TContructionContext>(
-            this IReadOnlyDictionary<Type, IReadOnlyList<Func<TContructionContext, object>>> mapping,
-            TContructionContext contructionContext,
-            Type serviceType)
+        /// <typeparam name="TContructionContext">The type of the construction context.</typeparam>
+        /// <param name="multiMappings">
+        /// The compiled mapping from a type to potentially multiple create functions.
+        /// </param>
+        /// <returns>A new instance of the <see cref="CompilationContext{TContructionContext}"/> class.</returns>
+        public static CompilationContext<TContructionContext> ToCompilationContext<TContructionContext>(
+            this IReadOnlyDictionary<Type, IReadOnlyList<Func<TContructionContext, object>>> multiMappings)
             where TContructionContext : IContructionContext
         {
-            if (mapping == null)
-                throw new ArgumentNullException(nameof(mapping));
-            if (contructionContext == null)
-                throw new ArgumentNullException(nameof(contructionContext));
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
+            if (multiMappings == null)
+                throw new ArgumentNullException(nameof(multiMappings));
 
-            // If there are any factories, use them.
-            if (mapping.TryGetValue(serviceType, out IReadOnlyList<Func<TContructionContext, object>> factories))
-            {
-                return factories.Select(f => f(contructionContext));
-            }
+            Dictionary<Type, Func<TContructionContext, object>> singleMappings =
+                multiMappings
+                    .Where(kvp => kvp.Value.Count == 1)
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Single());
 
-            // Otherwise return an empty enumerable to indicate there are no matches.
-            return Enumerable.Empty<object>();
-        }
-
-        /// <summary>
-        /// Gets the service that is defined in the <paramref name="mapping"/> for the <paramref name="serviceType"/>.
-        /// </summary>
-        /// <typeparam name="TContructionContext">The type of the <paramref name="contructionContext"/>.</typeparam>
-        /// <param name="mapping">The compilation mapping.</param>
-        /// <param name="contructionContext">The construction context.</param>
-        /// <param name="serviceType">The type of the service to get.</param>
-        /// <returns>
-        /// The service that is defined in the <paramref name="mapping"/> for the <paramref name="serviceType"/>.
-        /// </returns>
-        /// <exception cref="DiException">There are no mappings or more than one mapping.</exception>
-        /// <remarks>
-        /// There must be one and only one mapping defined for the <paramref name="serviceType"/>; otherwise a
-        /// <see cref="DiException"/> is thrown.
-        /// </remarks>
-        public static object GetService<TContructionContext>(
-            this IReadOnlyDictionary<Type, IReadOnlyList<Func<TContructionContext, object>>> mapping,
-            TContructionContext contructionContext,
-            Type serviceType)
-            where TContructionContext : IContructionContext
-        {
-            if (mapping == null)
-                throw new ArgumentNullException(nameof(mapping));
-            if (contructionContext == null)
-                throw new ArgumentNullException(nameof(contructionContext));
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
-
-            string message;
-
-            // If there are any factories, use them.
-            if (mapping.TryGetValue(serviceType, out IReadOnlyList<Func<TContructionContext, object>> factories))
-            {
-                if (factories.Count == 1)
-                {
-                    return factories[0](contructionContext);
-                }
-
-                if (factories.Count > 1)
-                {
-                    message = $"There are multiple registered factories to create services of type '{serviceType}'.";
-                    throw new DiException(message);
-                }
-            }
-
-            message = $"There is no registered factory to create services of type '{serviceType}'.";
-            throw new DiException(message);
+            return new CompilationContext<TContructionContext>(singleMappings, multiMappings);
         }
     }
 }

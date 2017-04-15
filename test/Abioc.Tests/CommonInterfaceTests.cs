@@ -11,11 +11,11 @@ namespace Abioc
 
     public class WhenRegisteringTwoClassThatImplementTheSameInterface
     {
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenRegisteringTwoClassThatImplementTheSameInterface()
         {
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<ISimpleInterface, SimpleClass1WithoutDependencies>()
                 .Register<ISimpleInterface, SimpleClass2WithoutDependencies>()
                 .Compile(GetType().Assembly);
@@ -25,7 +25,7 @@ namespace Abioc
         public void ItShouldCreateBothImplementationsOfTheSameInterface()
         {
             // Act
-            IReadOnlyList<ISimpleInterface> actual = _mappings.GetServices<ISimpleInterface>().ToList();
+            IReadOnlyList<ISimpleInterface> actual = _context.GetServices<ISimpleInterface>().ToList();
 
             // Assert
             actual.Should()
@@ -42,7 +42,7 @@ namespace Abioc
                 $"There are multiple registered factories to create services of type '{typeof(ISimpleInterface)}'.";
 
             // Act
-            Action action = () => _mappings.GetService<ISimpleInterface>();
+            Action action = () => _context.GetService<ISimpleInterface>();
 
             // Assert
             action
@@ -56,14 +56,14 @@ namespace Abioc
         private readonly SimpleClass1WithoutDependencies _expected1;
         private readonly SimpleClass2WithoutDependencies _expected2;
 
-        private readonly IReadOnlyDictionary<Type, IReadOnlyList<Func<DefaultContructionContext, object>>> _mappings;
+        private readonly CompilationContext<DefaultContructionContext> _context;
 
         public WhenFactoringTwoClassThatImplementTheSameInterface()
         {
             _expected1 = new SimpleClass1WithoutDependencies();
             _expected2 = new SimpleClass2WithoutDependencies();
 
-            _mappings = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultContructionContext>()
                 .Register(c => _expected1)
                 .Register(c => _expected2)
                 .Register<ISimpleInterface, SimpleClass1WithoutDependencies>()
@@ -75,7 +75,7 @@ namespace Abioc
         public void ItShouldCreateBothImplementationsOfTheSameInterface()
         {
             // Act
-            IReadOnlyList<ISimpleInterface> actual = _mappings.GetServices<ISimpleInterface>().ToList();
+            IReadOnlyList<ISimpleInterface> actual = _context.GetServices<ISimpleInterface>().ToList();
 
             // Assert
             actual.Should()
@@ -92,7 +92,7 @@ namespace Abioc
                 $"There are multiple registered factories to create services of type '{typeof(ISimpleInterface)}'.";
 
             // Act
-            Action action = () => _mappings.GetService<ISimpleInterface>();
+            Action action = () => _context.GetService<ISimpleInterface>();
 
             // Assert
             action
