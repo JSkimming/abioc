@@ -71,6 +71,7 @@ namespace Abioc
                     .ToList();
 
             IEnumerable<string> createMethods = GetCreateMethods(
+                registration,
                 createdTypes.Select(f => (f.implementationType, f.factory != null)),
                 contructionContext);
             compilationContext.CreateMethods.AddRange(createMethods);
@@ -155,10 +156,14 @@ namespace Abioc
             }
         }
 
-        private static IEnumerable<string> GetCreateMethods(
+        private static IEnumerable<string> GetCreateMethods<TContructionContext>(
+            RegistrationContext<TContructionContext> registration,
             IEnumerable<(Type createdType, bool hasFactory)> typesToCreate,
             string contructionContext)
+            where TContructionContext : IContructionContext
         {
+            if (registration == null)
+                throw new ArgumentNullException(nameof(registration));
             if (typesToCreate == null)
                 throw new ArgumentNullException(nameof(typesToCreate));
             if (contructionContext == null)
@@ -168,7 +173,7 @@ namespace Abioc
             {
                 string method = hasFactory
                     ? GenerateCreateFromFactoryMethod(createdType, contructionContext)
-                    : GenerateCreateNewMethod(createdType, contructionContext);
+                    : GenerateCreateNewMethod(registration, createdType, contructionContext);
                 yield return method;
             }
         }
@@ -232,8 +237,14 @@ private static {0} Create_{1}(
             return method;
         }
 
-        private static string GenerateCreateNewMethod(Type typeToCreate, string contructionContext)
+        private static string GenerateCreateNewMethod<TContructionContext>(
+            RegistrationContext<TContructionContext> registration,
+            Type typeToCreate,
+            string contructionContext)
+            where TContructionContext : IContructionContext
         {
+            if (registration == null)
+                throw new ArgumentNullException(nameof(registration));
             if (typeToCreate == null)
                 throw new ArgumentNullException(nameof(typeToCreate));
             if (contructionContext == null)
@@ -259,9 +270,17 @@ private static {0} Create_{1}(
 
             ConstructorInfo constructorInfo = constructors[0];
             ParameterInfo[] parameters = constructorInfo.GetParameters();
+            IEnumerable<Type> parameterTypes =
+                parameters.Select(
+                    p =>
+                        registration.Context.Values
+                            .SelectMany(f => f)
+                            .FirstOrDefault(f => f.implementationType == p.ParameterType)
+                            .implementationType
+                        ?? registration.Context[p.ParameterType].Single().implementationType);
 
             IEnumerable<string> paramCalls =
-                parameters.Select(p => $"Create_{p.ParameterType.ToCompileMethodName()}(context)");
+                parameterTypes.Select(p => $"Create_{p.ToCompileMethodName()}(context)");
             string paramArgs = string.Join(",\r\n        ", paramCalls);
 
             string method = string.Format(
