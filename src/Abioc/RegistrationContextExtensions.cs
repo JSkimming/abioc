@@ -44,14 +44,14 @@ namespace Abioc
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
-            List<(Type implementationType, Func<TContructionContext, object> factory)> factories;
+            List<RegistrationEntry<TContructionContext>> factories;
             if (!registration.Context.TryGetValue(serviceType, out factories))
             {
-                factories = new List<(Type, Func<TContructionContext, object>)>(1);
+                factories = new List<RegistrationEntry<TContructionContext>>(1);
                 registration.Context[serviceType] = factories;
             }
 
-            factories.Add((implementationType, factory));
+            factories.Add(RegistrationEntry.Create(implementationType, factory));
 
             return registration;
         }
