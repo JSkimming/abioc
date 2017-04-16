@@ -36,7 +36,7 @@ namespace Abioc
             where TContructionContext : IContructionContext
             where TImplementation : class, TService
         {
-            return registration.Register(typeof(TService), typeof(TImplementation), factory);
+            return registration.Register(typeof(TService), typeof(TImplementation), factory, typedfactory: true);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Abioc
             where TContructionContext : IContructionContext
             where TImplementation : class
         {
-            return registration.Register(typeof(TImplementation), factory);
+            return registration.Register(typeof(TImplementation), factory, typedfactory: true);
         }
 
         /// <summary>
