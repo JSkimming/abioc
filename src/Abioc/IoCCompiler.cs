@@ -72,7 +72,7 @@ namespace Abioc
                     .ToList();
 
             IEnumerable<(string field, string initializer)> factoryInitialisers =
-                GetFactoryInitialisers(factoredTypes.Select(f => f.ImplementationType), contructionContext);
+                GetFactoryInitialisers(factoredTypes, contructionContext);
 
             foreach ((string field, string initializer) factoryInitialiser in factoryInitialisers)
             {
@@ -160,22 +160,25 @@ namespace Abioc
             return name;
         }
 
-        private static IEnumerable<(string field, string initializer)> GetFactoryInitialisers(
-            IEnumerable<Type> factoredTypes,
+        private static IEnumerable<(string field, string initializer)> GetFactoryInitialisers<TContructionContext>(
+            IEnumerable<RegistrationEntry<TContructionContext>> factoredEntries,
             string contructionContext)
+            where TContructionContext : IContructionContext
         {
-            if (factoredTypes == null)
-                throw new ArgumentNullException(nameof(factoredTypes));
+            if (factoredEntries == null)
+                throw new ArgumentNullException(nameof(factoredEntries));
             if (contructionContext == null)
                 throw new ArgumentNullException(nameof(contructionContext));
 
             int index = 0;
-            foreach (Type factoredType in factoredTypes)
+            foreach (RegistrationEntry<TContructionContext> entry in factoredEntries)
             {
-                string factorFunctionFieldName = "Factor_" + factoredType.ToCompileMethodName();
+                string factoryFunctionFieldName = "Factor_" + entry.ImplementationType.ToCompileMethodName();
+                string factoryReturnType = entry.Typedfactory ? entry.ImplementationType.ToCompileName() : "object";
+                string factoryFunctionFieldType = $"System.Func<{contructionContext}, {factoryReturnType}>";
 
-                string field = $"private static System.Func<{contructionContext}, object> {factorFunctionFieldName};";
-                string initializer = $"{factorFunctionFieldName} = facs[{index++}];";
+                string field = $"private static {factoryFunctionFieldType} {factoryFunctionFieldName};";
+                string initializer = $"{factoryFunctionFieldName} = ({factoryFunctionFieldType}) facs[{index++}];";
                 yield return (field, initializer);
             }
         }
