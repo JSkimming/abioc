@@ -42,7 +42,7 @@ namespace Abioc
 
             IEnumerable<KeyValuePair<Type, IReadOnlyList<Func<TContructionContext, object>>>> iocMappings =
                 from kvp in registration.Context
-                let createFuncs = kvp.Value.Select(v => createMap[v.implementationType]).ToArray()
+                let createFuncs = kvp.Value.Select(v => createMap[v.ImplementationType]).ToArray()
                 select new KeyValuePair<Type, IReadOnlyList<Func<TContructionContext, object>>>(kvp.Key, createFuncs);
 
             return iocMappings
@@ -64,15 +64,15 @@ namespace Abioc
             string contructionContext = typeof(TContructionContext).ToCompileName();
 
             // Start with all the implementations where there is a factory method.
-            IReadOnlyCollection<(Type implementationType, Func<TContructionContext, object> factory)> factoredTypes =
+            IReadOnlyList<RegistrationEntry<TContructionContext>> factoredTypes =
                 registration.Context.Values
-                    .SelectMany(f => f)
-                    .Where(f => f.factory != null)
-                    .OrderBy(f => f.implementationType.FullName)
+                    .SelectMany(entries => entries)
+                    .Where(entry => entry.Factory != null)
+                    .OrderBy(entry => entry.ImplementationType.FullName)
                     .ToList();
 
             IEnumerable<(string field, string initializer)> factoryInitialisers =
-                GetFactoryInitialisers(factoredTypes.Select(f => f.implementationType), contructionContext);
+                GetFactoryInitialisers(factoredTypes, contructionContext);
 
             foreach ((string field, string initializer) factoryInitialiser in factoryInitialisers)
             {
@@ -81,24 +81,24 @@ namespace Abioc
             }
 
             // Now generate all the Create methods.
-            IReadOnlyCollection<(Type implementationType, Func<TContructionContext, object> factory)> createdTypes =
+            IReadOnlyList<RegistrationEntry<TContructionContext>> createdTypes =
                 registration.Context.Values
-                    .SelectMany(f => f)
-                    .Where(f => f.factory == null)
-                    .Where(f => factoredTypes.All(fac => fac.implementationType != f.implementationType))
+                    .SelectMany(entries => entries)
+                    .Where(entry => entry.Factory == null)
+                    .Where(entry => factoredTypes.All(fac => fac.ImplementationType != entry.ImplementationType))
                     .Concat(factoredTypes)
-                    .Distinct()
-                    .OrderBy(f => f.implementationType.FullName)
+                    .DistinctBy(entry => entry.ImplementationType)
+                    .OrderBy(entry => entry.ImplementationType.FullName)
                     .ToList();
 
             IEnumerable<string> createMethods = GetCreateMethods(
                 registration,
-                createdTypes.Select(f => (f.implementationType, f.factory != null)),
+                createdTypes.Where(entry => !entry.Typedfactory),
                 contructionContext);
             compilationContext.CreateMethods.AddRange(createMethods);
 
             compilationContext.GetCreateMapMethod =
-                GenerateGetCreateMapMethod(createdTypes.Select(f => f.implementationType), contructionContext);
+                GenerateGetCreateMapMethod(createdTypes.Select(f => f.ImplementationType), contructionContext);
 
             string code = GenerateCode(compilationContext, contructionContext);
 
@@ -112,10 +112,22 @@ namespace Abioc
                     type.GetTypeInfo()
                         .GetMethod("InitialiseFactoryFunctions", BindingFlags.NonPublic | BindingFlags.Static);
 
-                initialiseFactoryMethod.Invoke(null, new object[] { factoredTypes.Select(f => f.factory).ToList() });
+                initialiseFactoryMethod.Invoke(null, new object[] { factoredTypes.Select(f => f.Factory).ToList() });
             }
 
             return assembly;
+        }
+
+        private static IEnumerable<TSource> DistinctBy<TSource, TKey>(
+            this IEnumerable<TSource> items,
+            Func<TSource, TKey> keySelector)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+
+            return items.GroupBy(keySelector).Select(item => item.First());
         }
 
         /// <summary>
@@ -148,44 +160,60 @@ namespace Abioc
             return name;
         }
 
-        private static IEnumerable<(string field, string initializer)> GetFactoryInitialisers(
-            IEnumerable<Type> factoredTypes,
+        private static IEnumerable<(string field, string initializer)> GetFactoryInitialisers<TContructionContext>(
+            IEnumerable<RegistrationEntry<TContructionContext>> factoredEntries,
             string contructionContext)
+            where TContructionContext : IContructionContext
         {
-            if (factoredTypes == null)
-                throw new ArgumentNullException(nameof(factoredTypes));
+            if (factoredEntries == null)
+                throw new ArgumentNullException(nameof(factoredEntries));
             if (contructionContext == null)
                 throw new ArgumentNullException(nameof(contructionContext));
 
             int index = 0;
-            foreach (Type factoredType in factoredTypes)
+            foreach (RegistrationEntry<TContructionContext> entry in factoredEntries)
             {
-                string factorFunctionFieldName = "Factor_" + factoredType.ToCompileMethodName();
+                if (entry.Typedfactory)
+                {
+                    string createFuncFieldName = "Create_" + entry.ImplementationType.ToCompileMethodName();
+                    string createReturnType = entry.ImplementationType.ToCompileName();
+                    string createFuncFieldType = $"System.Func<{contructionContext}, {createReturnType}>";
 
-                string field = $"private static System.Func<{contructionContext}, object> {factorFunctionFieldName};";
-                string initializer = $"{factorFunctionFieldName} = facs[{index++}];";
-                yield return (field, initializer);
+                    string createField = $"private static {createFuncFieldType} {createFuncFieldName};";
+                    string createInitializer = $"{createFuncFieldName} = ({createFuncFieldType}) facs[{index++}];";
+                    yield return (createField, createInitializer);
+                }
+                else
+                {
+                    string factoryFunFieldName = "Factor_" + entry.ImplementationType.ToCompileMethodName();
+                    string factoryReturnType = "object";
+                    string factoryFuncFieldType = $"System.Func<{contructionContext}, {factoryReturnType}>";
+
+                    string factoryField = $"private static {factoryFuncFieldType} {factoryFunFieldName};";
+                    string factoryInitializer = $"{factoryFunFieldName} = facs[{index++}];";
+                    yield return (factoryField, factoryInitializer);
+                }
             }
         }
 
         private static IEnumerable<string> GetCreateMethods<TContructionContext>(
             RegistrationContext<TContructionContext> registration,
-            IEnumerable<(Type createdType, bool hasFactory)> typesToCreate,
+            IEnumerable<RegistrationEntry<TContructionContext>> createdTypes,
             string contructionContext)
             where TContructionContext : IContructionContext
         {
             if (registration == null)
                 throw new ArgumentNullException(nameof(registration));
-            if (typesToCreate == null)
-                throw new ArgumentNullException(nameof(typesToCreate));
+            if (createdTypes == null)
+                throw new ArgumentNullException(nameof(createdTypes));
             if (contructionContext == null)
                 throw new ArgumentNullException(nameof(contructionContext));
 
-            foreach ((Type createdType, bool hasFactory) in typesToCreate)
+            foreach (RegistrationEntry<TContructionContext> createdType in createdTypes)
             {
-                string method = hasFactory
-                    ? GenerateCreateFromFactoryMethod(createdType, contructionContext)
-                    : GenerateCreateNewMethod(registration, createdType, contructionContext);
+                string method = createdType.Factory != null
+                    ? GenerateCreateFromWeaklyTypedFactoryMethod(createdType.ImplementationType, contructionContext)
+                    : GenerateCreateNewMethod(registration, createdType.ImplementationType, contructionContext);
                 yield return method;
             }
         }
@@ -215,7 +243,9 @@ private static System.Collections.Generic.Dictionary<System.Type, System.Func<{0
             return method;
         }
 
-        private static string GenerateCreateFromFactoryMethod(Type typeToCreate, string contructionContext)
+        private static string GenerateCreateFromWeaklyTypedFactoryMethod(
+            Type typeToCreate,
+            string contructionContext)
         {
             if (typeToCreate == null)
                 throw new ArgumentNullException(nameof(typeToCreate));
@@ -287,9 +317,9 @@ private static {0} Create_{1}(
                     p =>
                         registration.Context.Values
                             .SelectMany(f => f)
-                            .FirstOrDefault(f => f.implementationType == p.ParameterType)
-                            .implementationType
-                        ?? registration.Context[p.ParameterType].Single().implementationType);
+                            .FirstOrDefault(f => f.ImplementationType == p.ParameterType)
+                            ?.ImplementationType
+                        ?? registration.Context[p.ParameterType].Single().ImplementationType);
 
             IEnumerable<string> paramCalls =
                 parameterTypes.Select(p => $"Create_{p.ToCompileMethodName()}(context)");

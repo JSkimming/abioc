@@ -15,19 +15,9 @@ namespace Abioc
         where TContructionContext : IContructionContext
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RegistrationContext{TContructionContext}"/> class.
-        /// </summary>
-        public RegistrationContext()
-        {
-            Context = new Dictionary<Type, List<(Type, Func<TContructionContext, object>)>>();
-        }
-
-        /// <summary>
         /// Gets the context.
         /// </summary>
-        public Dictionary<Type, List<(Type implementationType, Func<TContructionContext, object> factory)>> Context
-        {
-            get;
-        }
+        public Dictionary<Type, List<RegistrationEntry<TContructionContext>>> Context { get; }
+            = new Dictionary<Type, List<RegistrationEntry<TContructionContext>>>(32);
     }
 }
