@@ -93,7 +93,7 @@ namespace Abioc
 
             IEnumerable<string> createMethods = GetCreateMethods(
                 registration,
-                createdTypes.Select(f => (f.ImplementationType, f.Factory != null)),
+                createdTypes.Where(entry => !entry.Typedfactory),
                 contructionContext);
             compilationContext.CreateMethods.AddRange(createMethods);
 
@@ -173,34 +173,47 @@ namespace Abioc
             int index = 0;
             foreach (RegistrationEntry<TContructionContext> entry in factoredEntries)
             {
-                string factoryFunctionFieldName = "Factor_" + entry.ImplementationType.ToCompileMethodName();
-                string factoryReturnType = entry.Typedfactory ? entry.ImplementationType.ToCompileName() : "object";
-                string factoryFunctionFieldType = $"System.Func<{contructionContext}, {factoryReturnType}>";
+                if (entry.Typedfactory)
+                {
+                    string createFuncFieldName = "Create_" + entry.ImplementationType.ToCompileMethodName();
+                    string createReturnType = entry.ImplementationType.ToCompileName();
+                    string createFuncFieldType = $"System.Func<{contructionContext}, {createReturnType}>";
 
-                string field = $"private static {factoryFunctionFieldType} {factoryFunctionFieldName};";
-                string initializer = $"{factoryFunctionFieldName} = ({factoryFunctionFieldType}) facs[{index++}];";
-                yield return (field, initializer);
+                    string createField = $"private static {createFuncFieldType} {createFuncFieldName};";
+                    string createInitializer = $"{createFuncFieldName} = ({createFuncFieldType}) facs[{index++}];";
+                    yield return (createField, createInitializer);
+                }
+                else
+                {
+                    string factoryFunFieldName = "Factor_" + entry.ImplementationType.ToCompileMethodName();
+                    string factoryReturnType = "object";
+                    string factoryFuncFieldType = $"System.Func<{contructionContext}, {factoryReturnType}>";
+
+                    string factoryField = $"private static {factoryFuncFieldType} {factoryFunFieldName};";
+                    string factoryInitializer = $"{factoryFunFieldName} = facs[{index++}];";
+                    yield return (factoryField, factoryInitializer);
+                }
             }
         }
 
         private static IEnumerable<string> GetCreateMethods<TContructionContext>(
             RegistrationContext<TContructionContext> registration,
-            IEnumerable<(Type createdType, bool hasFactory)> typesToCreate,
+            IEnumerable<RegistrationEntry<TContructionContext>> createdTypes,
             string contructionContext)
             where TContructionContext : IContructionContext
         {
             if (registration == null)
                 throw new ArgumentNullException(nameof(registration));
-            if (typesToCreate == null)
-                throw new ArgumentNullException(nameof(typesToCreate));
+            if (createdTypes == null)
+                throw new ArgumentNullException(nameof(createdTypes));
             if (contructionContext == null)
                 throw new ArgumentNullException(nameof(contructionContext));
 
-            foreach ((Type createdType, bool hasFactory) in typesToCreate)
+            foreach (RegistrationEntry<TContructionContext> createdType in createdTypes)
             {
-                string method = hasFactory
-                    ? GenerateCreateFromFactoryMethod(createdType, contructionContext)
-                    : GenerateCreateNewMethod(registration, createdType, contructionContext);
+                string method = createdType.Factory != null
+                    ? GenerateCreateFromWeaklyTypedFactoryMethod(createdType.ImplementationType, contructionContext)
+                    : GenerateCreateNewMethod(registration, createdType.ImplementationType, contructionContext);
                 yield return method;
             }
         }
@@ -230,7 +243,9 @@ private static System.Collections.Generic.Dictionary<System.Type, System.Func<{0
             return method;
         }
 
-        private static string GenerateCreateFromFactoryMethod(Type typeToCreate, string contructionContext)
+        private static string GenerateCreateFromWeaklyTypedFactoryMethod(
+            Type typeToCreate,
+            string contructionContext)
         {
             if (typeToCreate == null)
                 throw new ArgumentNullException(nameof(typeToCreate));
