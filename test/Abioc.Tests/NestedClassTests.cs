@@ -6,6 +6,7 @@ namespace Abioc
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using FluentAssertions;
     using Xunit;
 
@@ -19,7 +20,7 @@ namespace Abioc
                 .Register<NestedClass1>()
                 .Register<NestedClass2>()
                 .Register<NestedClass3>()
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]
@@ -75,7 +76,7 @@ namespace Abioc
                 .Register(c => _expected)
                 .Register<WhenCreatingNestedClasses.NestedClass2>()
                 .Register<WhenCreatingNestedClasses.NestedClass3>()
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]

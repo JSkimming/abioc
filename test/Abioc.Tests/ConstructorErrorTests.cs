@@ -6,6 +6,7 @@ namespace Abioc
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using FluentAssertions;
     using Xunit;
 
@@ -26,7 +27,7 @@ namespace Abioc
             string expectedMessage =
                 $"The service of type '{typeof(ClassWithoutAPublicConstructor)}' has no public constructors.";
             // Act
-            Action action = () =>_registrationContext.Compile(GetType().Assembly);
+            Action action = () =>_registrationContext.Compile(GetType().GetTypeInfo().Assembly);
 
             // Assert
             action
@@ -53,7 +54,7 @@ namespace Abioc
                  $"The service of type '{typeof(ClassWithMultiplePublicConstructors)}' has 2 public constructors. " +
                  "There must be just 1.";
             // Act
-            Action action = () => _registrationContext.Compile(GetType().Assembly);
+            Action action = () => _registrationContext.Compile(GetType().GetTypeInfo().Assembly);
 
             // Assert
             action
@@ -77,7 +78,7 @@ namespace Abioc
             _context = new RegistrationContext<DefaultContructionContext>()
                 .Register(c => _expectedNoPublicConstructor)
                 .Register(c => _expectedMultiplePublicConstructors)
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]
@@ -117,7 +118,7 @@ namespace Abioc
                 .Register<SimpleClass1WithoutDependencies>()
                 .Register<ClassWithAPrivateAndPublicConstructor>()
                 .Register<ClassWithAnInternalAndPublicConstructor>()
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]

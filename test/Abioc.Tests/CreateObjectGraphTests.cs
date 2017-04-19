@@ -6,6 +6,7 @@ namespace Abioc
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using FluentAssertions;
     using Xunit;
 
@@ -21,7 +22,7 @@ namespace Abioc
                 .Register<Example.Ns1.MyClass3>()
                 .Register<Example.Ns2.MyClass1>()
                 .Register<Example.Ns2.MyClass2>()
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]

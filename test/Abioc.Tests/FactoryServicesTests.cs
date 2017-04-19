@@ -6,6 +6,7 @@ namespace Abioc
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using Abioc.FactoryServices;
     using FluentAssertions;
     using Xunit;
@@ -45,7 +46,7 @@ namespace Abioc
 
             Context = registrationContext
                 .Register(typeof(DependentService))
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         protected CompilationContext<DefaultContructionContext> Context { get; }
@@ -80,8 +81,8 @@ namespace Abioc
             Func<DefaultContructionContext, Service2> expected2 = Service2.CreateService2;
 
             // Act/Assert
-            Context.SingleMappings[typeof(Service1)].Method.Should().BeSameAs(expected1.Method);
-            Context.SingleMappings[typeof(Service2)].Method.Should().BeSameAs(expected2.Method);
+            Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().BeSameAs(expected1.GetMethodInfo());
+            Context.SingleMappings[typeof(Service2)].GetMethodInfo().Should().BeSameAs(expected2.GetMethodInfo());
         }
     }
 
@@ -102,8 +103,8 @@ namespace Abioc
             Func<DefaultContructionContext, Service2> notExpected2 = Service2.CreateService2;
 
             // Act/Assert
-            Context.SingleMappings[typeof(Service1)].Method.Should().NotBeSameAs(notExpected1.Method);
-            Context.SingleMappings[typeof(Service2)].Method.Should().NotBeSameAs(notExpected2.Method);
+            Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().NotBeSameAs(notExpected1.GetMethodInfo());
+            Context.SingleMappings[typeof(Service2)].GetMethodInfo().Should().NotBeSameAs(notExpected2.GetMethodInfo());
         }
     }
 
@@ -123,7 +124,7 @@ namespace Abioc
             Func<DefaultContructionContext, Service1> expected = Service1.CreateService1;
 
             // Act/Assert
-            Context.SingleMappings[typeof(Service1)].Method.Should().BeSameAs(expected.Method);
+            Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().BeSameAs(expected.GetMethodInfo());
         }
 
         [Fact]
@@ -133,7 +134,7 @@ namespace Abioc
             Func<DefaultContructionContext, Service2> notExpected = Service2.CreateService2;
 
             // Act/Assert
-            Context.SingleMappings[typeof(Service2)].Method.Should().NotBeSameAs(notExpected.Method);
+            Context.SingleMappings[typeof(Service2)].GetMethodInfo().Should().NotBeSameAs(notExpected.GetMethodInfo());
         }
     }
 }

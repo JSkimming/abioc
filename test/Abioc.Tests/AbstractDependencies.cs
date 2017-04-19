@@ -6,6 +6,7 @@ namespace Abioc
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using Abioc.AbstractDependencies;
     using FluentAssertions;
     using Xunit;
@@ -93,7 +94,7 @@ namespace Abioc
                 .Register<ClassWithInterfaceDependencies>()
                 .Register<ClassWithAbstractBaseClassDependencies>()
                 .Register<ClassWithMixedDependencies>()
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]
@@ -171,7 +172,7 @@ namespace Abioc
                 .Register<ClassWithInterfaceDependencies>()
                 .Register<ClassWithAbstractBaseClassDependencies>()
                 .Register<ClassWithMixedDependencies>()
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]

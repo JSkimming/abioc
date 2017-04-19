@@ -435,7 +435,7 @@ private static {0} Create_{1}(
                 optimizationLevel: OptimizationLevel.Release);
 
             // Create a compilation for the syntax tree
-            var compilation = CSharpCompilation.Create("mylib.dll")
+            var compilation = CSharpCompilation.Create($"{Guid.NewGuid():N}.dll")
                 .WithOptions(options)
                 .AddReferences(MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location))
                 .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location))

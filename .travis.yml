@@ -1,0 +1,11 @@
+dist: trusty
+language: csharp
+mono: none
+dotnet: 1.0.1
+branches:
+  only:
+  - master
+install:
+  - dotnet restore abioc.core.sln
+script:
+  - dotnet test -f netcoreapp1.1 test/Abioc.Tests/Abioc.TestsCore.csproj
