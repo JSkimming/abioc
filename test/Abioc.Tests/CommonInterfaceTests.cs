@@ -6,6 +6,7 @@ namespace Abioc
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using FluentAssertions;
     using Xunit;
 
@@ -18,7 +19,7 @@ namespace Abioc
             _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<ISimpleInterface, SimpleClass1WithoutDependencies>()
                 .Register<ISimpleInterface, SimpleClass2WithoutDependencies>()
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]
@@ -68,7 +69,7 @@ namespace Abioc
                 .Register(c => _expected2)
                 .Register<ISimpleInterface, SimpleClass1WithoutDependencies>()
                 .Register<ISimpleInterface, SimpleClass2WithoutDependencies>()
-                .Compile(GetType().Assembly);
+                .Compile(GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]
