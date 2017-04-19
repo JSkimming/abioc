@@ -45,7 +45,7 @@ assembly_info:
 #---------------------------------#
 
 before_build:
-  - NuGet restore
+  - NuGet restore abioc.sln
 
 build:
   project: abioc.sln
