@@ -7,49 +7,42 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Abioc.FactoryServices;
+    using Abioc.RequireConstructionContext;
     using FluentAssertions;
     using Xunit;
 
-    namespace FactoryServices
+    namespace RequireConstructionContext
     {
-        public interface IService3
-        {
-        }
-
         public class Service1
         {
-            internal static Service1 CreateService1(DefaultContructionContext unused) => new Service1();
+            internal static Service1 CreateService1NoContext() => new Service1();
+
+            internal static Service1 CreateService1WithContext(DefaultContructionContext unused) => new Service1();
         }
 
         public class Service2
         {
-            internal static Service2 CreateService2(DefaultContructionContext unused) => new Service2();
-        }
+            internal static Service2 CreateService2NoContext() => new Service2();
 
-        public class Service3 : IService3
-        {
-            internal static Service3 CreateService3(DefaultContructionContext unused) => new Service3();
+            internal static Service2 CreateService2WithContext(DefaultContructionContext unused) => new Service2();
         }
 
         public class DependentService
         {
-            public DependentService(Service1 service1, Service2 service2, IService3 service3)
+            public DependentService(Service1 service1, Service2 service2)
             {
                 Service1 = service1 ?? throw new ArgumentNullException(nameof(service1));
                 Service2 = service2 ?? throw new ArgumentNullException(nameof(service2));
-                Service3 = service3 ?? throw new ArgumentNullException(nameof(service3));
             }
 
             public Service1 Service1 { get; }
             public Service2 Service2 { get; }
-            public IService3 Service3 { get; }
         }
     }
 
-    public abstract class WeakOrStrongFactoryServicesTestsBase
+    public abstract class RequireConstructionContextTestsBase
     {
-        protected WeakOrStrongFactoryServicesTestsBase(
+        protected RequireConstructionContextTestsBase(
             RegistrationContext<DefaultContructionContext> registrationContext)
         {
             if (registrationContext == null)
@@ -72,7 +65,6 @@ namespace Abioc
             actual.Should().NotBeNull();
             actual.Service1.Should().NotBeNull();
             actual.Service2.Should().NotBeNull();
-            actual.Service3.Should().NotBeNull();
         }
 
         [Fact]
@@ -94,25 +86,14 @@ namespace Abioc
             // Assert
             actual.Should().NotBeNull();
         }
-
-        [Fact]
-        public void ItShouldCreateTheThirdFactoredService()
-        {
-            // Act
-            IService3 actual = Context.GetService<IService3>();
-
-            // Assert
-            actual.Should().NotBeNull();
-        }
     }
 
-    public class WhenRegisteringStronglyTypedFactoryServices : WeakOrStrongFactoryServicesTestsBase
+    public class WhenRegisteringFactoriesThatRequireAConstructionContext : RequireConstructionContextTestsBase
     {
-        public WhenRegisteringStronglyTypedFactoryServices()
+        public WhenRegisteringFactoriesThatRequireAConstructionContext()
             : base(new RegistrationContext<DefaultContructionContext>()
-                .Register(Service1.CreateService1)
-                .Register(Service2.CreateService2)
-                .Register<IService3, Service3>(Service3.CreateService3))
+                .Register(Service1.CreateService1WithContext)
+                .Register(typeof(Service2), Service2.CreateService2WithContext))
         {
         }
 
@@ -120,49 +101,42 @@ namespace Abioc
         public void ItShouldUseTheStronglyTypedFactoriesDirectly()
         {
             // Arrange
-            Func<DefaultContructionContext, Service1> expected1 = Service1.CreateService1;
-            Func<DefaultContructionContext, Service2> expected2 = Service2.CreateService2;
-            Func<DefaultContructionContext, Service3> expected3 = Service3.CreateService3;
+            Func<DefaultContructionContext, Service1> expected1 = Service1.CreateService1WithContext;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().BeSameAs(expected1.GetMethodInfo());
-            Context.SingleMappings[typeof(Service2)].GetMethodInfo().Should().BeSameAs(expected2.GetMethodInfo());
-            Context.SingleMappings[typeof(IService3)].GetMethodInfo().Should().BeSameAs(expected3.GetMethodInfo());
         }
     }
 
-    public class WhenRegisteringWeaklyTypedFactoryServices : WeakOrStrongFactoryServicesTestsBase
+    public class WhenRegisteringFactoriesThatDoNotRequireAConstructionContext : RequireConstructionContextTestsBase
     {
-        public WhenRegisteringWeaklyTypedFactoryServices()
+        public WhenRegisteringFactoriesThatDoNotRequireAConstructionContext()
             : base(new RegistrationContext<DefaultContructionContext>()
-                .Register(typeof(Service1), Service1.CreateService1)
-                .Register(typeof(Service2), Service2.CreateService2)
-                .Register(typeof(IService3), typeof(Service3), Service3.CreateService3))
+                .Register(Service1.CreateService1NoContext)
+                .Register(typeof(Service2), Service2.CreateService2NoContext))
         {
         }
 
         [Fact]
-        public void ItShouldWrapTheWeaklyTypedFactories()
+        public void ItShouldWrapTheFactoriesToTakeAConstructionContext()
         {
             // Arrange
-            Func<DefaultContructionContext, Service1> notExpected1 = Service1.CreateService1;
-            Func<DefaultContructionContext, Service2> notExpected2 = Service2.CreateService2;
-            Func<DefaultContructionContext, Service3> notExpected3 = Service3.CreateService3;
+            Func<DefaultContructionContext, Service1> notExpected1 = Service1.CreateService1WithContext;
+            Func<DefaultContructionContext, Service2> notExpected2 = Service2.CreateService2WithContext;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().NotBeSameAs(notExpected1.GetMethodInfo());
             Context.SingleMappings[typeof(Service2)].GetMethodInfo().Should().NotBeSameAs(notExpected2.GetMethodInfo());
-            Context.SingleMappings[typeof(IService3)].GetMethodInfo().Should().NotBeSameAs(notExpected3.GetMethodInfo());
         }
     }
 
-    public class WhenRegisteringMixedTypedFactoryServices : WeakOrStrongFactoryServicesTestsBase
+    public class WhenRegisteringMixedFactoriesWithSomeRequiringAConstructionContext
+        : RequireConstructionContextTestsBase
     {
-        public WhenRegisteringMixedTypedFactoryServices()
+        public WhenRegisteringMixedFactoriesWithSomeRequiringAConstructionContext()
             : base(new RegistrationContext<DefaultContructionContext>()
-                .Register(Service1.CreateService1)
-                .Register(typeof(Service2), Service2.CreateService2)
-                .Register<IService3>(Service3.CreateService3))
+                .Register(Service1.CreateService1WithContext)
+                .Register(Service2.CreateService2NoContext))
         {
         }
 
@@ -170,7 +144,7 @@ namespace Abioc
         public void ItShouldUseTheStronglyTypedFactoriesDirectly()
         {
             // Arrange
-            Func<DefaultContructionContext, Service1> expected = Service1.CreateService1;
+            Func<DefaultContructionContext, Service1> expected = Service1.CreateService1WithContext;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().BeSameAs(expected.GetMethodInfo());
@@ -180,7 +154,7 @@ namespace Abioc
         public void ItShouldWrapTheWeaklyTypedFactories()
         {
             // Arrange
-            Func<DefaultContructionContext, Service2> notExpected = Service2.CreateService2;
+            Func<Service2> notExpected = Service2.CreateService2NoContext;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service2)].GetMethodInfo().Should().NotBeSameAs(notExpected.GetMethodInfo());

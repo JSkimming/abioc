@@ -99,6 +99,7 @@
     <Compile Include="FactoryServicesTests.cs" />
     <Compile Include="NestedClassTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RequireConstructionContextTests.cs" />
     <Compile Include="RequiresArgNullEx.cs" />
     <Compile Include="RequiresArgNullExAutoMoqAttribute.cs" />
     <Compile Include="SingleClassTests.cs" />
