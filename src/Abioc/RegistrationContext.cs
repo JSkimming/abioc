@@ -18,8 +18,8 @@ namespace Abioc
         /// <summary>
         /// Gets the context.
         /// </summary>
-        public Dictionary<Type, List<RegistrationEntry<TContructionContext>>> Context { get; }
-            = new Dictionary<Type, List<RegistrationEntry<TContructionContext>>>(32);
+        internal Dictionary<Type, List<RegistrationEntry>> Context { get; }
+            = new Dictionary<Type, List<RegistrationEntry>>(32);
 
         /// <summary>
         /// Registers an <paramref name="entry"/> for generation with the registration context.
@@ -27,23 +27,21 @@ namespace Abioc
         /// <param name="serviceType">
         /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
         /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
-        /// <paramref name="entry"/>.<see cref="RegistrationEntry{TContructionContext}.ImplementationType"/>
+        /// <paramref name="entry"/>.<see cref="RegistrationEntry.ImplementationType"/>
         /// </param>
         /// <param name="entry">The entry to be registered.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public RegistrationContext<TContructionContext> Register(
-            Type serviceType,
-            RegistrationEntry<TContructionContext> entry)
+        internal RegistrationContext<TContructionContext> Register(Type serviceType, RegistrationEntry entry)
         {
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
             if (entry == null)
                 throw new ArgumentNullException(nameof(entry));
 
-            List<RegistrationEntry<TContructionContext>> factories;
+            List<RegistrationEntry> factories;
             if (!Context.TryGetValue(serviceType, out factories))
             {
-                factories = new List<RegistrationEntry<TContructionContext>>(1);
+                factories = new List<RegistrationEntry>(1);
                 Context[serviceType] = factories;
             }
 

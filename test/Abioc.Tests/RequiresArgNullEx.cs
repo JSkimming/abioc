@@ -16,7 +16,6 @@ namespace Abioc
         [Theory, RequiresArgNullExAutoMoq(typeof(IoCCompiler))]
         [Substitute(typeof(CompilationContext<>), typeof(CompilationContext<DefaultContructionContext>))]
         [Substitute(typeof(RegistrationContext<>), typeof(RegistrationContext<DefaultContructionContext>))]
-        [Substitute(typeof(RegistrationEntry<>), typeof(RegistrationEntry<DefaultContructionContext>))]
         public Task Abioc(MethodData method)
         {
             return method.Execute();

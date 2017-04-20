@@ -64,7 +64,7 @@ namespace Abioc
             string contructionContext = typeof(TContructionContext).ToCompileName();
 
             // Start with all the implementations where there is a factory method.
-            IReadOnlyList<RegistrationEntry<TContructionContext>> factoredTypes =
+            IReadOnlyList<RegistrationEntry> factoredTypes =
                 registration.Context.Values
                     .SelectMany(entries => entries)
                     .Where(entry => entry.Factory != null)
@@ -81,7 +81,7 @@ namespace Abioc
             }
 
             // Now generate all the Create methods.
-            IReadOnlyList<RegistrationEntry<TContructionContext>> createdTypes =
+            IReadOnlyList<RegistrationEntry> createdTypes =
                 registration.Context.Values
                     .SelectMany(entries => entries)
                     .Where(entry => entry.Factory == null)
@@ -93,7 +93,7 @@ namespace Abioc
 
             IEnumerable<string> createMethods = GetCreateMethods(
                 registration,
-                createdTypes.Where(entry => !entry.Typedfactory),
+                createdTypes.Where(entry => !entry.TypedFactory),
                 contructionContext);
             compilationContext.CreateMethods.AddRange(createMethods);
 
@@ -160,10 +160,9 @@ namespace Abioc
             return name;
         }
 
-        private static IEnumerable<(string field, string initializer)> GetFactoryInitialisers<TContructionContext>(
-            IEnumerable<RegistrationEntry<TContructionContext>> factoredEntries,
+        private static IEnumerable<(string field, string initializer)> GetFactoryInitialisers(
+            IEnumerable<RegistrationEntry> factoredEntries,
             string contructionContext)
-            where TContructionContext : IContructionContext
         {
             if (factoredEntries == null)
                 throw new ArgumentNullException(nameof(factoredEntries));
@@ -171,16 +170,16 @@ namespace Abioc
                 throw new ArgumentNullException(nameof(contructionContext));
 
             int index = 0;
-            foreach (RegistrationEntry<TContructionContext> entry in factoredEntries)
+            foreach (RegistrationEntry entry in factoredEntries)
             {
-                if (entry.Typedfactory)
+                if (entry.TypedFactory)
                 {
                     string createFuncFieldName = "Create_" + entry.ImplementationType.ToCompileMethodName();
                     string createReturnType = entry.ImplementationType.ToCompileName();
                     string createFuncFieldType = $"System.Func<{contructionContext}, {createReturnType}>";
 
                     string createField = $"private static {createFuncFieldType} {createFuncFieldName};";
-                    string createInitializer = $"{createFuncFieldName} = ({createFuncFieldType}) facs[{index++}];";
+                    string createInitializer = $"{createFuncFieldName} = ({createFuncFieldType})facs[{index++}];";
                     yield return (createField, createInitializer);
                 }
                 else
@@ -190,7 +189,7 @@ namespace Abioc
                     string factoryFuncFieldType = $"System.Func<{contructionContext}, {factoryReturnType}>";
 
                     string factoryField = $"private static {factoryFuncFieldType} {factoryFunFieldName};";
-                    string factoryInitializer = $"{factoryFunFieldName} = facs[{index++}];";
+                    string factoryInitializer = $"{factoryFunFieldName} = ({factoryFuncFieldType})facs[{index++}];";
                     yield return (factoryField, factoryInitializer);
                 }
             }
@@ -198,7 +197,7 @@ namespace Abioc
 
         private static IEnumerable<string> GetCreateMethods<TContructionContext>(
             RegistrationContext<TContructionContext> registration,
-            IEnumerable<RegistrationEntry<TContructionContext>> createdTypes,
+            IEnumerable<RegistrationEntry> createdTypes,
             string contructionContext)
             where TContructionContext : IContructionContext
         {
@@ -209,7 +208,7 @@ namespace Abioc
             if (contructionContext == null)
                 throw new ArgumentNullException(nameof(contructionContext));
 
-            foreach (RegistrationEntry<TContructionContext> createdType in createdTypes)
+            foreach (RegistrationEntry createdType in createdTypes)
             {
                 string method = createdType.Factory != null
                     ? GenerateCreateFromWeaklyTypedFactoryMethod(createdType.ImplementationType, contructionContext)
@@ -356,7 +355,7 @@ private static {0} Create_{1}(
     {
 ");
 
-            GenerateFactoryInitialisers(builder, compilationContext, contructionContext);
+            GenerateFactoryInitialisers(builder, compilationContext);
             foreach (string cretaeMethod in compilationContext.CreateMethods)
             {
                 builder.AppendLine(cretaeMethod.Replace("\r\n", "\r\n        "));
@@ -374,15 +373,12 @@ private static {0} Create_{1}(
 
         private static void GenerateFactoryInitialisers(
             StringBuilder builder,
-            CompilationContext compilationContext,
-            string contructionContext)
+            CompilationContext compilationContext)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
             if (compilationContext == null)
                 throw new ArgumentNullException(nameof(compilationContext));
-            if (contructionContext == null)
-                throw new ArgumentNullException(nameof(contructionContext));
 
             if (compilationContext.FactorFunctionFields.Count <= 0)
                 return;
@@ -393,13 +389,13 @@ private static {0} Create_{1}(
 
             builder.Append(string.Join(Environment.NewLine, fields));
 
-            builder.AppendFormat(
+            builder.Append(
                 @"
 
         private static void InitialiseFactoryFunctions(
-            System.Collections.Generic.IReadOnlyList<System.Func<{0}, object>> facs)
-        {{
-", contructionContext);
+            System.Collections.Generic.IReadOnlyList<object> facs)
+        {
+");
 
             builder.Append(string.Join(Environment.NewLine, initializers));
 
