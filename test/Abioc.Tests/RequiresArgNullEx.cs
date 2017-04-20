@@ -14,8 +14,8 @@ namespace Abioc
     public class RequiresArgNullEx
     {
         [Theory, RequiresArgNullExAutoMoq(typeof(IoCCompiler))]
-        [Exclude(Type = typeof(RegistrationContextExtensionsGeneric))]
         [Substitute(typeof(CompilationContext<>), typeof(CompilationContext<DefaultContructionContext>))]
+        [Substitute(typeof(RegistrationContext<>), typeof(RegistrationContext<DefaultContructionContext>))]
         [Substitute(typeof(RegistrationEntry<>), typeof(RegistrationEntry<DefaultContructionContext>))]
         public Task Abioc(MethodData method)
         {
