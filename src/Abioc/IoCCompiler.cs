@@ -33,7 +33,7 @@ namespace Abioc
             Assembly srcAssembly)
             where TContructionContext : IContructionContext
         {
-            Assembly assembly = InternalCompile(registration, srcAssembly);
+            Assembly assembly = InternalCompile<TContructionContext>(registration, srcAssembly);
             Type type = assembly.GetType("I_ɸ_C.IoC_ɸ_Contruction");
 
             MethodInfo getCreateMapMethod =
@@ -51,7 +51,7 @@ namespace Abioc
         }
 
         private static Assembly InternalCompile<TContructionContext>(
-            this RegistrationContext<TContructionContext> registration,
+            this RegistrationContextBase registration,
             Assembly srcAssembly)
             where TContructionContext : IContructionContext
         {
@@ -201,11 +201,10 @@ namespace Abioc
             }
         }
 
-        private static IEnumerable<string> GetCreateMethods<TContructionContext>(
-            RegistrationContext<TContructionContext> registration,
+        private static IEnumerable<string> GetCreateMethods(
+            RegistrationContextBase registration,
             IEnumerable<RegistrationEntry> createdTypes,
             string contructionContext)
-            where TContructionContext : IContructionContext
         {
             if (registration == null)
                 throw new ArgumentNullException(nameof(registration));
@@ -311,11 +310,10 @@ private static System.Collections.Generic.Dictionary<System.Type, System.Func<{0
             return method;
         }
 
-        private static string GenerateCreateNewMethod<TContructionContext>(
-            RegistrationContext<TContructionContext> registration,
+        private static string GenerateCreateNewMethod(
+            RegistrationContextBase registration,
             Type typeToCreate,
             string contructionContext)
-            where TContructionContext : IContructionContext
         {
             if (registration == null)
                 throw new ArgumentNullException(nameof(registration));

@@ -12,15 +12,9 @@ namespace Abioc
     /// The context to maintain the meta-data for an IoC context.
     /// </summary>
     /// <typeparam name="TContructionContext">The type of the context used during service resolution.</typeparam>
-    public class RegistrationContext<TContructionContext>
+    public class RegistrationContext<TContructionContext> : RegistrationContextBase
         where TContructionContext : IContructionContext
     {
-        /// <summary>
-        /// Gets the context.
-        /// </summary>
-        internal Dictionary<Type, List<RegistrationEntry>> Context { get; }
-            = new Dictionary<Type, List<RegistrationEntry>>(32);
-
         /// <summary>
         /// Registers an <paramref name="entry"/> for generation with the registration context.
         /// </summary>
