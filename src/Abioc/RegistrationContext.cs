@@ -71,13 +71,15 @@ namespace Abioc
         public RegistrationContext<TContructionContext> Register(
             Type serviceType,
             Type implementationType,
-            Func<TContructionContext, object> factory = null,
+            Func<TContructionContext, object> factory,
             bool typedfactory = false)
         {
             if (implementationType == null)
                 throw new ArgumentNullException(nameof(implementationType));
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
 
             return Register(serviceType, RegistrationEntry.Create(implementationType, factory, typedfactory));
         }
@@ -86,6 +88,11 @@ namespace Abioc
         /// Registers an <paramref name="implementationType"/> for generation with an optional
         /// <paramref name="factory"/> provider.
         /// </summary>
+        /// <param name="serviceType">
+        /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <paramref name="implementationType"/>.
+        /// </param>
         /// <param name="implementationType">The type of the implemented service.</param>
         /// <param name="factory">
         /// The factory function that produces services of type <paramref name="implementationType"/>. If not specified
@@ -96,11 +103,19 @@ namespace Abioc
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationContext<TContructionContext> Register(
+            Type serviceType,
             Type implementationType,
-            Func<TContructionContext, object> factory = null,
+            Func<object> factory = null,
             bool typedfactory = false)
         {
-            return Register(implementationType, implementationType, factory, typedfactory);
+            if (implementationType == null)
+                throw new ArgumentNullException(nameof(implementationType));
+            if (serviceType == null)
+                throw new ArgumentNullException(nameof(serviceType));
+
+            return Register(
+                serviceType,
+                RegistrationEntry.Create(implementationType, factory, typedfactory && factory != null));
         }
 
         /// <summary>
@@ -119,7 +134,33 @@ namespace Abioc
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationContext<TContructionContext> Register<TService, TImplementation>(
-            Func<TContructionContext, TImplementation> factory = null)
+            Func<TContructionContext, TImplementation> factory)
+            where TImplementation : class, TService
+        {
+            return Register(
+                typeof(TService),
+                typeof(TImplementation),
+                factory,
+                typedfactory: true);
+        }
+
+        /// <summary>
+        /// Registers an <typeparamref name="TImplementation"/> for generation with an optional
+        /// <paramref name="factory"/> provider.
+        /// </summary>
+        /// <typeparam name="TService">
+        /// The type of the service to by satisfied during registration. The <typeparamref name="TService"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <typeparamref name="TImplementation"/>.
+        /// </typeparam>
+        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="factory">
+        /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
+        /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
+        /// </param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationContext<TContructionContext> Register<TService, TImplementation>(
+            Func<TImplementation> factory = null)
             where TImplementation : class, TService
         {
             return Register(
@@ -127,6 +168,48 @@ namespace Abioc
                 typeof(TImplementation),
                 factory,
                 typedfactory: factory != null);
+        }
+
+        /// <summary>
+        /// Registers an <paramref name="implementationType"/> for generation with an optional
+        /// <paramref name="factory"/> provider.
+        /// </summary>
+        /// <param name="implementationType">The type of the implemented service.</param>
+        /// <param name="factory">
+        /// The factory function that produces services of type <paramref name="implementationType"/>. If not specified
+        /// the an instance of <paramref name="implementationType"/> will be automatically generated.
+        /// </param>
+        /// <param name="typedfactory">
+        /// A value indicating whether the <paramref name="factory"/> is strongly typed.
+        /// </param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationContext<TContructionContext> Register(
+            Type implementationType,
+            Func<TContructionContext, object> factory,
+            bool typedfactory = false)
+        {
+            return Register(implementationType, implementationType, factory, typedfactory);
+        }
+
+        /// <summary>
+        /// Registers an <paramref name="implementationType"/> for generation with an optional
+        /// <paramref name="factory"/> provider.
+        /// </summary>
+        /// <param name="implementationType">The type of the implemented service.</param>
+        /// <param name="factory">
+        /// The factory function that produces services of type <paramref name="implementationType"/>. If not specified
+        /// the an instance of <paramref name="implementationType"/> will be automatically generated.
+        /// </param>
+        /// <param name="typedfactory">
+        /// A value indicating whether the <paramref name="factory"/> is strongly typed.
+        /// </param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationContext<TContructionContext> Register(
+            Type implementationType,
+            Func<object> factory = null,
+            bool typedfactory = false)
+        {
+            return Register(implementationType, implementationType, factory, typedfactory);
         }
 
         /// <summary>
@@ -140,7 +223,24 @@ namespace Abioc
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationContext<TContructionContext> Register<TImplementation>(
-            Func<TContructionContext, TImplementation> factory = null)
+            Func<TContructionContext, TImplementation> factory)
+            where TImplementation : class
+        {
+            return Register(typeof(TImplementation), factory, typedfactory: true);
+        }
+
+        /// <summary>
+        /// Registers an <typeparamref name="TImplementation"/> for generation with an optional
+        /// <paramref name="factory"/> provider.
+        /// </summary>
+        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="factory">
+        /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
+        /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
+        /// </param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationContext<TContructionContext> Register<TImplementation>(
+            Func<TImplementation> factory = null)
             where TImplementation : class
         {
             return Register(typeof(TImplementation), factory, typedfactory: factory != null);
