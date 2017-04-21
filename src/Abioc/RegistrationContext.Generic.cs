@@ -16,35 +16,6 @@ namespace Abioc
         where TContructionContext : IContructionContext
     {
         /// <summary>
-        /// Registers an <paramref name="entry"/> for generation with the registration context.
-        /// </summary>
-        /// <param name="serviceType">
-        /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
-        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
-        /// <paramref name="entry"/>.<see cref="RegistrationEntry.ImplementationType"/>
-        /// </param>
-        /// <param name="entry">The entry to be registered.</param>
-        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        internal RegistrationContext<TContructionContext> Register(Type serviceType, RegistrationEntry entry)
-        {
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
-            if (entry == null)
-                throw new ArgumentNullException(nameof(entry));
-
-            List<RegistrationEntry> factories;
-            if (!Context.TryGetValue(serviceType, out factories))
-            {
-                factories = new List<RegistrationEntry>(1);
-                Context[serviceType] = factories;
-            }
-
-            factories.Add(entry);
-
-            return this;
-        }
-
-        /// <summary>
         /// Registers an <paramref name="implementationType"/> for generation with an optional
         /// <paramref name="factory"/> provider.
         /// </summary>
@@ -238,6 +209,35 @@ namespace Abioc
             where TImplementation : class
         {
             return Register(typeof(TImplementation), factory, typedfactory: factory != null);
+        }
+
+        /// <summary>
+        /// Registers an <paramref name="entry"/> for generation with the registration context.
+        /// </summary>
+        /// <param name="serviceType">
+        /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <paramref name="entry"/>.<see cref="RegistrationEntry.ImplementationType"/>
+        /// </param>
+        /// <param name="entry">The entry to be registered.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        internal RegistrationContext<TContructionContext> Register(Type serviceType, RegistrationEntry entry)
+        {
+            if (serviceType == null)
+                throw new ArgumentNullException(nameof(serviceType));
+            if (entry == null)
+                throw new ArgumentNullException(nameof(entry));
+
+            List<RegistrationEntry> factories;
+            if (!Context.TryGetValue(serviceType, out factories))
+            {
+                factories = new List<RegistrationEntry>(1);
+                Context[serviceType] = factories;
+            }
+
+            factories.Add(entry);
+
+            return this;
         }
     }
 }

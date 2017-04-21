@@ -272,7 +272,8 @@ private static System.Collections.Generic.Dictionary<System.Type, System.Func<{0
 
             string methodSignature =
                 typeToCreate.FactoryRequiresContext
-                    ? string.Format(@"private static {0} Create_{1}(
+                    ? string.Format(
+                        @"private static {0} Create_{1}(
     {2} context)",
                         factoredType,
                         compileMethodName,
