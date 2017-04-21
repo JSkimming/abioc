@@ -7,6 +7,7 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Abioc.Registration;
     using AutoTest.ArgNullEx;
     using AutoTest.ArgNullEx.Xunit;
     using Xunit;
@@ -23,7 +24,12 @@ namespace Abioc
 
         [Theory, RequiresArgNullExAutoMoq(typeof(IoCCompiler))]
         [Substitute(typeof(CompilationContext<>), typeof(CompilationContext<DefaultContructionContext>))]
+        [Substitute(typeof(ContructionContext<>), typeof(ContructionContext<int>))]
+        [Substitute(typeof(FactoryRegistration<>), typeof(FactoryRegistration<object>))]
         [Substitute(typeof(RegistrationContext<>), typeof(RegistrationContext<DefaultContructionContext>))]
+        [Substitute(typeof(RegistrationSetupBase<>), typeof(RegistrationSetupBase<RegistrationSetup>))]
+        [Substitute(typeof(TypedFactoryRegistration<>), typeof(TypedFactoryRegistration<object>))]
+        [Substitute(typeof(TypedFactoryRegistration<,>), typeof(TypedFactoryRegistration<object, object>))]
         public Task Abioc(MethodData method)
         {
             // Work around the problem with generic parameters
