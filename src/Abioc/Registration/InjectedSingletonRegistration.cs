@@ -11,7 +11,7 @@ namespace Abioc.Registration
     /// <summary>
     /// A <see cref="IRegistration"/> entry that produces the code to use a injected constant value.
     /// </summary>
-    /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/></typeparam>
+    /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class InjectedSingletonRegistration<TImplementation> : IRegistration
     {

@@ -15,7 +15,7 @@ namespace Abioc.Registration
     /// <typeparam name="TExtra">
     /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
-    /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/></typeparam>
+    /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TypedFactoryRegistration<TExtra, TImplementation> : IRegistration
     {

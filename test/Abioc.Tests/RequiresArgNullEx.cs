@@ -23,11 +23,23 @@ namespace Abioc
         }
 
         [Theory, RequiresArgNullExAutoMoq(typeof(IoCCompiler))]
+        [Exclude(
+            Type = typeof(InjectedSingletonRegistrationCompositionExtension),
+            Method = "UseFixed",
+            Parameter = "value")]
+        [Exclude(
+            Type = typeof(RegistrationSetupBase<RegistrationSetup>),
+            Method = "RegisterFixed",
+            Parameter = "value")]
         [Substitute(typeof(CompilationContext<>), typeof(CompilationContext<DefaultContructionContext>))]
         [Substitute(typeof(ContructionContext<>), typeof(ContructionContext<int>))]
         [Substitute(typeof(FactoryRegistration<>), typeof(FactoryRegistration<object>))]
+        [Substitute(typeof(InjectedSingletonRegistration<>), typeof(InjectedSingletonRegistration<int>))]
+        [Substitute(typeof(RegistrationComposer<>), typeof(RegistrationComposer<int>))]
+        [Substitute(typeof(RegistrationComposer<,>), typeof(RegistrationComposer<int, int>))]
         [Substitute(typeof(RegistrationContext<>), typeof(RegistrationContext<DefaultContructionContext>))]
         [Substitute(typeof(RegistrationSetupBase<>), typeof(RegistrationSetupBase<RegistrationSetup>))]
+        [Substitute(typeof(RegistrationSetup<>), typeof(RegistrationSetup<int>))]
         [Substitute(typeof(TypedFactoryRegistration<>), typeof(TypedFactoryRegistration<object>))]
         [Substitute(typeof(TypedFactoryRegistration<,>), typeof(TypedFactoryRegistration<object, object>))]
         public Task Abioc(MethodData method)

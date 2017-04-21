@@ -12,7 +12,7 @@ namespace Abioc.Registration
     /// A <see cref="IRegistration"/> entry that produces the code to provided services of type
     /// <typeparamref name="TImplementation"/> through a factory function.
     /// </summary>
-    /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/></typeparam>
+    /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TypedFactoryRegistration<TImplementation> : IRegistration
     {
