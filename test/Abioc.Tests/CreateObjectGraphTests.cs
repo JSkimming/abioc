@@ -7,6 +7,8 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Abioc.Composition;
+    using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
 
@@ -23,6 +25,15 @@ namespace Abioc
                 .Register<Example.Ns2.MyClass1>()
                 .Register<Example.Ns2.MyClass2>()
                 .Compile(GetType().GetTypeInfo().Assembly);
+
+            CompositionContext compositionContext =
+                new RegistrationSetup()
+                    .Register<Example.Ns1.MyClass1>()
+                    .Register<Example.Ns1.MyClass2>()
+                    .Register<Example.Ns1.MyClass3>()
+                    .Register<Example.Ns2.MyClass1>()
+                    .Register<Example.Ns2.MyClass2>()
+                    .Compose();
         }
 
         [Fact]

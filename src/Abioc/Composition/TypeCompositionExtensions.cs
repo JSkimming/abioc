@@ -1,0 +1,46 @@
+﻿// Copyright (c) 2017 James Skimming. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+namespace Abioc.Composition
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+
+    /// <summary>
+    /// <see cref="Type"/> extensions helper methods.
+    /// </summary>
+    internal static class TypeCompositionExtensions
+    {
+        /// <summary>
+        /// Gets the full name of a <paramref name="type"/> that is compilable as part of a method name, e.g. namespace
+        /// and nested class delimiters <c>'.'</c> and <c>'+'</c> are replaced with valid characters for a method name.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> for which to return the compilable method name part.</param>
+        /// <returns>The full name of a <paramref name="type"/> that is compilable as part of a method name.</returns>
+        public static string ToCompileMethodName(this Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            string name = Regex.Replace(type.FullName, @"[\.\+]", "_");
+            return name;
+        }
+
+        /// <summary>
+        /// Gets the full name of a <paramref name="type"/> that is compilable, e.g. nested classes have a <c>'+'</c>
+        /// delimiter. This is replaced with a <c>'.'</c> to ensure compilation succeeds.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> for which to return the compilable name.</param>
+        /// <returns>The full name of a <paramref name="type"/> that is compilable.</returns>
+        public static string ToCompileName(this Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            string name = type.FullName.Replace('+', '.');
+            return name;
+        }
+    }
+}

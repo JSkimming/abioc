@@ -97,6 +97,7 @@
     <Compile Include="CreateObjectGraphTests.cs" />
     <Compile Include="ExampleServices.cs" />
     <Compile Include="FactoryServicesTests.cs" />
+    <Compile Include="Filter\NotDelegate.cs" />
     <Compile Include="NestedClassTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequireConstructionContextTests.cs" />

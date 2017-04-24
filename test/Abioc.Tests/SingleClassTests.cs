@@ -7,6 +7,8 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Abioc.Composition;
+    using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
 
@@ -19,6 +21,11 @@ namespace Abioc
             _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<SimpleClass1WithoutDependencies>()
                 .Compile(GetType().GetTypeInfo().Assembly);
+
+            CompositionContext compositionContext =
+                new RegistrationSetup()
+                    .Register<SimpleClass1WithoutDependencies>()
+                    .Compose();
         }
 
         [Fact]
