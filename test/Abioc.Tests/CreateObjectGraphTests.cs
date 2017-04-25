@@ -7,6 +7,7 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Abioc.Compilation;
     using Abioc.Composition;
     using Abioc.Registration;
     using FluentAssertions;
@@ -15,35 +16,28 @@ namespace Abioc
 
     public class WhenCreatingAnObjectGraphOfClasses
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly AbiocContainer _container;
 
         public WhenCreatingAnObjectGraphOfClasses(ITestOutputHelper output)
         {
-            _context = new RegistrationContext<DefaultContructionContext>()
-                .Register<Example.Ns1.MyClass1>()
-                .Register<Example.Ns1.MyClass2>()
-                .Register<Example.Ns1.MyClass3>()
-                .Register<Example.Ns2.MyClass1>()
-                .Register<Example.Ns2.MyClass2>()
-                .Compile(GetType().GetTypeInfo().Assembly);
-
-            string code =
+            RegistrationSetup registration =
                 new RegistrationSetup()
                     .Register<Example.Ns1.MyClass1>()
                     .Register<Example.Ns1.MyClass2>()
                     .Register<Example.Ns1.MyClass3>()
                     .Register<Example.Ns2.MyClass1>()
-                    .Register<Example.Ns2.MyClass2>()
-                    .Compose()
-                    .GenerateCode();
+                    .Register<Example.Ns2.MyClass2>();
+
+            string code = registration.Compose().GenerateCode();
             output.WriteLine(code);
+            _container = CodeCompilation.Compile(registration, code, GetType().GetTypeInfo().Assembly);
         }
 
         [Fact]
         public void ItShouldCreateTheHeadClassWithDependencies()
         {
             // Act
-            Example.Ns1.MyClass3 actual = _context.GetService<Example.Ns1.MyClass3>();
+            Example.Ns1.MyClass3 actual = _container.GetService<Example.Ns1.MyClass3>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -60,7 +54,7 @@ namespace Abioc
         public void ItShouldCreateAnIntermediateClassWithDependencies()
         {
             // Act
-            Example.Ns2.MyClass2 actual = _context.GetService<Example.Ns2.MyClass2>();
+            Example.Ns2.MyClass2 actual = _container.GetService<Example.Ns2.MyClass2>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -72,7 +66,7 @@ namespace Abioc
         public void ItShouldCreateATailClass()
         {
             // Act
-            Example.Ns1.MyClass1 actual = _context.GetService<Example.Ns1.MyClass1>();
+            Example.Ns1.MyClass1 actual = _container.GetService<Example.Ns1.MyClass1>();
 
             // Assert
             actual.Should().NotBeNull();

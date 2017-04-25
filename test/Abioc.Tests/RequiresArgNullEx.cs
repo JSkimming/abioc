@@ -31,6 +31,7 @@ namespace Abioc
             Type = typeof(RegistrationSetupBase<RegistrationSetup>),
             Method = "RegisterFixed",
             Parameter = "value")]
+        [Substitute(typeof(AbiocContainer<>), typeof(AbiocContainer<int>))]
         [Substitute(typeof(CompilationContext<>), typeof(CompilationContext<DefaultContructionContext>))]
         [Substitute(typeof(ContructionContext<>), typeof(ContructionContext<int>))]
         [Substitute(typeof(FactoryRegistration<>), typeof(FactoryRegistration<object>))]
