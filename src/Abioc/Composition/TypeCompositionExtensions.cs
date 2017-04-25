@@ -6,6 +6,7 @@ namespace Abioc.Composition
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Text.RegularExpressions;
 
     /// <summary>
@@ -48,8 +49,22 @@ namespace Abioc.Composition
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            string name = type.FullName.Replace('+', '.');
-            return name;
+            TypeInfo typeInfo = type.GetTypeInfo();
+            if (!typeInfo.IsGenericType)
+            {
+                string name = type.FullName.Replace('+', '.');
+                return name;
+            }
+
+            Type genericType = typeInfo.GetGenericTypeDefinition();
+            int backTickIndex = genericType.FullName.LastIndexOf('`');
+            string genericName = genericType.FullName.Remove(backTickIndex).Replace('+', '.');
+
+            IEnumerable<string> genericArguments = typeInfo.GenericTypeArguments.Select(ToCompileName);
+
+            genericName = $"{genericName}<{string.Join(", ", genericArguments)}>";
+
+            return genericName;
         }
     }
 }
