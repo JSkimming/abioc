@@ -18,13 +18,22 @@ namespace Abioc.Composition
         /// and nested class delimiters <c>'.'</c> and <c>'+'</c> are replaced with valid characters for a method name.
         /// </summary>
         /// <param name="type">The <see cref="Type"/> for which to return the compilable method name part.</param>
+        /// <param name="simpleName">
+        /// <p>
+        /// If <see langword="true"/> simple method names should be produced; otherwise produce complex method names.
+        /// </p>
+        /// <p>
+        /// A simple method may potentially produce conflicts; though it will produce more readable code.
+        /// </p>
+        /// </param>
         /// <returns>The full name of a <paramref name="type"/> that is compilable as part of a method name.</returns>
-        public static string ToCompileMethodName(this Type type)
+        public static string ToCompileMethodName(this Type type, bool simpleName)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            string name = Regex.Replace(type.FullName, @"[\.\+]", "_");
+            string typeName = simpleName ? type.Name : type.FullName;
+            string name = Regex.Replace(typeName, @"[\.\+]", "_");
             return name;
         }
 

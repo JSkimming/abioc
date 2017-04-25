@@ -11,7 +11,8 @@ namespace Abioc.Composition
     using Abioc.Registration;
 
     /// <summary>
-    /// Composes a <see cref="RegistrationSetupBase{TDerived}"/>.
+    /// Composes a <see cref="RegistrationSetup"/> or <see cref="RegistrationSetup{T}"/> into a
+    /// <see cref="CompositionContext"/> for code generation.
     /// </summary>
     public static class RegistrationComposition
     {
@@ -28,7 +29,8 @@ namespace Abioc.Composition
             Dictionary<Type, List<IRegistrationVisitor>> visitors);
 
         /// <summary>
-        /// Composes the registration <paramref name="setup"/>.
+        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContext"/> for code
+        /// generation.
         /// </summary>
         /// <typeparam name="TExtra">
         /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
@@ -44,7 +46,8 @@ namespace Abioc.Composition
         }
 
         /// <summary>
-        /// Composes the registration <paramref name="setup"/>.
+        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContext"/> for code
+        /// generation.
         /// </summary>
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
         /// <returns>The <see cref="CompositionContext"/>.</returns>
@@ -67,7 +70,7 @@ namespace Abioc.Composition
 
             ProcessRegistrations(registrations, context);
 
-            // Get any registrations that have a cave not been composed, e.g. an interface mapped to a class.
+            // Get any registrations that have not been composed, e.g. an interface mapped to a class.
             // Only use single mappings (Count == 1), multiple mappings cannot be composed.
             IEnumerable<(Type type, IRegistration registration)> typeMappings =
                 from kvp in registrations
@@ -78,13 +81,6 @@ namespace Abioc.Composition
             foreach ((Type type, IRegistration registration) in typeMappings)
             {
                 context.Compositions[type] = context.Compositions[registration.ImplementationType];
-            }
-
-            foreach (var composition in context.Compositions.Values.Cast<ConstructorComposition>())
-            {
-                string expression = composition.GetInstanceExpression(context);
-                bool requiresContructionContext = composition.RequiresContructionContext(context);
-                string[] methods = composition.GetMethods(context).ToArray();
             }
 
             return context;

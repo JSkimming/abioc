@@ -11,12 +11,13 @@ namespace Abioc
     using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
+    using Xunit.Abstractions;
 
     public class WhenCreatingAnObjectGraphOfClasses
     {
         private readonly CompilationContext<DefaultContructionContext> _context;
 
-        public WhenCreatingAnObjectGraphOfClasses()
+        public WhenCreatingAnObjectGraphOfClasses(ITestOutputHelper output)
         {
             _context = new RegistrationContext<DefaultContructionContext>()
                 .Register<Example.Ns1.MyClass1>()
@@ -26,14 +27,16 @@ namespace Abioc
                 .Register<Example.Ns2.MyClass2>()
                 .Compile(GetType().GetTypeInfo().Assembly);
 
-            CompositionContext compositionContext =
+            string code =
                 new RegistrationSetup()
                     .Register<Example.Ns1.MyClass1>()
                     .Register<Example.Ns1.MyClass2>()
                     .Register<Example.Ns1.MyClass3>()
                     .Register<Example.Ns2.MyClass1>()
                     .Register<Example.Ns2.MyClass2>()
-                    .Compose();
+                    .Compose()
+                    .GenerateCode();
+            output.WriteLine(code);
         }
 
         [Fact]

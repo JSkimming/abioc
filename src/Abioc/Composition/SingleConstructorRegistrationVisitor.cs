@@ -38,6 +38,14 @@ namespace Abioc.Composition
                 throw new ArgumentNullException(nameof(registration));
 
             Type type = registration.ImplementationType;
+
+            // Since this is default registrations it can be superseded by other registrations. Therefore if there is
+            // already a registration for this type, don't replace it.
+            if (_context.Compositions.ContainsKey(type))
+            {
+                return;
+            }
+
             TypeInfo typeInfo = type.GetTypeInfo();
             ConstructorInfo[] constructors = typeInfo.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 

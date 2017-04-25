@@ -19,6 +19,12 @@ namespace Abioc.Composition
         public abstract string GetInstanceExpression(CompositionContext context);
 
         /// <inheritdoc />
+        public abstract string GetComposeMethodName(CompositionContext context, bool simpleName);
+
+        /// <inheritdoc />
+        public abstract IEnumerable<string> GetMethods(CompositionContext context, bool simpleName);
+
+        /// <inheritdoc />
         public virtual IEnumerable<(string code, object value)> GetFieldInitializations(CompositionContext context)
         {
             if (context == null)
@@ -29,15 +35,6 @@ namespace Abioc.Composition
 
         /// <inheritdoc />
         public virtual IEnumerable<string> GetFields(CompositionContext context)
-        {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-
-            return Enumerable.Empty<string>();
-        }
-
-        /// <inheritdoc />
-        public virtual IEnumerable<string> GetMethods(CompositionContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -78,27 +75,6 @@ namespace Abioc.Composition
                     throw new CompositionException($"There is no composition for the type: '{type}'.");
                 }
             }
-        }
-
-        /// <summary>
-        /// Indents the supplied <paramref name="code"/> to the specified <paramref name="depth"/>.
-        /// </summary>
-        /// <param name="code">The code to indent to the specified <paramref name="depth"/>.</param>
-        /// <param name="depth">The depth to indent the <paramref name="code"/>.</param>
-        /// <returns>The indented <paramref name="code"/>.</returns>
-        protected static string Indent(string code, int depth = 1)
-        {
-            if (code == null)
-                throw new ArgumentNullException(nameof(code));
-
-            string indentation = string.Empty;
-            for (int i = 0; i < depth; ++i)
-            {
-                indentation = indentation + "    ";
-            }
-
-            string newCode = code.Replace(Environment.NewLine, Environment.NewLine + indentation);
-            return newCode;
         }
     }
 }
