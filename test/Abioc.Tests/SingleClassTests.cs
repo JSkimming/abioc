@@ -7,7 +7,6 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Abioc.Composition;
     using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
@@ -106,27 +105,19 @@ namespace Abioc
         public override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>();
     }
 
-    public class WhenFactoringASimpleClassWithoutDependencies
+    public abstract class WhenFactoringASimpleClassWithoutDependenciesBase
     {
-        private readonly SimpleClass1WithoutDependencies _expected;
+        protected SimpleClass1WithoutDependencies _expected;
 
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        public abstract TService GetService<TService>();
 
-        public WhenFactoringASimpleClassWithoutDependencies()
-        {
-            // Arrange
-            _expected = new SimpleClass1WithoutDependencies();
-
-            _context = new RegistrationContext<DefaultContructionContext>()
-                .Register(c => _expected)
-                .Compile(GetType().GetTypeInfo().Assembly);
-        }
+        public abstract IEnumerable<TService> GetServices<TService>();
 
         [Fact]
         public void ItShouldCreateTheServiceUsingTheGivenFactory()
         {
             // Act
-            SimpleClass1WithoutDependencies actual = _context.GetService<SimpleClass1WithoutDependencies>();
+            SimpleClass1WithoutDependencies actual = GetService<SimpleClass1WithoutDependencies>();
 
             // Assert
             actual
@@ -140,7 +131,7 @@ namespace Abioc
         {
             // Act
             IReadOnlyList<SimpleClass1WithoutDependencies> actual =
-                _context.GetServices<SimpleClass1WithoutDependencies>().ToList();
+                GetServices<SimpleClass1WithoutDependencies>().ToList();
 
             // Assert
             actual.Should().HaveCount(1);
@@ -156,7 +147,7 @@ namespace Abioc
                 $" '{typeof(SimpleClass2WithoutDependencies)}'.";
 
             // Act
-            Action action = () => _context.GetService<SimpleClass2WithoutDependencies>();
+            Action action = () => GetService<SimpleClass2WithoutDependencies>();
 
             // Assert
             action
@@ -169,10 +160,52 @@ namespace Abioc
         {
             // Act
             IEnumerable<SimpleClass2WithoutDependencies> actual =
-                _context.GetServices<SimpleClass2WithoutDependencies>();
+                GetServices<SimpleClass2WithoutDependencies>();
 
             // Assert
             actual.Should().BeEmpty();
         }
+    }
+
+    public class WhenFactoringASimpleClassWithoutDependenciesWithAContext
+        : WhenFactoringASimpleClassWithoutDependenciesBase
+    {
+        private readonly AbiocContainer<int> _container;
+
+        public WhenFactoringASimpleClassWithoutDependenciesWithAContext()
+        {
+            // Arrange
+            _expected = new SimpleClass1WithoutDependencies();
+
+            _container =
+                new RegistrationSetup<int>()
+                    .RegisterFactory(c => _expected)
+                    .Construct(GetType().GetTypeInfo().Assembly);
+        }
+
+        public override TService GetService<TService>() => _container.GetService<TService>(1);
+
+        public override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>(1);
+    }
+
+    public class WhenFactoringASimpleClassWithoutDependenciesWithoutAContext
+        : WhenFactoringASimpleClassWithoutDependenciesBase
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenFactoringASimpleClassWithoutDependenciesWithoutAContext()
+        {
+            // Arrange
+            _expected = new SimpleClass1WithoutDependencies();
+
+            _container =
+                new RegistrationSetup()
+                    .RegisterFactory(() => _expected)
+                    .Construct(GetType().GetTypeInfo().Assembly);
+        }
+
+        public override TService GetService<TService>() => _container.GetService<TService>();
+
+        public override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>();
     }
 }

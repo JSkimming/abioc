@@ -16,18 +16,6 @@ namespace Abioc.Composition
     /// </summary>
     public static class RegistrationComposition
     {
-        private static readonly MethodInfo VisitRegistrationMethodInfo =
-            typeof(RegistrationComposition).GetTypeInfo().GetMethod(
-                nameof(VisitRegistration),
-                BindingFlags.Static | BindingFlags.NonPublic);
-
-        private static readonly ConcurrentDictionary<Type, VisitRegistrationDelegate> VisitRegistrationDelegates =
-            new ConcurrentDictionary<Type, VisitRegistrationDelegate>();
-
-        private delegate void VisitRegistrationDelegate(
-            IRegistration registration,
-            Dictionary<Type, List<IRegistrationVisitor>> visitors);
-
         /// <summary>
         /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContext"/> for code
         /// generation.
@@ -95,18 +83,18 @@ namespace Abioc.Composition
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            Dictionary<Type, List<IRegistrationVisitor>> visitors = GetVisitors(context);
+            var visitorManager = new VisitorManager(context);
 
             IEnumerable<IRegistration> distinctRegistrations =
                 registrations.Values.SelectMany(r => r).DistinctBy(r => r.ImplementationType);
             foreach (IRegistration registration in distinctRegistrations)
             {
-                VisitRegistrationDelegate visitorDelegate = GetVisitorDelegate(registration.GetType());
-                visitorDelegate(registration, visitors);
+                visitorManager.Visit(registration);
             }
         }
 
-        private static Dictionary<Type, List<IRegistrationVisitor>> GetVisitors(CompositionContext context)
+        private static Dictionary<Type, List<IRegistrationVisitor>> GetVisitors(
+            CompositionContext context)
         {
             Assembly assembly = typeof(IRegistrationVisitor).GetTypeInfo().Assembly;
             IEnumerable<Type> visitorTypes =
@@ -119,11 +107,19 @@ namespace Abioc.Composition
 
             foreach (var visitorType in visitorTypes)
             {
+                TypeInfo typeInfo = visitorType.GetTypeInfo();
+
                 IEnumerable<Type> interfaceTypes =
-                    visitorType.GetTypeInfo()
+                    typeInfo
                         .GetInterfaces()
                         .Where(i => i.GetTypeInfo().IsGenericType
                                     && typeof(IRegistrationVisitor<>) == i.GetGenericTypeDefinition());
+
+                if (typeInfo.ContainsGenericParameters)
+                {
+                    Type[] parameters = typeInfo.GenericTypeParameters;
+                    Type[] arguments = typeInfo.GenericTypeArguments;
+                }
 
                 var visitor = (IRegistrationVisitor)Activator.CreateInstance(visitorType);
                 visitor.Initialize(context);
@@ -144,6 +140,56 @@ namespace Abioc.Composition
             return visitors;
         }
 
+        private static IRegistrationVisitor CreateVisitor(Type visitorType)
+        {
+            if (visitorType == null)
+                throw new ArgumentNullException(nameof(visitorType));
+
+            var visitor = (IRegistrationVisitor)Activator.CreateInstance(visitorType);
+            return visitor;
+        }
+
+        private static IRegistrationVisitor CreateVisitorWithContext(Type visitorType, Type extraType)
+        {
+            if (visitorType == null)
+                throw new ArgumentNullException(nameof(visitorType));
+            if (extraType == null)
+                throw new ArgumentNullException(nameof(extraType));
+
+            TypeInfo typeInfo = visitorType.GetTypeInfo();
+            Type genericType = typeInfo.MakeGenericType(extraType);
+            return CreateVisitor(genericType);
+        }
+
+        private static IRegistrationVisitor CreateTypedVisitor(Type visitorType, Type implementationType)
+        {
+            if (visitorType == null)
+                throw new ArgumentNullException(nameof(visitorType));
+            if (implementationType == null)
+                throw new ArgumentNullException(nameof(implementationType));
+
+            TypeInfo typeInfo = visitorType.GetTypeInfo();
+            Type genericType = typeInfo.MakeGenericType(implementationType);
+            return CreateVisitor(genericType);
+        }
+
+        private static IRegistrationVisitor CreateTypedVisitorWithContext(
+            Type visitorType,
+            Type extraType,
+            Type implementationType)
+        {
+            if (visitorType == null)
+                throw new ArgumentNullException(nameof(visitorType));
+            if (extraType == null)
+                throw new ArgumentNullException(nameof(extraType));
+            if (implementationType == null)
+                throw new ArgumentNullException(nameof(implementationType));
+
+            TypeInfo typeInfo = visitorType.GetTypeInfo();
+            Type genericType = typeInfo.MakeGenericType(extraType, implementationType);
+            return CreateVisitor(genericType);
+        }
+
         private static IEnumerable<TSource> DistinctBy<TSource, TKey>(
             this IEnumerable<TSource> items,
             Func<TSource, TKey> keySelector)
@@ -154,47 +200,6 @@ namespace Abioc.Composition
                 throw new ArgumentNullException(nameof(keySelector));
 
             return items.GroupBy(keySelector).Select(item => item.First());
-        }
-
-        private static VisitRegistrationDelegate GetVisitorDelegate(Type jobType)
-        {
-            if (jobType == null)
-                throw new ArgumentNullException(nameof(jobType));
-
-            VisitRegistrationDelegate handler = VisitRegistrationDelegates.GetOrAdd(jobType, CreateVisitorDelegate);
-            return handler;
-        }
-
-        private static VisitRegistrationDelegate CreateVisitorDelegate(Type registrationType)
-        {
-            if (registrationType == null)
-                throw new ArgumentNullException(nameof(registrationType));
-
-            MethodInfo method = VisitRegistrationMethodInfo.MakeGenericMethod(registrationType);
-            return (VisitRegistrationDelegate)method.CreateDelegate(typeof(VisitRegistrationDelegate));
-        }
-
-        private static void VisitRegistration<TRegistration>(
-            IRegistration registration,
-            Dictionary<Type, List<IRegistrationVisitor>> visitors)
-            where TRegistration : class, IRegistration
-        {
-            if (registration == null)
-                throw new ArgumentNullException(nameof(registration));
-            if (visitors == null)
-                throw new ArgumentNullException(nameof(visitors));
-
-            Type registrationType = typeof(IRegistrationVisitor<TRegistration>);
-            if (!visitors.TryGetValue(registrationType, out var list))
-            {
-                string message = $"There are no visitors for registrations of type '{registrationType}'.";
-                throw new CompositionException(message);
-            }
-
-            foreach (var visitor in list.Cast<IRegistrationVisitor<TRegistration>>())
-            {
-                visitor.Accept((TRegistration)registration);
-            }
         }
     }
 }

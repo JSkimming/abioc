@@ -1,7 +1,7 @@
 ﻿// Copyright (c) 2017 James Skimming. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-namespace Abioc.Composition
+namespace Abioc.Composition.Compositions
 {
     using System;
     using System.Collections.Generic;
@@ -52,7 +52,7 @@ namespace Abioc.Composition
         public IReadOnlyList<ParameterInfo> Parameters { get; }
 
         /// <inheritdoc/>
-        public override string GetInstanceExpression(CompositionContext context)
+        public override string GetInstanceExpression(CompositionContext context, bool simpleName)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -62,7 +62,8 @@ namespace Abioc.Composition
                 // Get the expressions for the all the constructor parameters.
                 IEnumerable<IComposition> compositions =
                     GetCompositions(context, Parameters.Select(p => p.ParameterType));
-                IEnumerable<string> parameterExpressions = compositions.Select(c => c.GetInstanceExpression(context));
+                IEnumerable<string> parameterExpressions =
+                    compositions.Select(c => c.GetInstanceExpression(context, simpleName));
 
                 // Join the parameters expressions.
                 string parameters =
@@ -107,7 +108,7 @@ namespace Abioc.Composition
             string methodName = GetComposeMethodName(context, simpleName);
             string signature = $"private static {Type.ToCompileName()} {methodName}({parameter})";
 
-            string instanceExpression = GetInstanceExpression(context);
+            string instanceExpression = GetInstanceExpression(context, simpleName);
             instanceExpression = CodeGen.Indent(instanceExpression);
 
             string method =

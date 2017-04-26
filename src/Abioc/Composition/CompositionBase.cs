@@ -16,7 +16,7 @@ namespace Abioc.Composition
         public abstract Type Type { get; }
 
         /// <inheritdoc />
-        public abstract string GetInstanceExpression(CompositionContext context);
+        public abstract string GetInstanceExpression(CompositionContext context, bool simpleName);
 
         /// <inheritdoc />
         public abstract string GetComposeMethodName(CompositionContext context, bool simpleName);
