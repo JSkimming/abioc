@@ -12,27 +12,17 @@ namespace Abioc
     using FluentAssertions;
     using Xunit;
 
-    public class WhenCreatingASimpleClassWithoutDependencies
+    public abstract class WhenCreatingASimpleClassWithoutDependenciesBase
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        public abstract TService GetService<TService>();
 
-        public WhenCreatingASimpleClassWithoutDependencies()
-        {
-            _context = new RegistrationContext<DefaultContructionContext>()
-                .Register<SimpleClass1WithoutDependencies>()
-                .Compile(GetType().GetTypeInfo().Assembly);
-
-            CompositionContext compositionContext =
-                new RegistrationSetup()
-                    .Register<SimpleClass1WithoutDependencies>()
-                    .Compose();
-        }
+        public abstract IEnumerable<TService> GetServices<TService>();
 
         [Fact]
         public void ItShouldCreateTheService()
         {
             // Act
-            SimpleClass1WithoutDependencies actual = _context.GetService<SimpleClass1WithoutDependencies>();
+            SimpleClass1WithoutDependencies actual = GetService<SimpleClass1WithoutDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -43,7 +33,7 @@ namespace Abioc
         {
             // Act
             IReadOnlyList<SimpleClass1WithoutDependencies> actual =
-                _context.GetServices<SimpleClass1WithoutDependencies>().ToList();
+                GetServices<SimpleClass1WithoutDependencies>().ToList();
 
             // Assert
             actual.Should().HaveCount(1);
@@ -59,7 +49,7 @@ namespace Abioc
                 $" '{typeof(SimpleClass2WithoutDependencies)}'.";
 
             // Act
-            Action action = () => _context.GetService<SimpleClass2WithoutDependencies>();
+            Action action = () => GetService<SimpleClass2WithoutDependencies>();
 
             // Assert
             action
@@ -72,12 +62,48 @@ namespace Abioc
         {
             // Act
             IEnumerable<SimpleClass2WithoutDependencies> actual =
-                _context.GetServices<SimpleClass2WithoutDependencies>();
+                GetServices<SimpleClass2WithoutDependencies>();
 
             // Assert
             // Assert
             actual.Should().BeEmpty();
         }
+    }
+
+    public class WhenCreatingASimpleClassWithoutDependenciesWithAContext
+        : WhenCreatingASimpleClassWithoutDependenciesBase
+    {
+        private readonly AbiocContainer<int> _container;
+
+        public WhenCreatingASimpleClassWithoutDependenciesWithAContext()
+        {
+            _container =
+                new RegistrationSetup<int>()
+                    .Register<SimpleClass1WithoutDependencies>()
+                    .Construct(GetType().GetTypeInfo().Assembly);
+        }
+
+        public override TService GetService<TService>() => _container.GetService<TService>(1);
+
+        public override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>(1);
+    }
+
+    public class WhenCreatingASimpleClassWithoutDependenciesWithoutAContext
+        : WhenCreatingASimpleClassWithoutDependenciesBase
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenCreatingASimpleClassWithoutDependenciesWithoutAContext()
+        {
+            _container =
+                new RegistrationSetup()
+                    .Register<SimpleClass1WithoutDependencies>()
+                    .Construct(GetType().GetTypeInfo().Assembly);
+        }
+
+        public override TService GetService<TService>() => _container.GetService<TService>();
+
+        public override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>();
     }
 
     public class WhenFactoringASimpleClassWithoutDependencies

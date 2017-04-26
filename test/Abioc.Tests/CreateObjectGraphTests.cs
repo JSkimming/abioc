@@ -64,17 +64,16 @@ namespace Abioc
 
         public WhenCreatingAnObjectGraphOfClassesWithAContext(ITestOutputHelper output)
         {
-            RegistrationSetup registration =
+            _container =
                 new RegistrationSetup()
                     .Register<Example.Ns1.MyClass1>()
                     .Register<Example.Ns1.MyClass2>()
                     .Register<Example.Ns1.MyClass3>()
                     .Register<Example.Ns2.MyClass1>()
-                    .Register<Example.Ns2.MyClass2>();
+                    .Register<Example.Ns2.MyClass2>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
-            string code = registration.Compose().GenerateCode();
             output.WriteLine(code);
-            _container = CodeCompilation.Compile(registration, code, GetType().GetTypeInfo().Assembly);
         }
 
         public override TService GetService<TService>() => _container.GetService<TService>();
@@ -86,17 +85,16 @@ namespace Abioc
 
         public WhenCreatingAnObjectGraphOfClassesWithoutAContext(ITestOutputHelper output)
         {
-            RegistrationSetup<int> registration =
+            _container =
                 new RegistrationSetup<int>()
                     .Register<Example.Ns1.MyClass1>()
                     .Register<Example.Ns1.MyClass2>()
                     .Register<Example.Ns1.MyClass3>()
                     .Register<Example.Ns2.MyClass1>()
-                    .Register<Example.Ns2.MyClass2>();
+                    .Register<Example.Ns2.MyClass2>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
-            string code = registration.Compose().GenerateCode();
             output.WriteLine(code);
-            _container = CodeCompilation.Compile(registration, code, GetType().GetTypeInfo().Assembly);
         }
 
         public override TService GetService<TService>() => _container.GetService<TService>(1);
