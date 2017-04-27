@@ -11,9 +11,9 @@ namespace Abioc
     /// <summary>
     /// The context to maintain the meta-data for an IoC context.
     /// </summary>
-    /// <typeparam name="TContructionContext">The type of the context used during service resolution.</typeparam>
-    public class RegistrationContext<TContructionContext> : RegistrationContextBase
-        where TContructionContext : IContructionContext
+    /// <typeparam name="TConstructionContext">The type of the context used during service resolution.</typeparam>
+    public class RegistrationContext<TConstructionContext> : RegistrationContextBase
+        where TConstructionContext : IConstructionContext
     {
         /// <summary>
         /// Registers an <paramref name="implementationType"/> for generation with an optional
@@ -33,10 +33,10 @@ namespace Abioc
         /// A value indicating whether the <paramref name="factory"/> is strongly typed.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public RegistrationContext<TContructionContext> Register(
+        public RegistrationContext<TConstructionContext> Register(
             Type serviceType,
             Type implementationType,
-            Func<TContructionContext, object> factory,
+            Func<TConstructionContext, object> factory,
             bool typedfactory = false)
         {
             if (implementationType == null)
@@ -67,7 +67,7 @@ namespace Abioc
         /// A value indicating whether the <paramref name="factory"/> is strongly typed.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public RegistrationContext<TContructionContext> Register(
+        public RegistrationContext<TConstructionContext> Register(
             Type serviceType,
             Type implementationType,
             Func<object> factory = null,
@@ -98,8 +98,8 @@ namespace Abioc
         /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public RegistrationContext<TContructionContext> Register<TService, TImplementation>(
-            Func<TContructionContext, TImplementation> factory)
+        public RegistrationContext<TConstructionContext> Register<TService, TImplementation>(
+            Func<TConstructionContext, TImplementation> factory)
             where TImplementation : class, TService
         {
             return Register(
@@ -124,7 +124,7 @@ namespace Abioc
         /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public RegistrationContext<TContructionContext> Register<TService, TImplementation>(
+        public RegistrationContext<TConstructionContext> Register<TService, TImplementation>(
             Func<TImplementation> factory = null)
             where TImplementation : class, TService
         {
@@ -148,9 +148,9 @@ namespace Abioc
         /// A value indicating whether the <paramref name="factory"/> is strongly typed.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public RegistrationContext<TContructionContext> Register(
+        public RegistrationContext<TConstructionContext> Register(
             Type implementationType,
-            Func<TContructionContext, object> factory,
+            Func<TConstructionContext, object> factory,
             bool typedfactory = false)
         {
             return Register(implementationType, implementationType, factory, typedfactory);
@@ -169,7 +169,7 @@ namespace Abioc
         /// A value indicating whether the <paramref name="factory"/> is strongly typed.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public RegistrationContext<TContructionContext> Register(
+        public RegistrationContext<TConstructionContext> Register(
             Type implementationType,
             Func<object> factory = null,
             bool typedfactory = false)
@@ -187,8 +187,8 @@ namespace Abioc
         /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public RegistrationContext<TContructionContext> Register<TImplementation>(
-            Func<TContructionContext, TImplementation> factory)
+        public RegistrationContext<TConstructionContext> Register<TImplementation>(
+            Func<TConstructionContext, TImplementation> factory)
             where TImplementation : class
         {
             return Register(typeof(TImplementation), factory, typedfactory: true);
@@ -204,7 +204,7 @@ namespace Abioc
         /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public RegistrationContext<TContructionContext> Register<TImplementation>(
+        public RegistrationContext<TConstructionContext> Register<TImplementation>(
             Func<TImplementation> factory = null)
             where TImplementation : class
         {
@@ -221,7 +221,7 @@ namespace Abioc
         /// </param>
         /// <param name="entry">The entry to be registered.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        internal RegistrationContext<TContructionContext> Register(Type serviceType, RegistrationEntry entry)
+        internal RegistrationContext<TConstructionContext> Register(Type serviceType, RegistrationEntry entry)
         {
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));

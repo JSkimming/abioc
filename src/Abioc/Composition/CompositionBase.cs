@@ -43,7 +43,7 @@ namespace Abioc.Composition
         }
 
         /// <inheritdoc />
-        public virtual bool RequiresContructionContext(CompositionContext context)
+        public virtual bool RequiresConstructionContext(CompositionContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));

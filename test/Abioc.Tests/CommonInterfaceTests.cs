@@ -12,11 +12,11 @@ namespace Abioc
 
     public class WhenRegisteringTwoClassThatImplementTheSameInterface
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly CompilationContext<DefaultConstructionContext> _context;
 
         public WhenRegisteringTwoClassThatImplementTheSameInterface()
         {
-            _context = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultConstructionContext>()
                 .Register<ISimpleInterface, SimpleClass1WithoutDependencies>()
                 .Register<ISimpleInterface, SimpleClass2WithoutDependencies>()
                 .Compile(GetType().GetTypeInfo().Assembly);
@@ -57,14 +57,14 @@ namespace Abioc
         private readonly SimpleClass1WithoutDependencies _expected1;
         private readonly SimpleClass2WithoutDependencies _expected2;
 
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly CompilationContext<DefaultConstructionContext> _context;
 
         public WhenFactoringTwoClassThatImplementTheSameInterface()
         {
             _expected1 = new SimpleClass1WithoutDependencies();
             _expected2 = new SimpleClass2WithoutDependencies();
 
-            _context = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultConstructionContext>()
                 .Register(c => _expected1)
                 .Register(c => _expected2)
                 .Register<ISimpleInterface, SimpleClass1WithoutDependencies>()

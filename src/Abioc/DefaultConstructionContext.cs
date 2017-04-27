@@ -7,13 +7,13 @@ namespace Abioc
     using System.Reflection;
 
     /// <summary>
-    /// The default <see cref="IContructionContext"/>.
+    /// The default <see cref="IConstructionContext"/>.
     /// </summary>
     /// <remarks>
     /// This class used when a custom construction is not required, or it can be the base class for a custom
     /// construction context.
     /// </remarks>
-    public class DefaultContructionContext : IContructionContext
+    public class DefaultConstructionContext : IConstructionContext
     {
         /// <summary>
         /// Gets or sets the <see cref="Type"/> of the service to be provided that satisfies the

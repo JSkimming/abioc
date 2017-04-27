@@ -30,16 +30,16 @@ namespace Abioc.Composition
             IReadOnlyList<IComposition> compositions =
                 context.Compositions.Values.OrderBy(r => r.Type.ToCompileName()).ToList();
 
-            var code = new CodeCompositions(context.ContructionContext);
+            var code = new CodeCompositions(context.ConstructionContext);
 
             // First try with simple method names.
             foreach (IComposition composition in compositions)
             {
                 Type type = composition.Type;
                 string composeMethodName = composition.GetComposeMethodName(context, simpleName: true);
-                bool requiresContructionContext = composition.RequiresContructionContext(context);
+                bool requiresConstructionContext = composition.RequiresConstructionContext(context);
 
-                code.ComposeMethods.Add((composeMethodName, type, requiresContructionContext));
+                code.ComposeMethods.Add((composeMethodName, type, requiresConstructionContext));
                 code.Methods.AddRange(composition.GetMethods(context, simpleName: true));
                 code.Fields.AddRange(composition.GetFields(context));
                 code.FieldInitializations.AddRange(composition.GetFieldInitializations(context));
@@ -56,9 +56,9 @@ namespace Abioc.Composition
                 {
                     Type type = composition.Type;
                     string composeMethodName = composition.GetComposeMethodName(context, simpleName: false);
-                    bool requiresContructionContext = composition.RequiresContructionContext(context);
+                    bool requiresConstructionContext = composition.RequiresConstructionContext(context);
 
-                    code.ComposeMethods.Add((composeMethodName, type, requiresContructionContext));
+                    code.ComposeMethods.Add((composeMethodName, type, requiresConstructionContext));
                     code.Methods.AddRange(composition.GetMethods(context, simpleName: false));
                 }
             }
@@ -76,7 +76,7 @@ namespace Abioc.Composition
 
             var builder = new StringBuilder(10240);
             builder.AppendFormat(
-                "namespace Abioc.Generated{0}{{{0}    public static class Contruction{0}    {{",
+                "namespace Abioc.Generated{0}{{{0}    public static class Construction{0}    {{",
                 NewLine);
 
             string fieldsAndMethods = GenerateFieldsAndMethods(code);
@@ -114,8 +114,8 @@ namespace Abioc.Composition
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
-            string composeMapType = code.HasContructionContext
-                ? $"System.Collections.Generic.Dictionary<System.Type, System.Func<{code.ContructionContext}, object>>"
+            string composeMapType = code.HasConstructionContext
+                ? $"System.Collections.Generic.Dictionary<System.Type, System.Func<{code.ConstructionContext}, object>>"
                 : "System.Collections.Generic.Dictionary<System.Type, System.Func<object>>";
 
             var builder = new StringBuilder();
@@ -127,7 +127,7 @@ namespace Abioc.Composition
             string initializers =
                 string.Join(
                     NewLine,
-                    code.ComposeMethods.Select(c => GenerateComposeMapInitializer(code.HasContructionContext, c)));
+                    code.ComposeMethods.Select(c => GenerateComposeMapInitializer(code.HasConstructionContext, c)));
             initializers = CodeGen.Indent(NewLine + initializers, 2);
             builder.Append(initializers);
 
@@ -148,14 +148,14 @@ namespace Abioc.Composition
 
         private class CodeCompositions
         {
-            public CodeCompositions(string contructionContext = null)
+            public CodeCompositions(string constructionContext = null)
             {
-                ContructionContext = contructionContext ?? string.Empty;
+                ConstructionContext = constructionContext ?? string.Empty;
             }
 
-            public string ContructionContext { get; }
+            public string ConstructionContext { get; }
 
-            public bool HasContructionContext => !string.IsNullOrWhiteSpace(ContructionContext);
+            public bool HasConstructionContext => !string.IsNullOrWhiteSpace(ConstructionContext);
 
             public List<(string name, Type type, bool requiresContext)> ComposeMethods { get; } =
                 new List<(string, Type, bool)>(32);

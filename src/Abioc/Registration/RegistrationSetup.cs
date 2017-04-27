@@ -8,7 +8,7 @@ namespace Abioc.Registration
     using System.Linq;
 
     /// <summary>
-    /// The registration setup for registrations that do not require a <see cref="ContructionContext{TExtra}"/>.
+    /// The registration setup for registrations that do not require a <see cref="ConstructionContext{TExtra}"/>.
     /// </summary>
     public class RegistrationSetup : RegistrationSetupBase<RegistrationSetup>
     {

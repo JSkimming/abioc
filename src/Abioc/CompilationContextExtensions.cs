@@ -8,7 +8,7 @@ namespace Abioc
     using System.Linq;
 
     /// <summary>
-    /// Extension methods on <see cref="CompilationContext{TContructionContext}"/>.
+    /// Extension methods on <see cref="CompilationContext{TConstructionContext}"/>.
     /// </summary>
     public static class CompilationContextExtensions
     {
@@ -23,12 +23,12 @@ namespace Abioc
         /// <typeparamref name="TService"/>.
         /// </returns>
         public static IEnumerable<TService> GetServices<TService>(
-            this CompilationContext<DefaultContructionContext> context)
+            this CompilationContext<DefaultConstructionContext> context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            return context.GetServices<TService>(new DefaultContructionContext());
+            return context.GetServices<TService>(new DefaultConstructionContext());
         }
 
         /// <summary>
@@ -42,12 +42,12 @@ namespace Abioc
         /// <typeparamref name="TService"/>.
         /// </returns>
         /// <exception cref="DiException">There are no mappings for the <typeparamref name="TService"/>.</exception>
-        public static TService GetService<TService>(this CompilationContext<DefaultContructionContext> context)
+        public static TService GetService<TService>(this CompilationContext<DefaultConstructionContext> context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            return context.GetService<TService>(new DefaultContructionContext());
+            return context.GetService<TService>(new DefaultConstructionContext());
         }
     }
 }

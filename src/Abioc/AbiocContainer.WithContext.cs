@@ -11,7 +11,7 @@ namespace Abioc
     /// The compiled context of function mappings.
     /// </summary>
     /// <typeparam name="TExtra">
-    /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+    /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
     public class AbiocContainer<TExtra>
     {
@@ -23,8 +23,8 @@ namespace Abioc
         /// The compiled mapping from a type to potentially multiple create functions.
         /// </param>
         public AbiocContainer(
-            IReadOnlyDictionary<Type, Func<ContructionContext<TExtra>, object>> singleMappings,
-            IReadOnlyDictionary<Type, Func<ContructionContext<TExtra>, object>[]> multiMappings)
+            IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>> singleMappings,
+            IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>[]> multiMappings)
         {
             if (singleMappings == null)
                 throw new ArgumentNullException(nameof(singleMappings));
@@ -38,12 +38,12 @@ namespace Abioc
         /// <summary>
         /// Gets the compiled mapping from a type to a single create function.
         /// </summary>
-        public IReadOnlyDictionary<Type, Func<ContructionContext<TExtra>, object>> SingleMappings { get; }
+        public IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>> SingleMappings { get; }
 
         /// <summary>
         /// Gets the compiled mapping from a type to potentially multiple create functions.
         /// </summary>
-        public IReadOnlyDictionary<Type, Func<ContructionContext<TExtra>, object>[]> MultiMappings { get; }
+        public IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>[]> MultiMappings { get; }
 
         /// <summary>
         /// Gets any services that are defined in the <see cref="MultiMappings"/> for the
@@ -60,9 +60,9 @@ namespace Abioc
                 throw new ArgumentNullException(nameof(serviceType));
 
             // If there are any factories, use them.
-            if (MultiMappings.TryGetValue(serviceType, out Func<ContructionContext<TExtra>, object>[] factories))
+            if (MultiMappings.TryGetValue(serviceType, out Func<ConstructionContext<TExtra>, object>[] factories))
             {
-                var context = new ContructionContext<TExtra>(typeof(object), serviceType, typeof(object), extraData);
+                var context = new ConstructionContext<TExtra>(typeof(object), serviceType, typeof(object), extraData);
                 return factories.Select(f => f(context));
             }
 
@@ -99,9 +99,9 @@ namespace Abioc
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
-            if (SingleMappings.TryGetValue(serviceType, out Func<ContructionContext<TExtra>, object> factory))
+            if (SingleMappings.TryGetValue(serviceType, out Func<ConstructionContext<TExtra>, object> factory))
             {
-                var context = new ContructionContext<TExtra>(typeof(object), serviceType, typeof(object), extraData);
+                var context = new ConstructionContext<TExtra>(typeof(object), serviceType, typeof(object), extraData);
                 return factory(context);
             }
 

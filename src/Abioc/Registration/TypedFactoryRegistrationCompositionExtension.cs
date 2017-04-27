@@ -42,7 +42,7 @@ namespace Abioc.Registration
         /// <see cref="TypedFactoryRegistration{TImplementation}"/>.
         /// </summary>
         /// <typeparam name="TExtra">
-        /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+        /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <typeparam name="TImplementation">
         /// The type of the value provided by the <paramref name="factory"/>.
@@ -54,7 +54,7 @@ namespace Abioc.Registration
         /// <returns>The registration <paramref name="composer"/> to be used in a fluent configuration.</returns>
         public static RegistrationComposer<TExtra, TImplementation> UseFactory<TExtra, TImplementation>(
             this RegistrationComposer<TExtra, TImplementation> composer,
-            Func<ContructionContext<TExtra>, TImplementation> factory)
+            Func<ConstructionContext<TExtra>, TImplementation> factory)
         {
             if (composer == null)
                 throw new ArgumentNullException(nameof(composer));

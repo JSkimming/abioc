@@ -13,7 +13,7 @@ namespace Abioc
     /// A construction context is a mechanism whereby data is passed through the service resolution process allowing
     /// custom information be provided, e.g. a logging context can be provided for particular process or request.
     /// </remarks>
-    public interface IContructionContext
+    public interface IConstructionContext
     {
         /// <summary>
         /// Gets or sets the <see cref="Type"/> of the service to be provided that satisfies the

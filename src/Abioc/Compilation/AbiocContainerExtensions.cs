@@ -37,19 +37,19 @@ namespace Abioc.Compilation
         /// Creates a new instance of the <see cref="AbiocContainer{T}"/> class.
         /// </summary>
         /// <typeparam name="TExtra">
-        /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+        /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <param name="multiMappings">
         /// The compiled mapping from a type to potentially multiple create functions.
         /// </param>
         /// <returns>A new instance of the <see cref="AbiocContainer"/> class.</returns>
         public static AbiocContainer<TExtra> ToContainer<TExtra>(
-            this IReadOnlyDictionary<Type, Func<ContructionContext<TExtra>, object>[]> multiMappings)
+            this IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>[]> multiMappings)
         {
             if (multiMappings == null)
                 throw new ArgumentNullException(nameof(multiMappings));
 
-            Dictionary<Type, Func<ContructionContext<TExtra>, object>> singleMappings =
+            Dictionary<Type, Func<ConstructionContext<TExtra>, object>> singleMappings =
                 multiMappings
                     .Where(kvp => kvp.Value.Length == 1)
                     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Single());

@@ -13,7 +13,7 @@ namespace Abioc.Composition.Visitors
     /// A composition registration visitor for a <see cref="TypedFactoryRegistration{TExtra, TImplementation}"/>.
     /// </summary>
     /// <typeparam name="TExtra">
-    /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+    /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
     /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     public class TypedFactoryRegistrationVisitor<TExtra, TImplementation>

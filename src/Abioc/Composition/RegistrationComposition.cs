@@ -21,7 +21,7 @@ namespace Abioc.Composition
         /// generation.
         /// </summary>
         /// <typeparam name="TExtra">
-        /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+        /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
         /// <returns>The <see cref="CompositionContext"/>.</returns>
@@ -30,7 +30,7 @@ namespace Abioc.Composition
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
 
-            return setup.Registrations.Compose(typeof(ContructionContext<TExtra>).ToCompileName());
+            return setup.Registrations.Compose(typeof(ConstructionContext<TExtra>).ToCompileName());
         }
 
         /// <summary>
@@ -49,12 +49,12 @@ namespace Abioc.Composition
 
         private static CompositionContext Compose(
             this IReadOnlyDictionary<Type, List<IRegistration>> registrations,
-            string contructionContext = null)
+            string constructionContext = null)
         {
             if (registrations == null)
                 throw new ArgumentNullException(nameof(registrations));
 
-            var context = new CompositionContext(contructionContext);
+            var context = new CompositionContext(constructionContext);
 
             ProcessRegistrations(registrations, context);
 

@@ -28,7 +28,7 @@ namespace Abioc.Compilation
         /// Compiles the <paramref name="code"/> for the registration <paramref name="setup"/>.
         /// </summary>
         /// <typeparam name="TExtra">
-        /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+        /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
         /// <param name="code">The source code to compile.</param>
@@ -47,10 +47,10 @@ namespace Abioc.Compilation
                 throw new ArgumentNullException(nameof(srcAssembly));
 
             MethodInfo getCreateMapMethod = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
-            Dictionary<Type, Func<ContructionContext<TExtra>, object>> createMap =
-                (Dictionary<Type, Func<ContructionContext<TExtra>, object>>)getCreateMapMethod.Invoke(null, null);
+            Dictionary<Type, Func<ConstructionContext<TExtra>, object>> createMap =
+                (Dictionary<Type, Func<ConstructionContext<TExtra>, object>>)getCreateMapMethod.Invoke(null, null);
 
-            IEnumerable<(Type type, Func<ContructionContext<TExtra>, object>[] compositions)> iocMappings =
+            IEnumerable<(Type type, Func<ConstructionContext<TExtra>, object>[] compositions)> iocMappings =
                 from kvp in setup.Registrations
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
@@ -137,7 +137,7 @@ namespace Abioc.Compilation
                 Assembly assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromStream(stream);
 #endif
 
-                Type type = assembly.GetType("Abioc.Generated.Contruction");
+                Type type = assembly.GetType("Abioc.Generated.Construction");
 
                 MethodInfo getCreateMapMethod =
                     type.GetTypeInfo().GetMethod("GetCreateMap", BindingFlags.NonPublic | BindingFlags.Static);

@@ -55,7 +55,7 @@ namespace Abioc
         /// Constructs an <see cref="AbiocContainer"/> from the registration <paramref name="setup"/>.
         /// </summary>
         /// <typeparam name="TExtra">
-        /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+        /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <param name="setup">The <see cref="RegistrationSetup"/>.</param>
         /// <param name="srcAssembly">The source assembly for the types top create.</param>
@@ -73,7 +73,7 @@ namespace Abioc
         /// Constructs an <see cref="AbiocContainer"/> from the registration <paramref name="setup"/>.
         /// </summary>
         /// <typeparam name="TExtra">
-        /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+        /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <param name="setup">The <see cref="RegistrationSetup"/>.</param>
         /// <param name="srcAssembly">The source assembly for the types top create.</param>

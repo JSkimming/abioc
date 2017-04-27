@@ -41,7 +41,7 @@ namespace Abioc.Registration
         /// <see cref="FactoryRegistration"/>.
         /// </summary>
         /// <typeparam name="TExtra">
-        /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+        /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <param name="composer">The registration composer.</param>
         /// <param name="implementationType">The type of the value provided by the <paramref name="factory"/>.</param>
@@ -52,7 +52,7 @@ namespace Abioc.Registration
         public static RegistrationComposer<TExtra, object> UseFactory<TExtra>(
             this RegistrationComposer<TExtra, object> composer,
             Type implementationType,
-            Func<ContructionContext<TExtra>, object> factory)
+            Func<ConstructionContext<TExtra>, object> factory)
         {
             if (composer == null)
                 throw new ArgumentNullException(nameof(composer));

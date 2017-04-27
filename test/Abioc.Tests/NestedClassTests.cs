@@ -12,11 +12,11 @@ namespace Abioc
 
     public class WhenCreatingNestedClasses
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly CompilationContext<DefaultConstructionContext> _context;
 
         public WhenCreatingNestedClasses()
         {
-            _context = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultConstructionContext>()
                 .Register<NestedClass1>()
                 .Register<NestedClass2>()
                 .Register<NestedClass3>()
@@ -66,13 +66,13 @@ namespace Abioc
     {
         private readonly WhenCreatingNestedClasses.NestedClass1 _expected;
 
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly CompilationContext<DefaultConstructionContext> _context;
 
         public WhenFactoringNestedClasses()
         {
             _expected = new WhenCreatingNestedClasses.NestedClass1();
 
-            _context = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultConstructionContext>()
                 .Register(c => _expected)
                 .Register<WhenCreatingNestedClasses.NestedClass2>()
                 .Register<WhenCreatingNestedClasses.NestedClass3>()

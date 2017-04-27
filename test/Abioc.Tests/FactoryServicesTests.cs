@@ -19,17 +19,17 @@ namespace Abioc
 
         public class Service1
         {
-            internal static Service1 CreateService1(DefaultContructionContext unused) => new Service1();
+            internal static Service1 CreateService1(DefaultConstructionContext unused) => new Service1();
         }
 
         public class Service2
         {
-            internal static Service2 CreateService2(DefaultContructionContext unused) => new Service2();
+            internal static Service2 CreateService2(DefaultConstructionContext unused) => new Service2();
         }
 
         public class Service3 : IService3
         {
-            internal static Service3 CreateService3(DefaultContructionContext unused) => new Service3();
+            internal static Service3 CreateService3(DefaultConstructionContext unused) => new Service3();
         }
 
         public class DependentService
@@ -50,7 +50,7 @@ namespace Abioc
     public abstract class WeakOrStrongFactoryServicesTestsBase
     {
         protected WeakOrStrongFactoryServicesTestsBase(
-            RegistrationContext<DefaultContructionContext> registrationContext)
+            RegistrationContext<DefaultConstructionContext> registrationContext)
         {
             if (registrationContext == null)
                 throw new ArgumentNullException(nameof(registrationContext));
@@ -60,7 +60,7 @@ namespace Abioc
                 .Compile(GetType().GetTypeInfo().Assembly);
         }
 
-        protected CompilationContext<DefaultContructionContext> Context { get; }
+        protected CompilationContext<DefaultConstructionContext> Context { get; }
 
         [Fact]
         public void ItShouldInjectTheFactoredServices()
@@ -109,7 +109,7 @@ namespace Abioc
     public class WhenRegisteringStronglyTypedFactoryServices : WeakOrStrongFactoryServicesTestsBase
     {
         public WhenRegisteringStronglyTypedFactoryServices()
-            : base(new RegistrationContext<DefaultContructionContext>()
+            : base(new RegistrationContext<DefaultConstructionContext>()
                 .Register(Service1.CreateService1)
                 .Register(Service2.CreateService2)
                 .Register<IService3, Service3>(Service3.CreateService3))
@@ -120,9 +120,9 @@ namespace Abioc
         public void ItShouldUseTheStronglyTypedFactoriesDirectly()
         {
             // Arrange
-            Func<DefaultContructionContext, Service1> expected1 = Service1.CreateService1;
-            Func<DefaultContructionContext, Service2> expected2 = Service2.CreateService2;
-            Func<DefaultContructionContext, Service3> expected3 = Service3.CreateService3;
+            Func<DefaultConstructionContext, Service1> expected1 = Service1.CreateService1;
+            Func<DefaultConstructionContext, Service2> expected2 = Service2.CreateService2;
+            Func<DefaultConstructionContext, Service3> expected3 = Service3.CreateService3;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().BeSameAs(expected1.GetMethodInfo());
@@ -134,7 +134,7 @@ namespace Abioc
     public class WhenRegisteringWeaklyTypedFactoryServices : WeakOrStrongFactoryServicesTestsBase
     {
         public WhenRegisteringWeaklyTypedFactoryServices()
-            : base(new RegistrationContext<DefaultContructionContext>()
+            : base(new RegistrationContext<DefaultConstructionContext>()
                 .Register(typeof(Service1), Service1.CreateService1)
                 .Register(typeof(Service2), Service2.CreateService2)
                 .Register(typeof(IService3), typeof(Service3), Service3.CreateService3))
@@ -145,9 +145,9 @@ namespace Abioc
         public void ItShouldWrapTheWeaklyTypedFactories()
         {
             // Arrange
-            Func<DefaultContructionContext, Service1> notExpected1 = Service1.CreateService1;
-            Func<DefaultContructionContext, Service2> notExpected2 = Service2.CreateService2;
-            Func<DefaultContructionContext, Service3> notExpected3 = Service3.CreateService3;
+            Func<DefaultConstructionContext, Service1> notExpected1 = Service1.CreateService1;
+            Func<DefaultConstructionContext, Service2> notExpected2 = Service2.CreateService2;
+            Func<DefaultConstructionContext, Service3> notExpected3 = Service3.CreateService3;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().NotBeSameAs(notExpected1.GetMethodInfo());
@@ -159,7 +159,7 @@ namespace Abioc
     public class WhenRegisteringMixedTypedFactoryServices : WeakOrStrongFactoryServicesTestsBase
     {
         public WhenRegisteringMixedTypedFactoryServices()
-            : base(new RegistrationContext<DefaultContructionContext>()
+            : base(new RegistrationContext<DefaultConstructionContext>()
                 .Register(Service1.CreateService1)
                 .Register(typeof(Service2), Service2.CreateService2)
                 .Register<IService3>(Service3.CreateService3))
@@ -170,7 +170,7 @@ namespace Abioc
         public void ItShouldUseTheStronglyTypedFactoriesDirectly()
         {
             // Arrange
-            Func<DefaultContructionContext, Service1> expected = Service1.CreateService1;
+            Func<DefaultConstructionContext, Service1> expected = Service1.CreateService1;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().BeSameAs(expected.GetMethodInfo());
@@ -180,7 +180,7 @@ namespace Abioc
         public void ItShouldWrapTheWeaklyTypedFactories()
         {
             // Arrange
-            Func<DefaultContructionContext, Service2> notExpected = Service2.CreateService2;
+            Func<DefaultConstructionContext, Service2> notExpected = Service2.CreateService2;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service2)].GetMethodInfo().Should().NotBeSameAs(notExpected.GetMethodInfo());

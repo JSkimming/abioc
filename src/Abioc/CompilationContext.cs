@@ -10,20 +10,20 @@ namespace Abioc
     /// <summary>
     /// The compiled context of function mappings.
     /// </summary>
-    /// <typeparam name="TContructionContext">The type of the construction context.</typeparam>
-    public class CompilationContext<TContructionContext>
-        where TContructionContext : IContructionContext
+    /// <typeparam name="TConstructionContext">The type of the construction context.</typeparam>
+    public class CompilationContext<TConstructionContext>
+        where TConstructionContext : IConstructionContext
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CompilationContext{TContructionContext}"/> class.
+        /// Initializes a new instance of the <see cref="CompilationContext{TConstructionContext}"/> class.
         /// </summary>
         /// <param name="singleMappings">The compiled mapping from a type to a single create function.</param>
         /// <param name="multiMappings">
         /// The compiled mapping from a type to potentially multiple create functions.
         /// </param>
         public CompilationContext(
-            IReadOnlyDictionary<Type, Func<TContructionContext, object>> singleMappings,
-            IReadOnlyDictionary<Type, IReadOnlyList<Func<TContructionContext, object>>> multiMappings)
+            IReadOnlyDictionary<Type, Func<TConstructionContext, object>> singleMappings,
+            IReadOnlyDictionary<Type, IReadOnlyList<Func<TConstructionContext, object>>> multiMappings)
         {
             if (singleMappings == null)
                 throw new ArgumentNullException(nameof(singleMappings));
@@ -37,33 +37,33 @@ namespace Abioc
         /// <summary>
         /// Gets the compiled mapping from a type to a single create function.
         /// </summary>
-        public IReadOnlyDictionary<Type, Func<TContructionContext, object>> SingleMappings { get; }
+        public IReadOnlyDictionary<Type, Func<TConstructionContext, object>> SingleMappings { get; }
 
         /// <summary>
         /// Gets the compiled mapping from a type to potentially multiple create functions.
         /// </summary>
-        public IReadOnlyDictionary<Type, IReadOnlyList<Func<TContructionContext, object>>> MultiMappings { get; }
+        public IReadOnlyDictionary<Type, IReadOnlyList<Func<TConstructionContext, object>>> MultiMappings { get; }
 
         /// <summary>
         /// Gets any services that are defined in the <see cref="MultiMappings"/> for the
         /// <paramref name="serviceType"/>.
         /// </summary>
-        /// <param name="contructionContext">The construction context.</param>
+        /// <param name="constructionContext">The construction context.</param>
         /// <param name="serviceType">The type of the service to get.</param>
         /// <returns>
         /// Any services that are defined in the <see cref="MultiMappings"/> for the <paramref name="serviceType"/>.
         /// </returns>
-        public IEnumerable<object> GetServices(TContructionContext contructionContext, Type serviceType)
+        public IEnumerable<object> GetServices(TConstructionContext constructionContext, Type serviceType)
         {
-            if (contructionContext == null)
-                throw new ArgumentNullException(nameof(contructionContext));
+            if (constructionContext == null)
+                throw new ArgumentNullException(nameof(constructionContext));
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
             // If there are any factories, use them.
-            if (MultiMappings.TryGetValue(serviceType, out IReadOnlyList<Func<TContructionContext, object>> factories))
+            if (MultiMappings.TryGetValue(serviceType, out IReadOnlyList<Func<TConstructionContext, object>> factories))
             {
-                return factories.Select(f => f(contructionContext));
+                return factories.Select(f => f(constructionContext));
             }
 
             // Otherwise return an empty enumerable to indicate there are no matches.
@@ -75,36 +75,36 @@ namespace Abioc
         /// <typeparamref name="TService"/>.
         /// </summary>
         /// <typeparam name="TService">The type of the service to get.</typeparam>
-        /// <param name="contructionContext">The construction context.</param>
+        /// <param name="constructionContext">The construction context.</param>
         /// <returns>
         /// Any services that are defined in the <see cref="MultiMappings"/> for the <typeparamref name="TService"/>.
         /// </returns>
         public IEnumerable<TService> GetServices<TService>(
-            TContructionContext contructionContext)
+            TConstructionContext constructionContext)
         {
-            return GetServices(contructionContext, typeof(TService)).Cast<TService>();
+            return GetServices(constructionContext, typeof(TService)).Cast<TService>();
         }
 
         /// <summary>
         /// Gets the service that is defined in the <see cref="SingleMappings"/> for the
         /// <paramref name="serviceType"/>.
         /// </summary>
-        /// <param name="contructionContext">The construction context.</param>
+        /// <param name="constructionContext">The construction context.</param>
         /// <param name="serviceType">The type of the service to get.</param>
         /// <returns>
         /// The service that is defined in the <see cref="SingleMappings"/> for the <paramref name="serviceType"/>.
         /// </returns>
         /// <exception cref="DiException">There are no mappings for the <paramref name="serviceType"/>.</exception>
-        public object GetService(TContructionContext contructionContext, Type serviceType)
+        public object GetService(TConstructionContext constructionContext, Type serviceType)
         {
-            if (contructionContext == null)
-                throw new ArgumentNullException(nameof(contructionContext));
+            if (constructionContext == null)
+                throw new ArgumentNullException(nameof(constructionContext));
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
-            if (SingleMappings.TryGetValue(serviceType, out Func<TContructionContext, object> factory))
+            if (SingleMappings.TryGetValue(serviceType, out Func<TConstructionContext, object> factory))
             {
-                return factory(contructionContext);
+                return factory(constructionContext);
             }
 
             // Produce a descriptive exception message, depending on where there are no mappings or multiple.
@@ -122,14 +122,14 @@ namespace Abioc
         /// <typeparamref name="TService"/>.
         /// </summary>
         /// <typeparam name="TService">The type of the service to get.</typeparam>
-        /// <param name="contructionContext">The construction context.</param>
+        /// <param name="constructionContext">The construction context.</param>
         /// <returns>
         /// The service that is defined in the <see cref="SingleMappings"/> for the <typeparamref name="TService"/>.
         /// </returns>
         /// <exception cref="DiException">There are no mappings for the <typeparamref name="TService"/>.</exception>
-        public TService GetService<TService>(TContructionContext contructionContext)
+        public TService GetService<TService>(TConstructionContext constructionContext)
         {
-            return (TService)GetService(contructionContext, typeof(TService));
+            return (TService)GetService(constructionContext, typeof(TService));
         }
     }
 }

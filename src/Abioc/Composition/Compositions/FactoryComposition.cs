@@ -18,14 +18,14 @@ namespace Abioc.Composition.Compositions
         /// </summary>
         /// <param name="type">The type of instance produced by the <paramref name="factory"/>.</param>
         /// <param name="factory">The factory function that produces services of the <paramref name="type"/>.</param>
-        /// <param name="contructionContextType">
-        /// The type of the <see cref="ContructionContext{T}"/> required by the <paramref name="factory"/>, if
+        /// <param name="constructionContextType">
+        /// The type of the <see cref="ConstructionContext{T}"/> required by the <paramref name="factory"/>, if
         /// required.
         /// </param>
         public FactoryComposition(
             Type type,
             object factory,
-            Type contructionContextType = null)
+            Type constructionContextType = null)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -34,7 +34,7 @@ namespace Abioc.Composition.Compositions
 
             Type = type;
             Factory = factory;
-            ContructionContextType = contructionContextType;
+            ConstructionContextType = constructionContextType;
         }
 
         /// <summary>
@@ -48,11 +48,11 @@ namespace Abioc.Composition.Compositions
         public object Factory { get; }
 
         /// <summary>
-        /// Gets the type of the <see cref="ContructionContext{T}"/> required by the <see cref="Factory"/>.
+        /// Gets the type of the <see cref="ConstructionContext{T}"/> required by the <see cref="Factory"/>.
         /// <see langword="null"/> indicates the <see cref="Factory"/> does not require a
-        /// <see cref="ContructionContext{T}"/>.
+        /// <see cref="ConstructionContext{T}"/>.
         /// </summary>
-        public Type ContructionContextType { get; }
+        public Type ConstructionContextType { get; }
 
         /// <inheritdoc/>
         public override string GetComposeMethodName(CompositionContext context, bool simpleName)
@@ -60,7 +60,7 @@ namespace Abioc.Composition.Compositions
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            string methodName = "Create" + Type.ToCompileMethodName(simpleName);
+            string methodName = GetFactoryFieldName();
             return methodName;
         }
 
@@ -73,7 +73,7 @@ namespace Abioc.Composition.Compositions
             string factoryFieldName = GetFactoryFieldName();
 
             string instanceExpression =
-                RequiresContructionContext()
+                RequiresConstructionContext()
                     ? factoryFieldName + "(context)"
                     : factoryFieldName + "()";
 
@@ -86,19 +86,7 @@ namespace Abioc.Composition.Compositions
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            string parameter = RequiresContructionContext()
-                ? $"{Environment.NewLine}    {context.ContructionContext} context"
-                : string.Empty;
-
-            string methodName = GetComposeMethodName(context, simpleName);
-            string signature = $"private static {Type.ToCompileName()} {methodName}({parameter})";
-
-            string instanceExpression = GetInstanceExpression(context, simpleName);
-            instanceExpression = CodeGen.Indent(instanceExpression);
-
-            string method =
-                string.Format("{0}{2}{{{2}    return {1};{2}}}", signature, instanceExpression, Environment.NewLine);
-            return new[] { method };
+            return Enumerable.Empty<string>();
         }
 
         /// <inheritdoc />
@@ -110,8 +98,8 @@ namespace Abioc.Composition.Compositions
             string fieldName = GetFactoryFieldName();
             string returnType = Type.ToCompileName();
             string fieldType =
-                RequiresContructionContext()
-                    ? $"System.Func<{ContructionContextType.ToCompileName()}, {returnType}>"
+                RequiresConstructionContext()
+                    ? $"System.Func<{ConstructionContextType.ToCompileName()}, {returnType}>"
                     : $"System.Func<{returnType}>";
 
             string code = $"{fieldName} = ({fieldType})";
@@ -127,8 +115,8 @@ namespace Abioc.Composition.Compositions
             string fieldName = GetFactoryFieldName();
             string returnType = Type.ToCompileName();
             string fieldType =
-                RequiresContructionContext()
-                    ? $"System.Func<{ContructionContextType.ToCompileName()}, {returnType}>"
+                RequiresConstructionContext()
+                    ? $"System.Func<{ConstructionContextType.ToCompileName()}, {returnType}>"
                     : $"System.Func<{returnType}>";
 
             string field = $"private static {fieldType} {fieldName};";
@@ -136,16 +124,16 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresContructionContext(CompositionContext context)
+        public override bool RequiresConstructionContext(CompositionContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            return RequiresContructionContext();
+            return RequiresConstructionContext();
         }
 
-        private bool RequiresContructionContext() => ContructionContextType != null;
+        private bool RequiresConstructionContext() => ConstructionContextType != null;
 
-        private string GetFactoryFieldName() => "Factor" + Type.ToCompileMethodName(simpleName: false);
+        private string GetFactoryFieldName() => "Factor_" + Type.ToCompileMethodName(simpleName: false);
     }
 }

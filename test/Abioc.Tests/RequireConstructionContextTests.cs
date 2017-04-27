@@ -17,14 +17,14 @@ namespace Abioc
         {
             internal static Service1 CreateService1NoContext() => new Service1();
 
-            internal static Service1 CreateService1WithContext(DefaultContructionContext unused) => new Service1();
+            internal static Service1 CreateService1WithContext(DefaultConstructionContext unused) => new Service1();
         }
 
         public class Service2
         {
             internal static Service2 CreateService2NoContext() => new Service2();
 
-            internal static Service2 CreateService2WithContext(DefaultContructionContext unused) => new Service2();
+            internal static Service2 CreateService2WithContext(DefaultConstructionContext unused) => new Service2();
         }
 
         public class DependentService
@@ -43,7 +43,7 @@ namespace Abioc
     public abstract class RequireConstructionContextTestsBase
     {
         protected RequireConstructionContextTestsBase(
-            RegistrationContext<DefaultContructionContext> registrationContext)
+            RegistrationContext<DefaultConstructionContext> registrationContext)
         {
             if (registrationContext == null)
                 throw new ArgumentNullException(nameof(registrationContext));
@@ -53,7 +53,7 @@ namespace Abioc
                 .Compile(GetType().GetTypeInfo().Assembly);
         }
 
-        protected CompilationContext<DefaultContructionContext> Context { get; }
+        protected CompilationContext<DefaultConstructionContext> Context { get; }
 
         [Fact]
         public void ItShouldInjectTheFactoredServices()
@@ -91,7 +91,7 @@ namespace Abioc
     public class WhenRegisteringFactoriesThatRequireAConstructionContext : RequireConstructionContextTestsBase
     {
         public WhenRegisteringFactoriesThatRequireAConstructionContext()
-            : base(new RegistrationContext<DefaultContructionContext>()
+            : base(new RegistrationContext<DefaultConstructionContext>()
                 .Register(Service1.CreateService1WithContext)
                 .Register(typeof(Service2), Service2.CreateService2WithContext))
         {
@@ -101,7 +101,7 @@ namespace Abioc
         public void ItShouldUseTheStronglyTypedFactoriesDirectly()
         {
             // Arrange
-            Func<DefaultContructionContext, Service1> expected1 = Service1.CreateService1WithContext;
+            Func<DefaultConstructionContext, Service1> expected1 = Service1.CreateService1WithContext;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().BeSameAs(expected1.GetMethodInfo());
@@ -111,7 +111,7 @@ namespace Abioc
     public class WhenRegisteringFactoriesThatDoNotRequireAConstructionContext : RequireConstructionContextTestsBase
     {
         public WhenRegisteringFactoriesThatDoNotRequireAConstructionContext()
-            : base(new RegistrationContext<DefaultContructionContext>()
+            : base(new RegistrationContext<DefaultConstructionContext>()
                 .Register(Service1.CreateService1NoContext)
                 .Register(typeof(Service2), Service2.CreateService2NoContext))
         {
@@ -121,8 +121,8 @@ namespace Abioc
         public void ItShouldWrapTheFactoriesToTakeAConstructionContext()
         {
             // Arrange
-            Func<DefaultContructionContext, Service1> notExpected1 = Service1.CreateService1WithContext;
-            Func<DefaultContructionContext, Service2> notExpected2 = Service2.CreateService2WithContext;
+            Func<DefaultConstructionContext, Service1> notExpected1 = Service1.CreateService1WithContext;
+            Func<DefaultConstructionContext, Service2> notExpected2 = Service2.CreateService2WithContext;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().NotBeSameAs(notExpected1.GetMethodInfo());
@@ -134,7 +134,7 @@ namespace Abioc
         : RequireConstructionContextTestsBase
     {
         public WhenRegisteringMixedFactoriesWithSomeRequiringAConstructionContext()
-            : base(new RegistrationContext<DefaultContructionContext>()
+            : base(new RegistrationContext<DefaultConstructionContext>()
                 .Register(Service1.CreateService1WithContext)
                 .Register(Service2.CreateService2NoContext))
         {
@@ -144,7 +144,7 @@ namespace Abioc
         public void ItShouldUseTheStronglyTypedFactoriesDirectly()
         {
             // Arrange
-            Func<DefaultContructionContext, Service1> expected = Service1.CreateService1WithContext;
+            Func<DefaultConstructionContext, Service1> expected = Service1.CreateService1WithContext;
 
             // Act/Assert
             Context.SingleMappings[typeof(Service1)].GetMethodInfo().Should().BeSameAs(expected.GetMethodInfo());

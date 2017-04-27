@@ -9,10 +9,10 @@ namespace Abioc.Registration
     using System.Reflection;
 
     /// <summary>
-    /// The registration setup for registrations that require a <see cref="ContructionContext{TExtra}"/>.
+    /// The registration setup for registrations that require a <see cref="ConstructionContext{TExtra}"/>.
     /// </summary>
     /// <typeparam name="TExtra">
-    /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+    /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
     public class RegistrationSetup<TExtra> : RegistrationSetupBase<RegistrationSetup<TExtra>>
     {
@@ -125,7 +125,7 @@ namespace Abioc.Registration
         public RegistrationSetup<TExtra> RegisterFactory(
             Type serviceType,
             Type implementationType,
-            Func<ContructionContext<TExtra>, object> factory)
+            Func<ConstructionContext<TExtra>, object> factory)
         {
             if (implementationType == null)
                 throw new ArgumentNullException(nameof(implementationType));
@@ -147,7 +147,7 @@ namespace Abioc.Registration
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterFactory(
-            Type implementationType, Func<ContructionContext<TExtra>, object> factory)
+            Type implementationType, Func<ConstructionContext<TExtra>, object> factory)
         {
             return RegisterFactory(implementationType, implementationType, factory);
         }
@@ -168,7 +168,7 @@ namespace Abioc.Registration
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterFactory<TService, TImplementation>(
-            Func<ContructionContext<TExtra>, TImplementation> factory)
+            Func<ConstructionContext<TExtra>, TImplementation> factory)
             where TImplementation : class, TService
         {
             if (factory == null)
@@ -188,7 +188,7 @@ namespace Abioc.Registration
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterFactory<TImplementation>(
-            Func<ContructionContext<TExtra>, TImplementation> factory)
+            Func<ConstructionContext<TExtra>, TImplementation> factory)
             where TImplementation : class
         {
             return RegisterFactory<TImplementation, TImplementation>(factory);
@@ -211,7 +211,7 @@ namespace Abioc.Registration
         public RegistrationSetup<TExtra> RegisterSingleton(
             Type serviceType,
             Type implementationType,
-            Func<ContructionContext<TExtra>, object> factory)
+            Func<ConstructionContext<TExtra>, object> factory)
         {
             if (implementationType == null)
                 throw new ArgumentNullException(nameof(implementationType));
@@ -234,7 +234,7 @@ namespace Abioc.Registration
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterSingleton(
             Type implementationType,
-            Func<ContructionContext<TExtra>, object> factory)
+            Func<ConstructionContext<TExtra>, object> factory)
         {
             return RegisterSingleton(implementationType, implementationType, factory);
         }
@@ -255,7 +255,7 @@ namespace Abioc.Registration
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterSingleton<TService, TImplementation>(
-            Func<ContructionContext<TExtra>, TImplementation> factory)
+            Func<ConstructionContext<TExtra>, TImplementation> factory)
             where TImplementation : class, TService
         {
             if (factory == null)
@@ -275,7 +275,7 @@ namespace Abioc.Registration
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterSingleton<TImplementation>(
-            Func<ContructionContext<TExtra>, TImplementation> factory)
+            Func<ConstructionContext<TExtra>, TImplementation> factory)
             where TImplementation : class
         {
             return RegisterSingleton<TImplementation, TImplementation>(factory);

@@ -101,8 +101,8 @@ namespace Abioc.Composition.Compositions
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            string parameter = RequiresContructionContext(context)
-                ? $"{Environment.NewLine}    {context.ContructionContext} context"
+            string parameter = RequiresConstructionContext(context)
+                ? $"{Environment.NewLine}    {context.ConstructionContext} context"
                 : string.Empty;
 
             string methodName = GetComposeMethodName(context, simpleName);
@@ -117,7 +117,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresContructionContext(CompositionContext context)
+        public override bool RequiresConstructionContext(CompositionContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -127,7 +127,7 @@ namespace Abioc.Composition.Compositions
                 IEnumerable<IComposition> compositions =
                     GetCompositions(context, Parameters.Select(p => p.ParameterType));
 
-                return compositions.Any(c => c.RequiresContructionContext(context));
+                return compositions.Any(c => c.RequiresConstructionContext(context));
             }
             catch (Exception ex)
             {

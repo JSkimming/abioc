@@ -13,7 +13,7 @@ namespace Abioc.Registration
     /// <see cref="IRegistration.ImplementationType"/> through a factory function.
     /// </summary>
     /// <typeparam name="TExtra">
-    /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+    /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class FactoryRegistration<TExtra> : IRegistration
@@ -27,7 +27,7 @@ namespace Abioc.Registration
         /// <param name="factory">
         /// The factory function that produces services of type <see cref="IRegistration.ImplementationType"/>.
         /// </param>
-        public FactoryRegistration(Type implementationType, Func<ContructionContext<TExtra>, object> factory)
+        public FactoryRegistration(Type implementationType, Func<ConstructionContext<TExtra>, object> factory)
         {
             if (implementationType == null)
                 throw new ArgumentNullException(nameof(implementationType));
@@ -46,7 +46,7 @@ namespace Abioc.Registration
         /// <summary>
         /// Gets the
         /// </summary>
-        public Func<ContructionContext<TExtra>, object> Factory { get; }
+        public Func<ConstructionContext<TExtra>, object> Factory { get; }
 
         private string DebuggerDisplay => $"{typeof(FactoryRegistration<>).Name}: Type={ImplementationType.Name}";
     }

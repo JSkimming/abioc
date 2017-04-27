@@ -65,7 +65,7 @@ namespace Abioc
         /// <summary>
         /// Creates a new instance of the <see cref="RegistrationEntry"/> class.
         /// </summary>
-        /// <typeparam name="TContructionContext">The type of the context used during service resolution.</typeparam>
+        /// <typeparam name="TConstructionContext">The type of the context used during service resolution.</typeparam>
         /// <param name="implementationType">The type of the implemented service.</param>
         /// <param name="factory">
         /// The factory function that produces services of type <paramref name="implementationType"/>. If not specified
@@ -75,11 +75,11 @@ namespace Abioc
         /// A value indicating whether the <paramref name="factory"/> is strongly typed.
         /// </param>
         /// <returns>A new instance of the <see cref="RegistrationEntry"/> class.</returns>
-        public static RegistrationEntry Create<TContructionContext>(
+        public static RegistrationEntry Create<TConstructionContext>(
             Type implementationType,
-            Func<TContructionContext, object> factory = null,
+            Func<TConstructionContext, object> factory = null,
             bool typedfactory = false)
-            where TContructionContext : IContructionContext
+            where TConstructionContext : IConstructionContext
         {
             if (implementationType == null)
                 throw new ArgumentNullException(nameof(implementationType));

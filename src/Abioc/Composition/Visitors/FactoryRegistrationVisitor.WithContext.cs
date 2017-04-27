@@ -13,7 +13,7 @@ namespace Abioc.Composition.Visitors
     /// A composition registration visitor for a <see cref="FactoryRegistration{TExtra}"/>.
     /// </summary>
     /// <typeparam name="TExtra">
-    /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+    /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
     public class FactoryRegistrationVisitor<TExtra> : IRegistrationVisitor<FactoryRegistration<TExtra>>
     {
@@ -41,7 +41,7 @@ namespace Abioc.Composition.Visitors
                 throw new ArgumentNullException(nameof(registration));
 
             Type type = registration.ImplementationType;
-            var composition = new FactoryComposition(type, registration.Factory, typeof(ContructionContext<TExtra>));
+            var composition = new FactoryComposition(type, registration.Factory, typeof(ConstructionContext<TExtra>));
             _context.Compositions[type] = composition;
         }
     }

@@ -12,11 +12,11 @@ namespace Abioc
 
     public class WhenTryingToCompileUsingAClassWithoutAPublicConstructor
     {
-        private readonly RegistrationContext<DefaultContructionContext> _registrationContext;
+        private readonly RegistrationContext<DefaultConstructionContext> _registrationContext;
 
         public WhenTryingToCompileUsingAClassWithoutAPublicConstructor()
         {
-            _registrationContext = new RegistrationContext<DefaultContructionContext>()
+            _registrationContext = new RegistrationContext<DefaultConstructionContext>()
                 .Register<ClassWithoutAPublicConstructor>();
         }
 
@@ -38,11 +38,11 @@ namespace Abioc
 
     public class WhenTryingToCompileUsingAClassWithMultiplePublicConstructors
     {
-        private readonly RegistrationContext<DefaultContructionContext> _registrationContext;
+        private readonly RegistrationContext<DefaultConstructionContext> _registrationContext;
 
         public WhenTryingToCompileUsingAClassWithMultiplePublicConstructors()
         {
-            _registrationContext = new RegistrationContext<DefaultContructionContext>()
+            _registrationContext = new RegistrationContext<DefaultConstructionContext>()
                 .Register<ClassWithMultiplePublicConstructors>();
         }
 
@@ -68,14 +68,14 @@ namespace Abioc
         private readonly ClassWithoutAPublicConstructor _expectedNoPublicConstructor;
         private readonly ClassWithMultiplePublicConstructors _expectedMultiplePublicConstructors;
 
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly CompilationContext<DefaultConstructionContext> _context;
 
         public WhenFactoringClassesWithInvalidConstructors()
         {
             _expectedNoPublicConstructor = ClassWithoutAPublicConstructor.Create();
             _expectedMultiplePublicConstructors = new ClassWithMultiplePublicConstructors();
 
-            _context = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultConstructionContext>()
                 .Register(c => _expectedNoPublicConstructor)
                 .Register(c => _expectedMultiplePublicConstructors)
                 .Compile(GetType().GetTypeInfo().Assembly);
@@ -110,11 +110,11 @@ namespace Abioc
 
     public class WhenCreatingClassesWithASinglePublicConstructor
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly CompilationContext<DefaultConstructionContext> _context;
 
         public WhenCreatingClassesWithASinglePublicConstructor()
         {
-            _context = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultConstructionContext>()
                 .Register<SimpleClass1WithoutDependencies>()
                 .Register<ClassWithAPrivateAndPublicConstructor>()
                 .Register<ClassWithAnInternalAndPublicConstructor>()

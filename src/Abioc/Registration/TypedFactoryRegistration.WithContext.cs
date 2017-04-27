@@ -13,7 +13,7 @@ namespace Abioc.Registration
     /// <typeparamref name="TImplementation"/> through a factory function.
     /// </summary>
     /// <typeparam name="TExtra">
-    /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+    /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
     /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
@@ -25,7 +25,7 @@ namespace Abioc.Registration
         /// <param name="factory">
         /// The factory function that produces services of type <typeparamref name="TImplementation"/>.
         /// </param>
-        public TypedFactoryRegistration(Func<ContructionContext<TExtra>, TImplementation> factory)
+        public TypedFactoryRegistration(Func<ConstructionContext<TExtra>, TImplementation> factory)
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
@@ -41,7 +41,7 @@ namespace Abioc.Registration
         /// <summary>
         /// Gets the
         /// </summary>
-        public Func<ContructionContext<TExtra>, TImplementation> Factory { get; }
+        public Func<ConstructionContext<TExtra>, TImplementation> Factory { get; }
 
         private string DebuggerDisplay =>
             $"{typeof(TypedFactoryRegistration<,>).Name}: Type={ImplementationType.Name}";

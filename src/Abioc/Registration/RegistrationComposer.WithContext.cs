@@ -11,7 +11,7 @@ namespace Abioc.Registration
     /// Helper class used in the fluent composition of a registration.
     /// </summary>
     /// <typeparam name="TExtra">
-    /// The type of the <see cref="ContructionContext{TExtra}.Extra"/> construction context information.
+    /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
     /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     public class RegistrationComposer<TExtra, TImplementation> : RegistrationComposer<TImplementation>

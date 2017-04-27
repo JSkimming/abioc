@@ -84,11 +84,11 @@ namespace Abioc
 
     public class WhenRegisteringAbstractDependencies
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly CompilationContext<DefaultConstructionContext> _context;
 
         public WhenRegisteringAbstractDependencies()
         {
-            _context = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultConstructionContext>()
                 .Register<IInterface, InterfaceImplementation>()
                 .Register<AbstractBaseClass, BaseClassImplementation>()
                 .Register<ClassWithInterfaceDependencies>()
@@ -160,11 +160,11 @@ namespace Abioc
 
     public class WhenRegisteringAClassThatImplementsMultipleAbstractions
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly CompilationContext<DefaultConstructionContext> _context;
 
         public WhenRegisteringAClassThatImplementsMultipleAbstractions()
         {
-            _context = new RegistrationContext<DefaultContructionContext>()
+            _context = new RegistrationContext<DefaultConstructionContext>()
                 .Register<IInterface, BothImplementation>()
                 .Register<AbstractBaseClass, BothImplementation>()
                 .Register<InterfaceImplementation>()

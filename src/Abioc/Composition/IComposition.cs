@@ -91,12 +91,12 @@ namespace Abioc.Composition
 
         /// <summary>
         /// Returns the value indicating whether the <see cref="IComposition"/> requires a
-        /// <see cref="ContructionContext{T}"/>.
+        /// <see cref="ConstructionContext{T}"/>.
         /// </summary>
         /// <param name="context">The whole composition context.</param>
         /// <returns>
-        /// The value indicating whether the <see cref="IComposition"/> requires a <see cref="ContructionContext{T}"/>.
+        /// The value indicating whether the <see cref="IComposition"/> requires a <see cref="ConstructionContext{T}"/>.
         /// </returns>
-        bool RequiresContructionContext(CompositionContext context);
+        bool RequiresConstructionContext(CompositionContext context);
     }
 }

@@ -12,16 +12,16 @@ namespace Abioc
     /// The construction context.
     /// </summary>
     /// <typeparam name="TExtra">The type of the <see cref="Extra"/> construction context information.</typeparam>
-    public struct ContructionContext<TExtra>
+    public struct ConstructionContext<TExtra>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ContructionContext{TExtra}"/> struct.
+        /// Initializes a new instance of the <see cref="ConstructionContext{TExtra}"/> struct.
         /// </summary>
         /// <param name="implementationType">The <see cref="ImplementationType"/>.</param>
         /// <param name="serviceType">The <see cref="ServiceType"/>.</param>
         /// <param name="recipientType">The <see cref="RecipientType"/>.</param>
         /// <param name="extra">The <see cref="Extra"/> construction context information.</param>
-        public ContructionContext(
+        public ConstructionContext(
             Type implementationType,
             Type serviceType,
             Type recipientType,
