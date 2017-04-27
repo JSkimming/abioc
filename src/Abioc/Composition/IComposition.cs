@@ -87,7 +87,7 @@ namespace Abioc.Composition
         /// <returns>
         /// The code of the fields required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </returns>
-        IEnumerable<(string code, object value)> GetFieldInitializations(CompositionContext context);
+        IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context);
 
         /// <summary>
         /// Returns the value indicating whether the <see cref="IComposition"/> requires a

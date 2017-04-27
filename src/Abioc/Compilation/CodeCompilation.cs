@@ -21,8 +21,8 @@ namespace Abioc.Compilation
     /// </summary>
     public static class CodeCompilation
     {
-        private static readonly ConcurrentDictionary<string, MethodInfo> Compilations
-            = new ConcurrentDictionary<string, MethodInfo>();
+        private static readonly ConcurrentDictionary<string, Assembly> Compilations
+            = new ConcurrentDictionary<string, Assembly>();
 
         /// <summary>
         /// Compiles the <paramref name="code"/> for the registration <paramref name="setup"/>.
@@ -32,21 +32,34 @@ namespace Abioc.Compilation
         /// </typeparam>
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
         /// <param name="code">The source code to compile.</param>
+        /// <param name="fieldValues">The values of the fields to be initialized.</param>
         /// <param name="srcAssembly">The source assembly for the types top create.</param>
         /// <returns>The <see cref="CompositionContext"/>.</returns>
         public static AbiocContainer<TExtra> Compile<TExtra>(
             RegistrationSetup<TExtra> setup,
             string code,
+            object[] fieldValues,
             Assembly srcAssembly)
         {
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
+            if (fieldValues == null)
+                throw new ArgumentNullException(nameof(fieldValues));
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            MethodInfo getCreateMapMethod = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+            Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+
+            if (fieldValues.Length > 0)
+            {
+                var initializeFieldsMethod = GetInitializeFieldsMethodInfo(assembly);
+
+                initializeFieldsMethod.Invoke(null, new object[] { fieldValues });
+            }
+
+            MethodInfo getCreateMapMethod = GetCreateMapMethodInfo(assembly);
             Dictionary<Type, Func<ConstructionContext<TExtra>, object>> createMap =
                 (Dictionary<Type, Func<ConstructionContext<TExtra>, object>>)getCreateMapMethod.Invoke(null, null);
 
@@ -63,18 +76,34 @@ namespace Abioc.Compilation
         /// </summary>
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
         /// <param name="code">The source code to compile.</param>
+        /// <param name="fieldValues">The values of the fields to be initialized.</param>
         /// <param name="srcAssembly">The source assembly for the types top create.</param>
         /// <returns>The <see cref="CompositionContext"/>.</returns>
-        public static AbiocContainer Compile(RegistrationSetup setup, string code, Assembly srcAssembly)
+        public static AbiocContainer Compile(
+            RegistrationSetup setup,
+            string code,
+            object[] fieldValues,
+            Assembly srcAssembly)
         {
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
+            if (fieldValues == null)
+                throw new ArgumentNullException(nameof(fieldValues));
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            MethodInfo getCreateMapMethod = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+            Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+
+            if (fieldValues.Length > 0)
+            {
+                var initializeFieldsMethod = GetInitializeFieldsMethodInfo(assembly);
+
+                initializeFieldsMethod.Invoke(null, new object[] { fieldValues });
+            }
+
+            MethodInfo getCreateMapMethod = GetCreateMapMethodInfo(assembly);
             Dictionary<Type, Func<object>> createMap =
                 (Dictionary<Type, Func<object>>)getCreateMapMethod.Invoke(null, null);
 
@@ -86,7 +115,33 @@ namespace Abioc.Compilation
             return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer();
         }
 
-        private static MethodInfo CompileCode(string code, Assembly srcAssembly)
+        private static MethodInfo GetCreateMapMethodInfo(Assembly assembly)
+        {
+            if (assembly == null)
+                throw new ArgumentNullException(nameof(assembly));
+
+            Type type = assembly.GetType("Abioc.Generated.Construction");
+
+            MethodInfo getCreateMapMethod =
+                type.GetTypeInfo().GetMethod("GetCreateMap", BindingFlags.NonPublic | BindingFlags.Static);
+
+            return getCreateMapMethod;
+        }
+
+        private static MethodInfo GetInitializeFieldsMethodInfo(Assembly assembly)
+        {
+            if (assembly == null)
+                throw new ArgumentNullException(nameof(assembly));
+
+            Type type = assembly.GetType("Abioc.Generated.Construction");
+
+            MethodInfo getCreateMapMethod =
+                type.GetTypeInfo().GetMethod("InitializeFields", BindingFlags.NonPublic | BindingFlags.Static);
+
+            return getCreateMapMethod;
+        }
+
+        private static Assembly CompileCode(string code, Assembly srcAssembly)
         {
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
@@ -136,13 +191,7 @@ namespace Abioc.Compilation
 #else
                 Assembly assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromStream(stream);
 #endif
-
-                Type type = assembly.GetType("Abioc.Generated.Construction");
-
-                MethodInfo getCreateMapMethod =
-                    type.GetTypeInfo().GetMethod("GetCreateMap", BindingFlags.NonPublic | BindingFlags.Static);
-
-                return getCreateMapMethod;
+                return assembly;
             }
         }
 

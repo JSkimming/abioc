@@ -81,16 +81,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
-        {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-
-            return Enumerable.Empty<string>();
-        }
-
-        /// <inheritdoc />
-        public override IEnumerable<(string code, object value)> GetFieldInitializations(CompositionContext context)
+        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -102,8 +93,8 @@ namespace Abioc.Composition.Compositions
                     ? $"System.Func<{ConstructionContextType.ToCompileName()}, {returnType}>"
                     : $"System.Func<{returnType}>";
 
-            string code = $"{fieldName} = ({fieldType})";
-            return new[] { (code, Factory) };
+            string snippet = $"{fieldName} = ({fieldType})";
+            return new[] { (snippet, Factory) };
         }
 
         /// <inheritdoc />

@@ -10,6 +10,7 @@ namespace Abioc
     using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
+    using Xunit.Abstractions;
 
     public abstract class WhenCreatingASimpleClassWithoutDependenciesBase
     {
@@ -92,12 +93,14 @@ namespace Abioc
     {
         private readonly AbiocContainer _container;
 
-        public WhenCreatingASimpleClassWithoutDependenciesWithoutAContext()
+        public WhenCreatingASimpleClassWithoutDependenciesWithoutAContext(ITestOutputHelper output)
         {
             _container =
                 new RegistrationSetup()
                     .Register<SimpleClass1WithoutDependencies>()
-                    .Construct(GetType().GetTypeInfo().Assembly);
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
         }
 
         public override TService GetService<TService>() => _container.GetService<TService>();
@@ -172,7 +175,7 @@ namespace Abioc
     {
         private readonly AbiocContainer<int> _container;
 
-        public WhenFactoringASimpleClassWithoutDependenciesWithAContext()
+        public WhenFactoringASimpleClassWithoutDependenciesWithAContext(ITestOutputHelper output)
         {
             // Arrange
             _expected = new SimpleClass1WithoutDependencies();
@@ -180,7 +183,9 @@ namespace Abioc
             _container =
                 new RegistrationSetup<int>()
                     .RegisterFactory(c => _expected)
-                    .Construct(GetType().GetTypeInfo().Assembly);
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
         }
 
         public override TService GetService<TService>() => _container.GetService<TService>(1);
@@ -193,7 +198,7 @@ namespace Abioc
     {
         private readonly AbiocContainer _container;
 
-        public WhenFactoringASimpleClassWithoutDependenciesWithoutAContext()
+        public WhenFactoringASimpleClassWithoutDependenciesWithoutAContext(ITestOutputHelper output)
         {
             // Arrange
             _expected = new SimpleClass1WithoutDependencies();
@@ -201,7 +206,9 @@ namespace Abioc
             _container =
                 new RegistrationSetup()
                     .RegisterFactory(() => _expected)
-                    .Construct(GetType().GetTypeInfo().Assembly);
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
         }
 
         public override TService GetService<TService>() => _container.GetService<TService>();

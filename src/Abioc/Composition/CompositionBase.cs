@@ -22,10 +22,16 @@ namespace Abioc.Composition
         public abstract string GetComposeMethodName(CompositionContext context, bool simpleName);
 
         /// <inheritdoc />
-        public abstract IEnumerable<string> GetMethods(CompositionContext context, bool simpleName);
+        public virtual IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
+            return Enumerable.Empty<string>();
+        }
 
         /// <inheritdoc />
-        public virtual IEnumerable<(string code, object value)> GetFieldInitializations(CompositionContext context)
+        public virtual IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));

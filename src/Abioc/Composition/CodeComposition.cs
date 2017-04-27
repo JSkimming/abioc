@@ -13,6 +13,8 @@ namespace Abioc.Composition
     /// </summary>
     public static class CodeComposition
     {
+        private static readonly object[] EmptyFieldValues = { };
+
         private static readonly string NewLine = Environment.NewLine;
 
         private static readonly string DoubleNewLine = NewLine + NewLine;
@@ -22,7 +24,7 @@ namespace Abioc.Composition
         /// </summary>
         /// <param name="context">The <see cref="CompositionContext"/>.</param>
         /// <returns>The generated code from the composition <paramref name="context"/>.</returns>
-        public static string GenerateCode(this CompositionContext context)
+        public static (string generatedCode, object[] fieldValues) GenerateCode(this CompositionContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -64,7 +66,12 @@ namespace Abioc.Composition
             }
 
             string generatedCode = GenerateCode(context, code);
-            return generatedCode;
+            object[] fieldValues =
+                code.FieldInitializations.Count == 0
+                    ? EmptyFieldValues
+                    : code.FieldInitializations.Select(fi => fi.value).ToArray();
+
+            return (generatedCode, fieldValues);
         }
 
         private static string GenerateCode(CompositionContext context, CodeCompositions code)
@@ -82,8 +89,16 @@ namespace Abioc.Composition
             string fieldsAndMethods = GenerateFieldsAndMethods(code);
             fieldsAndMethods = CodeGen.Indent(NewLine + fieldsAndMethods, 2);
             builder.Append(fieldsAndMethods);
-            builder.Append(NewLine);
 
+            if (code.FieldInitializations.Any())
+            {
+                builder.Append(NewLine);
+                string fieldInitializationsMethod = GenerateFieldInitializationsMethod(code);
+                fieldInitializationsMethod = CodeGen.Indent(NewLine + fieldInitializationsMethod, 2);
+                builder.Append(fieldInitializationsMethod);
+            }
+
+            builder.Append(NewLine);
             string composeMapMethod = GenerateComposeMapMethod(code);
             composeMapMethod = CodeGen.Indent(NewLine + composeMapMethod, 2);
             builder.Append(composeMapMethod);
@@ -109,6 +124,27 @@ namespace Abioc.Composition
             return fieldsAndMethods;
         }
 
+        private static string GenerateFieldInitializationsMethod(CodeCompositions code)
+        {
+            if (code == null)
+                throw new ArgumentNullException(nameof(code));
+
+            var builder = new StringBuilder(1014);
+            builder.AppendFormat(
+                "private static void InitializeFields(" +
+                "{0}    System.Collections.Generic.IReadOnlyList<object> values){0}{{",
+                NewLine);
+
+            for (int index = 0; index < code.FieldInitializations.Count; index++)
+            {
+                (string snippet, object value) = code.FieldInitializations[index];
+                builder.Append($"{NewLine}    {snippet}values[{index}];");
+            }
+
+            builder.AppendFormat("{0}}}", NewLine);
+            return builder.ToString();
+        }
+
         private static string GenerateComposeMapMethod(CodeCompositions code)
         {
             if (code == null)
@@ -118,7 +154,7 @@ namespace Abioc.Composition
                 ? $"System.Collections.Generic.Dictionary<System.Type, System.Func<{code.ConstructionContext}, object>>"
                 : "System.Collections.Generic.Dictionary<System.Type, System.Func<object>>";
 
-            var builder = new StringBuilder();
+            var builder = new StringBuilder(1014);
             builder.AppendFormat(
                 "private static {0} GetCreateMap(){1}{{{1}    return new {0}{1}    {{",
                 composeMapType,
@@ -164,7 +200,7 @@ namespace Abioc.Composition
 
             public List<string> Fields { get; } = new List<string>(32);
 
-            public List<(string code, object value)> FieldInitializations { get; } = new List<(string, object)>(32);
+            public List<(string snippet, object value)> FieldInitializations { get; } = new List<(string, object)>(32);
         }
     }
 }

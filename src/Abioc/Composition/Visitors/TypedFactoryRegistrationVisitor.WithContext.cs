@@ -43,7 +43,7 @@ namespace Abioc.Composition.Visitors
                 throw new ArgumentNullException(nameof(registration));
 
             Type type = registration.ImplementationType;
-            var composition = new FactoryComposition(type, registration.Factory);
+            var composition = new FactoryComposition(type, registration.Factory, typeof(ConstructionContext<TExtra>));
             _context.Compositions[type] = composition;
         }
     }
