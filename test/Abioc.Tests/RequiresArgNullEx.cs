@@ -7,6 +7,7 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Abioc.Composition.Compositions;
     using Abioc.Composition.Visitors;
     using Abioc.Registration;
     using AutoTest.ArgNullEx;
@@ -43,6 +44,7 @@ namespace Abioc
         [Substitute(typeof(RegistrationContext<>), typeof(RegistrationContext<DefaultConstructionContext>))]
         [Substitute(typeof(RegistrationSetupBase<>), typeof(RegistrationSetupBase<RegistrationSetup>))]
         [Substitute(typeof(RegistrationSetup<>), typeof(RegistrationSetup<int>))]
+        [Substitute(typeof(TypedFactoryComposition<>), typeof(TypedFactoryComposition<object>))]
         [Substitute(typeof(TypedFactoryRegistration<>), typeof(TypedFactoryRegistration<object>))]
         [Substitute(typeof(TypedFactoryRegistration<,>), typeof(TypedFactoryRegistration<object, object>))]
         [Substitute(typeof(TypedFactoryRegistrationVisitor<>), typeof(TypedFactoryRegistrationVisitor<object>))]

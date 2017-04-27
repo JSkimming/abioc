@@ -11,28 +11,24 @@ namespace Abioc.Composition.Compositions
     /// <summary>
     /// A composition to produce code to create a factory field.
     /// </summary>
-    public class FactoryComposition : CompositionBase
+    /// <typeparam name="TImplementation">The type of instance produced by the <see cref="Factory"/>.</typeparam>
+    public class TypedFactoryComposition<TImplementation> : CompositionBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FactoryComposition"/> class.
+        /// Initializes a new instance of the <see cref="TypedFactoryComposition{TImplementation}"/> class.
         /// </summary>
-        /// <param name="type">The type of instance produced by the <paramref name="factory"/>.</param>
-        /// <param name="factory">The factory function that produces services of the <paramref name="type"/>.</param>
+        /// <param name="factory">
+        /// The factory function that produces services of the type <typeparamref name="TImplementation"/>.
+        /// </param>
         /// <param name="constructionContextType">
         /// The type of the <see cref="ConstructionContext{T}"/> required by the <paramref name="factory"/>, if
         /// required.
         /// </param>
-        public FactoryComposition(
-            Type type,
-            object factory,
-            Type constructionContextType = null)
+        public TypedFactoryComposition(object factory, Type constructionContextType = null)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            Type = type;
             Factory = factory;
             ConstructionContextType = constructionContextType;
         }
@@ -40,10 +36,10 @@ namespace Abioc.Composition.Compositions
         /// <summary>
         /// Gets the type of instance produced by the <see cref="Factory"/>.
         /// </summary>
-        public override Type Type { get; }
+        public override Type Type => typeof(TImplementation);
 
         /// <summary>
-        /// Gets the factory function that produces services of the <see cref="Type"/>.
+        /// Gets the factory function that produces services of the type <typeparamref name="TImplementation"/>.
         /// </summary>
         public object Factory { get; }
 
@@ -60,58 +56,8 @@ namespace Abioc.Composition.Compositions
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            string methodName = "CallFactor" + Type.ToCompileMethodName(simpleName);
+            string methodName = GetFactoryFieldName();
             return methodName;
-        }
-
-        /// <inheritdoc/>
-        public override IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
-        {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-
-            string factoredType = Type.ToCompileName();
-            string composeMethodName = GetComposeMethodName(context, simpleName);
-            bool requiresConstructionContext = RequiresConstructionContext();
-
-            string methodSignature =
-                requiresConstructionContext
-                    ? string.Format(
-                        @"private static {0} {1}(
-    {2} context)",
-                        factoredType,
-                        composeMethodName,
-                        ConstructionContextType.ToCompileName())
-                    : $"private static {factoredType} {composeMethodName}()";
-
-            string factoryCall =
-                requiresConstructionContext
-                    ? $"{GetFactoryFieldName()}(context)"
-                    : $"{GetFactoryFieldName()}()";
-
-            string method = string.Format(
-                @"{0}
-{{
-    object obj = {1};
-    if (obj == null)
-    {{
-        throw new System.InvalidOperationException(""The factory method to create an instance of '{2}' returned null."");
-    }}
-
-    var instance = obj as {2};
-    if (instance != null)
-    {{
-        return instance;
-    }}
-
-    string message = $""The factory method to create an instance of '{2}' returned an instance of '{{obj.GetType()}}'."";
-    throw new System.InvalidOperationException(message);
-}}",
-                methodSignature,
-                factoryCall,
-                factoredType);
-
-            return new[] { method };
         }
 
         /// <inheritdoc />
@@ -120,7 +66,7 @@ namespace Abioc.Composition.Compositions
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            string factoryFieldName = GetComposeMethodName(context, simpleName);
+            string factoryFieldName = GetFactoryFieldName();
 
             string instanceExpression =
                 RequiresConstructionContext()
@@ -137,10 +83,11 @@ namespace Abioc.Composition.Compositions
                 throw new ArgumentNullException(nameof(context));
 
             string fieldName = GetFactoryFieldName();
+            string returnType = Type.ToCompileName();
             string fieldType =
                 RequiresConstructionContext()
-                    ? $"System.Func<{ConstructionContextType.ToCompileName()}, object>"
-                    : $"System.Func<object>";
+                    ? $"System.Func<{ConstructionContextType.ToCompileName()}, {returnType}>"
+                    : $"System.Func<{returnType}>";
 
             string snippet = $"{fieldName} = ({fieldType})";
             return new[] { (snippet, Factory) };
@@ -153,10 +100,11 @@ namespace Abioc.Composition.Compositions
                 throw new ArgumentNullException(nameof(context));
 
             string fieldName = GetFactoryFieldName();
+            string returnType = Type.ToCompileName();
             string fieldType =
                 RequiresConstructionContext()
-                    ? $"System.Func<{ConstructionContextType.ToCompileName()}, object>"
-                    : $"System.Func<object>";
+                    ? $"System.Func<{ConstructionContextType.ToCompileName()}, {returnType}>"
+                    : $"System.Func<{returnType}>";
 
             string field = $"private static {fieldType} {fieldName};";
             return new[] { field };

@@ -39,9 +39,8 @@ namespace Abioc.Composition.Visitors
             if (registration == null)
                 throw new ArgumentNullException(nameof(registration));
 
-            Type type = registration.ImplementationType;
-            var composition = new FactoryComposition(type, registration.Factory);
-            _context.Compositions[type] = composition;
+            IComposition composition = new TypedFactoryComposition<TImplementation>(registration.Factory);
+            _context.Compositions[composition.Type] = composition;
         }
     }
 }
