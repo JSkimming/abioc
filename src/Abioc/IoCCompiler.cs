@@ -118,18 +118,6 @@ namespace Abioc
             return assembly;
         }
 
-        private static IEnumerable<TSource> DistinctBy<TSource, TKey>(
-            this IEnumerable<TSource> items,
-            Func<TSource, TKey> keySelector)
-        {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
-            if (keySelector == null)
-                throw new ArgumentNullException(nameof(keySelector));
-
-            return items.GroupBy(keySelector).Select(item => item.First());
-        }
-
         /// <summary>
         /// Gets the full name of a <paramref name="type"/> that is compilable as part of a method name, e.g. namespace
         /// and nested class delimiters <c>'.'</c> and <c>'+'</c> are replaced with valid characters for a method name.

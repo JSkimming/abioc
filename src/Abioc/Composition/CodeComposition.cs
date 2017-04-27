@@ -30,7 +30,7 @@ namespace Abioc.Composition
                 throw new ArgumentNullException(nameof(context));
 
             IReadOnlyList<IComposition> compositions =
-                context.Compositions.Values.OrderBy(r => r.Type.ToCompileName()).ToList();
+                context.Compositions.Values.DistinctBy(r => r.Type).OrderBy(r => r.Type.ToCompileName()).ToList();
 
             var code = new CodeCompositions(context.ConstructionContext);
 
@@ -171,7 +171,9 @@ namespace Abioc.Composition
             return builder.ToString();
         }
 
-        private static string GenerateComposeMapInitializer(bool hasContext, (string name, Type type, bool requiresContext) data)
+        private static string GenerateComposeMapInitializer(
+            bool hasContext,
+            (string name, Type type, bool requiresContext) data)
         {
             string key = $"typeof({data.type.ToCompileName()})";
             string value =

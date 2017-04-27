@@ -7,8 +7,6 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Abioc.Compilation;
-    using Abioc.Composition;
     using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
@@ -60,30 +58,9 @@ namespace Abioc
 
     public class WhenCreatingAnObjectGraphOfClassesWithAContext : WhenCreatingAnObjectGraphOfClassesBase
     {
-        private readonly AbiocContainer _container;
-
-        public WhenCreatingAnObjectGraphOfClassesWithAContext(ITestOutputHelper output)
-        {
-            _container =
-                new RegistrationSetup()
-                    .Register<Example.Ns1.MyClass1>()
-                    .Register<Example.Ns1.MyClass2>()
-                    .Register<Example.Ns1.MyClass3>()
-                    .Register<Example.Ns2.MyClass1>()
-                    .Register<Example.Ns2.MyClass2>()
-                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
-
-            output.WriteLine(code);
-        }
-
-        public override TService GetService<TService>() => _container.GetService<TService>();
-    }
-
-    public class WhenCreatingAnObjectGraphOfClassesWithoutAContext : WhenCreatingAnObjectGraphOfClassesBase
-    {
         private readonly AbiocContainer<int> _container;
 
-        public WhenCreatingAnObjectGraphOfClassesWithoutAContext(ITestOutputHelper output)
+        public WhenCreatingAnObjectGraphOfClassesWithAContext(ITestOutputHelper output)
         {
             _container =
                 new RegistrationSetup<int>()
@@ -98,5 +75,26 @@ namespace Abioc
         }
 
         public override TService GetService<TService>() => _container.GetService<TService>(1);
+    }
+
+    public class WhenCreatingAnObjectGraphOfClassesWithoutAContext : WhenCreatingAnObjectGraphOfClassesBase
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenCreatingAnObjectGraphOfClassesWithoutAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup()
+                    .Register<Example.Ns1.MyClass1>()
+                    .Register<Example.Ns1.MyClass2>()
+                    .Register<Example.Ns1.MyClass3>()
+                    .Register<Example.Ns2.MyClass1>()
+                    .Register<Example.Ns2.MyClass2>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        public override TService GetService<TService>() => _container.GetService<TService>();
     }
 }

@@ -189,17 +189,5 @@ namespace Abioc.Composition
             Type genericType = typeInfo.MakeGenericType(extraType, implementationType);
             return CreateVisitor(genericType);
         }
-
-        private static IEnumerable<TSource> DistinctBy<TSource, TKey>(
-            this IEnumerable<TSource> items,
-            Func<TSource, TKey> keySelector)
-        {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
-            if (keySelector == null)
-                throw new ArgumentNullException(nameof(keySelector));
-
-            return items.GroupBy(keySelector).Select(item => item.First());
-        }
     }
 }
