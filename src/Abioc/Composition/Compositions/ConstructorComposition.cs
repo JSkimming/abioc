@@ -16,38 +16,28 @@ namespace Abioc.Composition.Compositions
         /// <summary>
         /// Initializes a new instance of the <see cref="ConstructorComposition"/> class.
         /// </summary>
-        /// <param name="type">The <see cref="Type"/> created by the <paramref name="constructor"/>.</param>
-        /// <param name="constructor">The information about the <see cref="Constructor"/>.</param>
-        /// <param name="parameters">The <see cref="Parameters"/> of the <paramref name="constructor"/>.</param>
+        /// <param name="type">The <see cref="Type"/> created by the constructor.</param>
+        /// <param name="parameters">The <see cref="Parameters"/> of the constructor.</param>
         public ConstructorComposition(
             Type type,
-            ConstructorInfo constructor,
             IReadOnlyList<ParameterInfo> parameters)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
-            if (constructor == null)
-                throw new ArgumentNullException(nameof(constructor));
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
             Type = type;
-            Constructor = constructor;
             Parameters = parameters;
         }
 
         /// <summary>
-        /// Gets the type created by the <see cref="Constructor"/>.
+        /// Gets the type created by the constructor.
         /// </summary>
         public override Type Type { get; }
 
         /// <summary>
-        /// Gets the information about the <see cref="Constructor"/>.
-        /// </summary>
-        public ConstructorInfo Constructor { get; }
-
-        /// <summary>
-        /// Gets the parameters of the <see cref="Constructor"/>.
+        /// Gets the parameters of the constructor.
         /// </summary>
         public IReadOnlyList<ParameterInfo> Parameters { get; }
 
@@ -57,32 +47,22 @@ namespace Abioc.Composition.Compositions
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            try
-            {
-                // Get the expressions for the all the constructor parameters.
-                IEnumerable<IComposition> compositions =
-                    GetCompositions(context, Parameters.Select(p => p.ParameterType));
-                IEnumerable<string> parameterExpressions =
-                    compositions.Select(c => c.GetInstanceExpression(context, simpleName));
+            // Get the expressions for the all the constructor parameters.
+            IReadOnlyList<IComposition> compositions = GetParameterCompositions(context);
+            IEnumerable<string> parameterExpressions =
+                compositions.Select(c => c.GetInstanceExpression(context, simpleName));
 
-                // Join the parameters expressions.
-                string parameters =
-                    string.Join(
-                        "," + Environment.NewLine + "    ",
-                        parameterExpressions.Select(p => CodeGen.Indent(p)));
+            // Join the parameters expressions.
+            string parameters =
+                string.Join(
+                    "," + Environment.NewLine + "    ",
+                    parameterExpressions.Select(p => CodeGen.Indent(p)));
 
-                // Create the new Expression.
-                string expression = string.IsNullOrEmpty(parameters)
-                    ? $"new {Type.ToCompileName()}()"
-                    : $"new {Type.ToCompileName()}({Environment.NewLine}    {parameters})";
-                return expression;
-            }
-            catch (Exception ex)
-            {
-                string message = "Failed to get the compositions for the parameters to the constructor of " +
-                                 $"'{Type}'. Is there a missing registration mapping?";
-                throw new CompositionException(message, ex);
-            }
+            // Create the new Expression.
+            string expression = string.IsNullOrEmpty(parameters)
+                ? $"new {Type.ToCompileName()}()"
+                : $"new {Type.ToCompileName()}({Environment.NewLine}    {parameters})";
+            return expression;
         }
 
         /// <inheritdoc/>
@@ -119,15 +99,17 @@ namespace Abioc.Composition.Compositions
         /// <inheritdoc/>
         public override bool RequiresConstructionContext(CompositionContext context)
         {
+            return GetParameterCompositions(context).Any(c => c.RequiresConstructionContext(context));
+        }
+
+        private IReadOnlyList<IComposition> GetParameterCompositions(CompositionContext context)
+        {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
             try
             {
-                IEnumerable<IComposition> compositions =
-                    GetCompositions(context, Parameters.Select(p => p.ParameterType));
-
-                return compositions.Any(c => c.RequiresConstructionContext(context));
+                return GetCompositions(context, Parameters.Select(p => p.ParameterType)).ToList();
             }
             catch (Exception ex)
             {

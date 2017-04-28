@@ -65,10 +65,9 @@ namespace Abioc.Composition.Visitors
                 throw new CompositionException(message);
             }
 
-            ConstructorInfo constructorInfo = constructors[0];
-            ParameterInfo[] parameters = constructorInfo.GetParameters();
-
-            _context.Compositions[type] = new ConstructorComposition(type, constructorInfo, parameters);
+            ParameterInfo[] parameters = constructors[0].GetParameters();
+            IComposition composition = new ConstructorComposition(type, parameters);
+            _context.Compositions[composition.Type] = composition;
         }
     }
 }

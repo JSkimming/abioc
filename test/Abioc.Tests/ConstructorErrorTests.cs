@@ -54,6 +54,7 @@ namespace Abioc
             string expectedMessage =
                  $"The service of type '{typeof(ClassWithMultiplePublicConstructors)}' has 2 public constructors. " +
                  "There must be just 1.";
+
             // Act
             Action action = () => _setup.Compose();
 
