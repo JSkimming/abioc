@@ -9,7 +9,7 @@
 #---------------------------------#
 
 # version format
-version: 0.1.{build}
+version: 0.2.{build}
 pull_requests:
   do_not_increment_build_number: true
 
