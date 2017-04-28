@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Filter\**" />
     <Compile Remove="AbiocCustomization.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
     <Compile Remove="RequiresArgNullEx.cs" />

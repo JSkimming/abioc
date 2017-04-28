@@ -7,17 +7,19 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Abioc.Composition;
+    using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
+    using Xunit.Abstractions;
 
     public class WhenTryingToCompileUsingAClassWithoutAPublicConstructor
     {
-        private readonly RegistrationContext<DefaultContructionContext> _registrationContext;
+        private readonly RegistrationSetup _setup;
 
         public WhenTryingToCompileUsingAClassWithoutAPublicConstructor()
         {
-            _registrationContext = new RegistrationContext<DefaultContructionContext>()
-                .Register<ClassWithoutAPublicConstructor>();
+            _setup = new RegistrationSetup().Register<ClassWithoutAPublicConstructor>();
         }
 
         [Fact]
@@ -26,24 +28,24 @@ namespace Abioc
             // Arrange
             string expectedMessage =
                 $"The service of type '{typeof(ClassWithoutAPublicConstructor)}' has no public constructors.";
+
             // Act
-            Action action = () =>_registrationContext.Compile(GetType().GetTypeInfo().Assembly);
+            Action action = () => _setup.Compose();
 
             // Assert
             action
-                .ShouldThrow<IoCCompilationException>()
+                .ShouldThrow<CompositionException>()
                 .WithMessage(expectedMessage);
         }
     }
 
     public class WhenTryingToCompileUsingAClassWithMultiplePublicConstructors
     {
-        private readonly RegistrationContext<DefaultContructionContext> _registrationContext;
+        private readonly RegistrationSetup _setup;
 
         public WhenTryingToCompileUsingAClassWithMultiplePublicConstructors()
         {
-            _registrationContext = new RegistrationContext<DefaultContructionContext>()
-                .Register<ClassWithMultiplePublicConstructors>();
+            _setup = new RegistrationSetup().Register<ClassWithMultiplePublicConstructors>();
         }
 
         [Fact]
@@ -53,80 +55,105 @@ namespace Abioc
             string expectedMessage =
                  $"The service of type '{typeof(ClassWithMultiplePublicConstructors)}' has 2 public constructors. " +
                  "There must be just 1.";
+
             // Act
-            Action action = () => _registrationContext.Compile(GetType().GetTypeInfo().Assembly);
+            Action action = () => _setup.Compose();
 
             // Assert
             action
-                .ShouldThrow<IoCCompilationException>()
+                .ShouldThrow<CompositionException>()
                 .WithMessage(expectedMessage);
         }
     }
 
-    public class WhenFactoringClassesWithInvalidConstructors
+    public abstract class WhenFactoringClassesWithInvalidConstructorsBase
     {
-        private readonly ClassWithoutAPublicConstructor _expectedNoPublicConstructor;
-        private readonly ClassWithMultiplePublicConstructors _expectedMultiplePublicConstructors;
+        protected ClassWithoutAPublicConstructor ExpectedNoPublicConstructor;
 
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        protected ClassWithMultiplePublicConstructors ExpectedMultiplePublicConstructors;
 
-        public WhenFactoringClassesWithInvalidConstructors()
-        {
-            _expectedNoPublicConstructor = ClassWithoutAPublicConstructor.Create();
-            _expectedMultiplePublicConstructors = new ClassWithMultiplePublicConstructors();
-
-            _context = new RegistrationContext<DefaultContructionContext>()
-                .Register(c => _expectedNoPublicConstructor)
-                .Register(c => _expectedMultiplePublicConstructors)
-                .Compile(GetType().GetTypeInfo().Assembly);
-        }
+        protected abstract TService GetService<TService>();
 
         [Fact]
         public void ItShouldFactorAClassWithoutAPublicConstructor()
         {
             // Act
-            ClassWithoutAPublicConstructor actual = _context.GetService<ClassWithoutAPublicConstructor>();
+            ClassWithoutAPublicConstructor actual = GetService<ClassWithoutAPublicConstructor>();
 
             // Assert
             actual
                 .Should()
                 .NotBeNull()
-                .And.BeSameAs(_expectedNoPublicConstructor);
+                .And.BeSameAs(ExpectedNoPublicConstructor);
         }
 
         [Fact]
         public void ItShouldFactorAClassWithMultiplePublicConstructors()
         {
             // Act
-            ClassWithMultiplePublicConstructors actual = _context.GetService<ClassWithMultiplePublicConstructors>();
+            ClassWithMultiplePublicConstructors actual = GetService<ClassWithMultiplePublicConstructors>();
 
             // Assert
             actual
                 .Should()
                 .NotBeNull()
-                .And.BeSameAs(_expectedMultiplePublicConstructors);
+                .And.BeSameAs(ExpectedMultiplePublicConstructors);
         }
     }
 
-    public class WhenCreatingClassesWithASinglePublicConstructor
+    public class WhenFactoringClassesWithInvalidConstructorsWithAContext
+        : WhenFactoringClassesWithInvalidConstructorsBase
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly AbiocContainer<int> _container;
 
-        public WhenCreatingClassesWithASinglePublicConstructor()
+        public WhenFactoringClassesWithInvalidConstructorsWithAContext(ITestOutputHelper output)
         {
-            _context = new RegistrationContext<DefaultContructionContext>()
-                .Register<SimpleClass1WithoutDependencies>()
-                .Register<ClassWithAPrivateAndPublicConstructor>()
-                .Register<ClassWithAnInternalAndPublicConstructor>()
-                .Compile(GetType().GetTypeInfo().Assembly);
+            ExpectedNoPublicConstructor = ClassWithoutAPublicConstructor.Create();
+            ExpectedMultiplePublicConstructors = new ClassWithMultiplePublicConstructors();
+
+            _container =
+                new RegistrationSetup<int>()
+                    .RegisterFactory(() => ExpectedNoPublicConstructor)
+                    .RegisterFactory(c => ExpectedMultiplePublicConstructors)
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
         }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
+    }
+
+    public class WhenFactoringClassesWithInvalidConstructorsWithoutAContext
+        : WhenFactoringClassesWithInvalidConstructorsBase
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenFactoringClassesWithInvalidConstructorsWithoutAContext(ITestOutputHelper output)
+        {
+            ExpectedNoPublicConstructor = ClassWithoutAPublicConstructor.Create();
+            ExpectedMultiplePublicConstructors = new ClassWithMultiplePublicConstructors();
+
+            _container =
+                new RegistrationSetup()
+                    .RegisterFactory(() => ExpectedNoPublicConstructor)
+                    .RegisterFactory(() => ExpectedMultiplePublicConstructors)
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>();
+    }
+
+    public abstract class WhenCreatingClassesWithASinglePublicConstructorBase
+    {
+        protected abstract TService GetService<TService>();
 
         [Fact]
         public void ItShouldCreateAClassWithAPrivateAndPublicConstructor()
         {
             // Act
-            ClassWithAPrivateAndPublicConstructor actual =
-                _context.GetService<ClassWithAPrivateAndPublicConstructor>();
+            ClassWithAPrivateAndPublicConstructor actual = GetService<ClassWithAPrivateAndPublicConstructor>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -137,12 +164,51 @@ namespace Abioc
         public void ItShouldCreateAClassWithAnInternalAndPublicConstructor()
         {
             // Act
-            ClassWithAnInternalAndPublicConstructor actual =
-                _context.GetService<ClassWithAnInternalAndPublicConstructor>();
+            ClassWithAnInternalAndPublicConstructor actual = GetService<ClassWithAnInternalAndPublicConstructor>();
 
             // Assert
             actual.Should().NotBeNull();
             actual.Other.Should().NotBeNull();
         }
+    }
+
+    public class WhenCreatingClassesWithASinglePublicConstructorWithAContext
+        : WhenCreatingClassesWithASinglePublicConstructorBase
+    {
+        private readonly AbiocContainer<int> _container;
+
+        public WhenCreatingClassesWithASinglePublicConstructorWithAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup<int>()
+                    .Register<SimpleClass1WithoutDependencies>()
+                    .Register<ClassWithAPrivateAndPublicConstructor>()
+                    .Register<ClassWithAnInternalAndPublicConstructor>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
+    }
+
+    public class WhenCreatingClassesWithASinglePublicConstructorWithoutAContext
+        : WhenCreatingClassesWithASinglePublicConstructorBase
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenCreatingClassesWithASinglePublicConstructorWithoutAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup()
+                    .Register<SimpleClass1WithoutDependencies>()
+                    .Register<ClassWithAPrivateAndPublicConstructor>()
+                    .Register<ClassWithAnInternalAndPublicConstructor>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>();
     }
 }

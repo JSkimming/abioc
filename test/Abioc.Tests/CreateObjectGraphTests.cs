@@ -7,29 +7,20 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
+    using Xunit.Abstractions;
 
-    public class WhenCreatingAnObjectGraphOfClasses
+    public abstract class WhenCreatingAnObjectGraphOfClassesBase
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
-
-        public WhenCreatingAnObjectGraphOfClasses()
-        {
-            _context = new RegistrationContext<DefaultContructionContext>()
-                .Register<Example.Ns1.MyClass1>()
-                .Register<Example.Ns1.MyClass2>()
-                .Register<Example.Ns1.MyClass3>()
-                .Register<Example.Ns2.MyClass1>()
-                .Register<Example.Ns2.MyClass2>()
-                .Compile(GetType().GetTypeInfo().Assembly);
-        }
+        protected abstract TService GetService<TService>();
 
         [Fact]
         public void ItShouldCreateTheHeadClassWithDependencies()
         {
             // Act
-            Example.Ns1.MyClass3 actual = _context.GetService<Example.Ns1.MyClass3>();
+            Example.Ns1.MyClass3 actual = GetService<Example.Ns1.MyClass3>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -46,7 +37,7 @@ namespace Abioc
         public void ItShouldCreateAnIntermediateClassWithDependencies()
         {
             // Act
-            Example.Ns2.MyClass2 actual = _context.GetService<Example.Ns2.MyClass2>();
+            Example.Ns2.MyClass2 actual = GetService<Example.Ns2.MyClass2>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -58,10 +49,52 @@ namespace Abioc
         public void ItShouldCreateATailClass()
         {
             // Act
-            Example.Ns1.MyClass1 actual = _context.GetService<Example.Ns1.MyClass1>();
+            Example.Ns1.MyClass1 actual = GetService<Example.Ns1.MyClass1>();
 
             // Assert
             actual.Should().NotBeNull();
         }
+    }
+
+    public class WhenCreatingAnObjectGraphOfClassesWithAContext : WhenCreatingAnObjectGraphOfClassesBase
+    {
+        private readonly AbiocContainer<int> _container;
+
+        public WhenCreatingAnObjectGraphOfClassesWithAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup<int>()
+                    .Register<Example.Ns1.MyClass1>()
+                    .Register<Example.Ns1.MyClass2>()
+                    .Register<Example.Ns1.MyClass3>()
+                    .Register<Example.Ns2.MyClass1>()
+                    .Register<Example.Ns2.MyClass2>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
+    }
+
+    public class WhenCreatingAnObjectGraphOfClassesWithoutAContext : WhenCreatingAnObjectGraphOfClassesBase
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenCreatingAnObjectGraphOfClassesWithoutAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup()
+                    .Register<Example.Ns1.MyClass1>()
+                    .Register<Example.Ns1.MyClass2>()
+                    .Register<Example.Ns1.MyClass3>()
+                    .Register<Example.Ns2.MyClass1>()
+                    .Register<Example.Ns2.MyClass2>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>();
     }
 }

@@ -8,8 +8,10 @@ namespace Abioc
     using System.Linq;
     using System.Reflection;
     using Abioc.AbstractDependencies;
+    using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
+    using Xunit.Abstractions;
 
     namespace AbstractDependencies
     {
@@ -82,26 +84,15 @@ namespace Abioc
         }
     }
 
-    public class WhenRegisteringAbstractDependencies
+    public abstract class WhenRegisteringAbstractDependenciesBase
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
-
-        public WhenRegisteringAbstractDependencies()
-        {
-            _context = new RegistrationContext<DefaultContructionContext>()
-                .Register<IInterface, InterfaceImplementation>()
-                .Register<AbstractBaseClass, BaseClassImplementation>()
-                .Register<ClassWithInterfaceDependencies>()
-                .Register<ClassWithAbstractBaseClassDependencies>()
-                .Register<ClassWithMixedDependencies>()
-                .Compile(GetType().GetTypeInfo().Assembly);
-        }
+        protected abstract TService GetService<TService>();
 
         [Fact]
         public void ItShouldCreateAClassWithInterfaceDependencies()
         {
             // Act
-            ClassWithInterfaceDependencies actual = _context.GetService<ClassWithInterfaceDependencies>();
+            ClassWithInterfaceDependencies actual = GetService<ClassWithInterfaceDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -115,8 +106,7 @@ namespace Abioc
         public void ItShouldCreateAClassWithAbstractBaseClassDependencies()
         {
             // Act
-            ClassWithAbstractBaseClassDependencies actual =
-                _context.GetService<ClassWithAbstractBaseClassDependencies>();
+            ClassWithAbstractBaseClassDependencies actual = GetService<ClassWithAbstractBaseClassDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -130,8 +120,7 @@ namespace Abioc
         public void ItShouldCreateAClassWithMixedDependencies()
         {
             // Act
-            ClassWithMixedDependencies actual =
-                _context.GetService<ClassWithMixedDependencies>();
+            ClassWithMixedDependencies actual = GetService<ClassWithMixedDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -158,28 +147,57 @@ namespace Abioc
         }
     }
 
-    public class WhenRegisteringAClassThatImplementsMultipleAbstractions
+    public class WhenRegisteringAbstractDependenciesWithAContext : WhenRegisteringAbstractDependenciesBase
     {
-        private readonly CompilationContext<DefaultContructionContext> _context;
+        private readonly AbiocContainer<int> _container;
 
-        public WhenRegisteringAClassThatImplementsMultipleAbstractions()
+        public WhenRegisteringAbstractDependenciesWithAContext(ITestOutputHelper output)
         {
-            _context = new RegistrationContext<DefaultContructionContext>()
-                .Register<IInterface, BothImplementation>()
-                .Register<AbstractBaseClass, BothImplementation>()
-                .Register<InterfaceImplementation>()
-                .Register<BaseClassImplementation>()
-                .Register<ClassWithInterfaceDependencies>()
-                .Register<ClassWithAbstractBaseClassDependencies>()
-                .Register<ClassWithMixedDependencies>()
-                .Compile(GetType().GetTypeInfo().Assembly);
+            _container =
+                new RegistrationSetup<int>()
+                    .Register<IInterface, InterfaceImplementation>()
+                    .Register<AbstractBaseClass, BaseClassImplementation>()
+                    .Register<ClassWithInterfaceDependencies>()
+                    .Register<ClassWithAbstractBaseClassDependencies>()
+                    .Register<ClassWithMixedDependencies>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
         }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
+    }
+
+    public class WhenRegisteringAbstractDependenciesWithoutAContext : WhenRegisteringAbstractDependenciesBase
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenRegisteringAbstractDependenciesWithoutAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup()
+                    .Register<IInterface, InterfaceImplementation>()
+                    .Register<AbstractBaseClass, BaseClassImplementation>()
+                    .Register<ClassWithInterfaceDependencies>()
+                    .Register<ClassWithAbstractBaseClassDependencies>()
+                    .Register<ClassWithMixedDependencies>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>();
+    }
+
+    public abstract class WhenRegisteringAClassThatImplementsMultipleAbstractionsBase
+    {
+        protected abstract TService GetService<TService>();
 
         [Fact]
         public void ItShouldCreateAClassWithInterfaceDependencies()
         {
             // Act
-            ClassWithInterfaceDependencies actual = _context.GetService<ClassWithInterfaceDependencies>();
+            ClassWithInterfaceDependencies actual = GetService<ClassWithInterfaceDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -193,8 +211,7 @@ namespace Abioc
         public void ItShouldCreateAClassWithAbstractBaseClassDependencies()
         {
             // Act
-            ClassWithAbstractBaseClassDependencies actual =
-                _context.GetService<ClassWithAbstractBaseClassDependencies>();
+            ClassWithAbstractBaseClassDependencies actual = GetService<ClassWithAbstractBaseClassDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -208,8 +225,7 @@ namespace Abioc
         public void ItShouldCreateAClassWithMixedDependencies()
         {
             // Act
-            ClassWithMixedDependencies actual =
-                _context.GetService<ClassWithMixedDependencies>();
+            ClassWithMixedDependencies actual = GetService<ClassWithMixedDependencies>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -234,5 +250,53 @@ namespace Abioc
                 .And.BeOfType<BaseClassImplementation>()
                 .And.NotBeSameAs(actual.AbstractBaseClassDependency);
         }
+    }
+
+    public class WhenRegisteringAClassThatImplementsMultipleAbstractionsWithAContext
+        : WhenRegisteringAClassThatImplementsMultipleAbstractionsBase
+    {
+        private readonly AbiocContainer<int> _container;
+
+        public WhenRegisteringAClassThatImplementsMultipleAbstractionsWithAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup<int>()
+                    .Register<IInterface, BothImplementation>()
+                    .Register<AbstractBaseClass, BothImplementation>()
+                    .Register<InterfaceImplementation>()
+                    .Register<BaseClassImplementation>()
+                    .Register<ClassWithInterfaceDependencies>()
+                    .Register<ClassWithAbstractBaseClassDependencies>()
+                    .Register<ClassWithMixedDependencies>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
+    }
+
+    public class WhenRegisteringAClassThatImplementsMultipleAbstractionsWithoutAContext
+        : WhenRegisteringAClassThatImplementsMultipleAbstractionsBase
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenRegisteringAClassThatImplementsMultipleAbstractionsWithoutAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup()
+                    .Register<IInterface, BothImplementation>()
+                    .Register<AbstractBaseClass, BothImplementation>()
+                    .Register<InterfaceImplementation>()
+                    .Register<BaseClassImplementation>()
+                    .Register<ClassWithInterfaceDependencies>()
+                    .Register<ClassWithAbstractBaseClassDependencies>()
+                    .Register<ClassWithMixedDependencies>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>();
     }
 }

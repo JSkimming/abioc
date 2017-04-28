@@ -7,6 +7,9 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Abioc.Composition.Compositions;
+    using Abioc.Composition.Visitors;
+    using Abioc.Registration;
     using AutoTest.ArgNullEx;
     using AutoTest.ArgNullEx.Xunit;
     using Xunit;
@@ -21,9 +24,24 @@ namespace Abioc
             _output = output;
         }
 
-        [Theory, RequiresArgNullExAutoMoq(typeof(IoCCompiler))]
-        [Substitute(typeof(CompilationContext<>), typeof(CompilationContext<DefaultContructionContext>))]
-        [Substitute(typeof(RegistrationContext<>), typeof(RegistrationContext<DefaultContructionContext>))]
+        [Theory, RequiresArgNullExAutoMoq(typeof(AbiocContainer))]
+        [Exclude(
+            Type = typeof(RegistrationSetupBase<RegistrationSetup>),
+            Method = "RegisterFixed",
+            Parameter = "value")]
+        [Substitute(typeof(AbiocContainer<>), typeof(AbiocContainer<int>))]
+        [Substitute(typeof(ConstructionContext<>), typeof(ConstructionContext<int>))]
+        [Substitute(typeof(FactoryRegistration<>), typeof(FactoryRegistration<object>))]
+        [Substitute(typeof(FactoryRegistrationVisitor<>), typeof(FactoryRegistrationVisitor<object>))]
+        [Substitute(typeof(RegistrationComposer<>), typeof(RegistrationComposer<int>))]
+        [Substitute(typeof(RegistrationComposer<,>), typeof(RegistrationComposer<int, int>))]
+        [Substitute(typeof(RegistrationSetupBase<>), typeof(RegistrationSetupBase<RegistrationSetup>))]
+        [Substitute(typeof(RegistrationSetup<>), typeof(RegistrationSetup<int>))]
+        [Substitute(typeof(TypedFactoryComposition<>), typeof(TypedFactoryComposition<object>))]
+        [Substitute(typeof(TypedFactoryRegistration<>), typeof(TypedFactoryRegistration<object>))]
+        [Substitute(typeof(TypedFactoryRegistration<,>), typeof(TypedFactoryRegistration<object, object>))]
+        [Substitute(typeof(TypedFactoryRegistrationVisitor<>), typeof(TypedFactoryRegistrationVisitor<object>))]
+        [Substitute(typeof(TypedFactoryRegistrationVisitor<,>), typeof(TypedFactoryRegistrationVisitor<object, object>))]
         public Task Abioc(MethodData method)
         {
             // Work around the problem with generic parameters
