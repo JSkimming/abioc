@@ -93,14 +93,12 @@ namespace Abioc
     {
         private readonly AbiocContainer _container;
 
-        public WhenCreatingASimpleClassWithoutDependenciesWithoutAContext(ITestOutputHelper output)
+        public WhenCreatingASimpleClassWithoutDependenciesWithoutAContext()
         {
             _container =
                 new RegistrationSetup()
                     .Register<SimpleClass1WithoutDependencies>()
-                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
-
-            output.WriteLine(code);
+                    .Construct(GetType().GetTypeInfo().Assembly);
         }
 
         protected override TService GetService<TService>() => _container.GetService<TService>();
