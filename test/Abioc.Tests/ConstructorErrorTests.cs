@@ -28,6 +28,7 @@ namespace Abioc
             // Arrange
             string expectedMessage =
                 $"The service of type '{typeof(ClassWithoutAPublicConstructor)}' has no public constructors.";
+
             // Act
             Action action = () => _setup.Compose();
 
