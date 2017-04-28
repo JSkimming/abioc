@@ -86,7 +86,7 @@ namespace Abioc
 
     public abstract class WhenRegisteringAbstractDependenciesBase
     {
-        public abstract TService GetService<TService>();
+        protected abstract TService GetService<TService>();
 
         [Fact]
         public void ItShouldCreateAClassWithInterfaceDependencies()
@@ -165,7 +165,7 @@ namespace Abioc
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>(1);
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
     }
 
     public class WhenRegisteringAbstractDependenciesWithoutAContext : WhenRegisteringAbstractDependenciesBase
@@ -186,12 +186,12 @@ namespace Abioc
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>();
+        protected override TService GetService<TService>() => _container.GetService<TService>();
     }
 
     public abstract class WhenRegisteringAClassThatImplementsMultipleAbstractionsBase
     {
-        public abstract TService GetService<TService>();
+        protected abstract TService GetService<TService>();
 
         [Fact]
         public void ItShouldCreateAClassWithInterfaceDependencies()
@@ -273,7 +273,7 @@ namespace Abioc
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>(1);
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
     }
 
     public class WhenRegisteringAClassThatImplementsMultipleAbstractionsWithoutAContext
@@ -297,6 +297,6 @@ namespace Abioc
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>();
+        protected override TService GetService<TService>() => _container.GetService<TService>();
     }
 }

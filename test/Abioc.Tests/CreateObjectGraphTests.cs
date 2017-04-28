@@ -14,7 +14,7 @@ namespace Abioc
 
     public abstract class WhenCreatingAnObjectGraphOfClassesBase
     {
-        public abstract TService GetService<TService>();
+        protected abstract TService GetService<TService>();
 
         [Fact]
         public void ItShouldCreateTheHeadClassWithDependencies()
@@ -74,7 +74,7 @@ namespace Abioc
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>(1);
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
     }
 
     public class WhenCreatingAnObjectGraphOfClassesWithoutAContext : WhenCreatingAnObjectGraphOfClassesBase
@@ -95,6 +95,6 @@ namespace Abioc
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>();
+        protected override TService GetService<TService>() => _container.GetService<TService>();
     }
 }

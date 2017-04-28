@@ -14,9 +14,9 @@ namespace Abioc
 
     public abstract class WhenRegisteringTwoClassThatImplementTheSameInterfaceBase
     {
-        public abstract TService GetService<TService>();
+        protected abstract TService GetService<TService>();
 
-        public abstract IEnumerable<TService> GetServices<TService>();
+        protected abstract IEnumerable<TService> GetServices<TService>();
 
         [Fact]
         public void ItShouldCreateBothImplementationsOfTheSameInterface()
@@ -64,9 +64,9 @@ namespace Abioc
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>(1);
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
 
-        public override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>(1);
+        protected override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>(1);
     }
 
     public class WhenRegisteringTwoClassThatImplementTheSameInterfaceWithoutAContext
@@ -85,20 +85,20 @@ namespace Abioc
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>();
+        protected override TService GetService<TService>() => _container.GetService<TService>();
 
-        public override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>();
+        protected override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>();
     }
 
     public abstract class WhenFactoringTwoClassThatImplementTheSameInterfaceBase
     {
-        protected SimpleClass1WithoutDependencies _expected1;
+        protected SimpleClass1WithoutDependencies Expected1;
 
-        protected SimpleClass2WithoutDependencies _expected2;
+        protected SimpleClass2WithoutDependencies Expected2;
 
-        public abstract TService GetService<TService>();
+        protected abstract TService GetService<TService>();
 
-        public abstract IEnumerable<TService> GetServices<TService>();
+        protected abstract IEnumerable<TService> GetServices<TService>();
 
         [Fact]
         public void ItShouldCreateBothImplementationsOfTheSameInterface()
@@ -109,8 +109,8 @@ namespace Abioc
             // Assert
             actual.Should()
                 .HaveCount(2)
-                .And.Contain(_expected1)
-                .And.Contain(_expected2);
+                .And.Contain(Expected1)
+                .And.Contain(Expected2);
         }
 
         [Fact]
@@ -137,21 +137,21 @@ namespace Abioc
 
         public WhenFactoringTwoClassThatImplementTheSameInterfaceWithAContext(ITestOutputHelper output)
         {
-            _expected1 = new SimpleClass1WithoutDependencies();
-            _expected2 = new SimpleClass2WithoutDependencies();
+            Expected1 = new SimpleClass1WithoutDependencies();
+            Expected2 = new SimpleClass2WithoutDependencies();
 
             _container =
                 new RegistrationSetup<int>()
-                    .RegisterFactory<ISimpleInterface, SimpleClass1WithoutDependencies>(c => _expected1)
-                    .RegisterFactory<ISimpleInterface, SimpleClass2WithoutDependencies>(() => _expected2)
+                    .RegisterFactory<ISimpleInterface, SimpleClass1WithoutDependencies>(c => Expected1)
+                    .RegisterFactory<ISimpleInterface, SimpleClass2WithoutDependencies>(() => Expected2)
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>(1);
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
 
-        public override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>(1);
+        protected override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>(1);
     }
 
     public class WhenFactoringTwoClassThatImplementTheSameInterfaceWithoutAContext
@@ -161,20 +161,20 @@ namespace Abioc
 
         public WhenFactoringTwoClassThatImplementTheSameInterfaceWithoutAContext(ITestOutputHelper output)
         {
-            _expected1 = new SimpleClass1WithoutDependencies();
-            _expected2 = new SimpleClass2WithoutDependencies();
+            Expected1 = new SimpleClass1WithoutDependencies();
+            Expected2 = new SimpleClass2WithoutDependencies();
 
             _container =
                 new RegistrationSetup()
-                    .RegisterFactory<ISimpleInterface, SimpleClass1WithoutDependencies>(() => _expected1)
-                    .RegisterFactory<ISimpleInterface, SimpleClass2WithoutDependencies>(() => _expected2)
+                    .RegisterFactory<ISimpleInterface, SimpleClass1WithoutDependencies>(() => Expected1)
+                    .RegisterFactory<ISimpleInterface, SimpleClass2WithoutDependencies>(() => Expected2)
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
             output.WriteLine(code);
         }
 
-        public override TService GetService<TService>() => _container.GetService<TService>();
+        protected override TService GetService<TService>() => _container.GetService<TService>();
 
-        public override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>();
+        protected override IEnumerable<TService> GetServices<TService>() => _container.GetServices<TService>();
     }
 }
