@@ -50,7 +50,8 @@ namespace Abioc.Compilation
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+            ////Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+            Assembly assembly = CompileCode(code, srcAssembly);
 
             if (fieldValues.Length > 0)
             {
@@ -94,7 +95,8 @@ namespace Abioc.Compilation
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+            ////Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+            Assembly assembly = CompileCode(code, srcAssembly);
 
             if (fieldValues.Length > 0)
             {
