@@ -181,7 +181,7 @@ namespace Abioc.Compilation
                     string errors =
                         string.Join(Environment.NewLine, failures.Select(d => $"{d.Id}: {d.GetMessage()}"));
 
-                    throw new InvalidOperationException(
+                    throw new CompilationException(
                         $"Compilation failed.{Environment.NewLine}{errors}{Environment.NewLine}{code}");
                 }
 

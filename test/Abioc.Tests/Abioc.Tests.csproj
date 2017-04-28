@@ -96,6 +96,7 @@
     <Compile Include="AbiocCustomization.cs" />
     <Compile Include="AbstractDependencies.cs" />
     <Compile Include="CommonInterfaceTests.cs" />
+    <Compile Include="Compilation\CompilationErrorTests.cs" />
     <Compile Include="ConstructorErrorTests.cs" />
     <Compile Include="CreateObjectGraphTests.cs" />
     <Compile Include="ExampleServices.cs" />
