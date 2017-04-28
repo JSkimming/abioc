@@ -1,7 +1,7 @@
 ﻿// Copyright (c) 2017 James Skimming. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-namespace Abioc.Composition
+namespace Abioc.Composition.Compositions
 {
     using System;
     using System.Collections.Generic;
@@ -49,13 +49,7 @@ namespace Abioc.Composition
         }
 
         /// <inheritdoc />
-        public virtual bool RequiresConstructionContext(CompositionContext context)
-        {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-
-            return false;
-        }
+        public abstract bool RequiresConstructionContext(CompositionContext context);
 
         /// <summary>
         /// Gets all the compositions for the specified <paramref name="types"/>.
