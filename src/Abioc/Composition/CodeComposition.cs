@@ -188,7 +188,7 @@ namespace Abioc.Composition
         {
             public CodeCompositions(string constructionContext = null)
             {
-                ConstructionContext = constructionContext ?? string.Empty;
+                ConstructionContext = constructionContext;
             }
 
             public string ConstructionContext { get; }

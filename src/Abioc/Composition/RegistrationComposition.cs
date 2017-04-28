@@ -86,7 +86,7 @@ namespace Abioc.Composition
             var visitorManager = new VisitorManager(context);
 
             IEnumerable<IRegistration> distinctRegistrations =
-                registrations.Values.SelectMany(r => r).DistinctBy(r => r.ImplementationType);
+                registrations.Values.SelectMany(r => r);
             foreach (IRegistration registration in distinctRegistrations)
             {
                 visitorManager.Visit(registration);

@@ -17,17 +17,24 @@ namespace Abioc
     {
         public class Service1
         {
-            public Service1(string extraData = null)
+            private readonly Type _implementationType;
+            private readonly Type _serviceType;
+            private readonly Type _recipientType;
+
+            public Service1(ConstructionContext<string> context)
             {
-                ExtraData = extraData ?? string.Empty;
+                _implementationType = context.ImplementationType;
+                _serviceType = context.ServiceType;
+                _recipientType = context.RecipientType;
+                ExtraData = context.Extra ?? string.Empty;
             }
 
             public string ExtraData { get; }
 
-            internal static Service1 CreateService1NoContext() => new Service1();
+            internal static Service1 CreateService1NoContext() => new Service1(default(ConstructionContext<string>));
 
             internal static Service1 CreateService1WithContext(ConstructionContext<string> context)
-                => new Service1(context.Extra);
+                => new Service1(context);
         }
 
         public class Service2
