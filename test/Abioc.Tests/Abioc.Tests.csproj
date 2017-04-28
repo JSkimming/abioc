@@ -99,6 +99,7 @@
     <Compile Include="Compilation\CompilationErrorTests.cs" />
     <Compile Include="ConstructorErrorTests.cs" />
     <Compile Include="CreateObjectGraphTests.cs" />
+    <Compile Include="DebuggerDisplayTests.cs" />
     <Compile Include="ExampleServices.cs" />
     <Compile Include="FactoryServicesTests.cs" />
     <Compile Include="Filter\NotDelegate.cs" />
