@@ -4,8 +4,10 @@
 namespace Abioc.Composition
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
     using Abioc.Registration;
 
@@ -18,6 +20,9 @@ namespace Abioc.Composition
 
         private static readonly Lazy<Type[]> GenericVisitorTypes = new Lazy<Type[]>(GetGenericVisitorTypes);
 
+        private static readonly ConcurrentDictionary<Type, Func<object>[]> VisitorFactoryCache =
+            new ConcurrentDictionary<Type, Func<object>[]>();
+
         /// <summary>
         /// Creates the visitors that are <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> to the specified type.
         /// </summary>
@@ -26,6 +31,20 @@ namespace Abioc.Composition
         /// The visitors that are <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> to the specified type.
         /// </returns>
         public static IEnumerable<IRegistrationVisitor<TRegistration>> CreateVisitors<TRegistration>()
+            where TRegistration : class, IRegistration
+        {
+            Type visitorType = typeof(IRegistrationVisitor<TRegistration>);
+
+            Func<object>[] nonTypedFactories =
+                VisitorFactoryCache.GetOrAdd(visitorType, t => CreateVisitorFactories<TRegistration>());
+
+            IEnumerable<Func<IRegistrationVisitor<TRegistration>>> factories =
+                nonTypedFactories.Cast<Func<IRegistrationVisitor<TRegistration>>>();
+
+            return factories.Select(f => f());
+        }
+
+        private static Func<object>[] CreateVisitorFactories<TRegistration>()
             where TRegistration : class, IRegistration
         {
             TypeInfo visitorTypeInfo = typeof(IRegistrationVisitor<TRegistration>).GetTypeInfo();
@@ -37,8 +56,8 @@ namespace Abioc.Composition
                 // Get the non generic types that are assignable to the visitor type.
                 IEnumerable<Type> types = NonGenericVisitorTypes.Value.Where(visitorTypeInfo.IsAssignableFrom);
 
-                // Create the visitors.
-                return types.Select(Activator.CreateInstance).Cast<IRegistrationVisitor<TRegistration>>();
+                // Create the visitor factories.
+                return types.Select(CreateVisitorFactory<TRegistration>).Cast<Func<object>>().ToArray();
             }
 
             // Get the generic arguments of the registration type.
@@ -55,8 +74,23 @@ namespace Abioc.Composition
                     .Select(gt => gt.GetTypeInfo().MakeGenericType(typeArguments))
                     .Where(visitorTypeInfo.IsAssignableFrom);
 
-            // Create the visitors.
-            return genericTypes.Select(Activator.CreateInstance).Cast<IRegistrationVisitor<TRegistration>>();
+            // Create the visitor factories.
+            return genericTypes.Select(CreateVisitorFactory<TRegistration>).Cast<Func<object>>().ToArray();
+        }
+
+        private static Func<IRegistrationVisitor<TRegistration>> CreateVisitorFactory<TRegistration>(Type type)
+            where TRegistration : class, IRegistration
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            ConstructorInfo constructorInfo = type.GetTypeInfo().GetConstructor(Type.EmptyTypes);
+
+            Func<IRegistrationVisitor<TRegistration>> factory =
+                Expression.Lambda<Func<IRegistrationVisitor<TRegistration>>>(Expression.New(constructorInfo))
+                    .Compile();
+
+            return factory;
         }
 
         private static IEnumerable<Type> GetAllVisitorTypes()
