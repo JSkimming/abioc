@@ -34,7 +34,7 @@
   <!--
   Disable StyleCop as it breaks dotnet build compilation, and therefore breaks the travis CI build
   -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'dontbother' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 

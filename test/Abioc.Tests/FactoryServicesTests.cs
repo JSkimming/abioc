@@ -176,17 +176,17 @@ namespace Abioc
             Func<Service3> expected3 = Service3.CreateService3WithoutContext;
 
             // Act/Assert
-            _container.SingleMappings[typeof(Service1)]
+            _container.GetFactory(typeof(Service1))
                 .GetMethodInfo()
                 .Should()
                 .BeSameAs(expected1.GetMethodInfo());
 
-            _container.SingleMappings[typeof(Service2)]
+            _container.GetFactory(typeof(Service2))
                 .GetMethodInfo()
                 .Should()
                 .BeSameAs(expected2.GetMethodInfo());
 
-            _container.SingleMappings[typeof(IService3)]
+            _container.GetFactory(typeof(IService3))
                 .GetMethodInfo()
                 .Should()
                 .BeSameAs(expected3.GetMethodInfo());
@@ -266,17 +266,17 @@ namespace Abioc
             Func<Service3> notExpected3 = Service3.CreateService3WithoutContext;
 
             // Act/Assert
-            _container.SingleMappings[typeof(Service1)]
+            _container.GetFactory(typeof(Service1))
                 .GetMethodInfo()
                 .Should()
                 .NotBeSameAs(notExpected1.GetMethodInfo());
 
-            _container.SingleMappings[typeof(Service2)]
+            _container.GetFactory(typeof(Service2))
                 .GetMethodInfo()
                 .Should()
                 .NotBeSameAs(notExpected2.GetMethodInfo());
 
-            _container.SingleMappings[typeof(IService3)]
+            _container.GetFactory(typeof(IService3))
                 .GetMethodInfo()
                 .Should()
                 .NotBeSameAs(notExpected3.GetMethodInfo());
@@ -355,7 +355,7 @@ namespace Abioc
             Func<Service1> expected = Service1.CreateService1WithoutContext;
 
             // Act/Assert
-            _container.SingleMappings[typeof(Service1)]
+            _container.GetFactory(typeof(Service1))
                 .GetMethodInfo()
                 .Should()
                 .BeSameAs(expected.GetMethodInfo());
@@ -368,7 +368,7 @@ namespace Abioc
             Func<Service2> notExpected = Service2.CreateService2WithoutContext;
 
             // Act/Assert
-            _container.SingleMappings[typeof(Service2)]
+            _container.GetFactory(typeof(Service2))
                 .GetMethodInfo()
                 .Should()
                 .NotBeSameAs(notExpected.GetMethodInfo());
