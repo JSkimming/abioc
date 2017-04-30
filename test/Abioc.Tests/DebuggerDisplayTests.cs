@@ -110,6 +110,24 @@ namespace Abioc
         }
     }
 
+    public class WhenRunningInTheDebuggerInjectedSingletonRegistrationShould : DebuggerDisplayTestsBase
+    {
+        private readonly Type _implementationType;
+
+        public WhenRunningInTheDebuggerInjectedSingletonRegistrationShould()
+        {
+            var sut = new InjectedSingletonRegistration<DebuggerDisplayTestsBase>(null);
+            _implementationType = sut.ImplementationType;
+            GetDebuggerDisplay(sut);
+        }
+
+        [Fact]
+        public void IncludeImplementationTypeInTheDebuggerDisplay()
+        {
+            DebuggerDisplayText.Should().Contain(_implementationType.Name);
+        }
+    }
+
     public class WhenRunningInTheDebuggerSingleConstructorRegistrationShould : DebuggerDisplayTestsBase
     {
         private readonly Type _implementationType;
