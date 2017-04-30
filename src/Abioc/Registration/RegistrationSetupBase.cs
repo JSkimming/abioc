@@ -249,7 +249,6 @@ namespace Abioc.Registration
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public TDerived RegisterFixed<TImplementation>(TImplementation value)
-            where TImplementation : class
         {
             return RegisterFixed<TImplementation, TImplementation>(value);
         }

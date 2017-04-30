@@ -35,13 +35,24 @@ namespace Abioc
         {
         }
 
+        public struct ValueTypeDependency
+        {
+            public ValueTypeDependency(Guid guid)
+            {
+                Guid = guid;
+            }
+
+            public Guid Guid { get; }
+        }
+
         public class DependentClass
         {
             public DependentClass(
                 ConcreteOnlyDependency concreteOnlyDependency,
                 IInterfaceOnlyDependency interfaceOnlyDependency,
                 IMixedDependency mixedDependencyInferface,
-                MixedDependency mixedDependencyClass)
+                MixedDependency mixedDependencyClass,
+                ValueTypeDependency valueTypeDependency)
             {
                 ConcreteOnlyDependency = concreteOnlyDependency ??
                                          throw new ArgumentNullException(nameof(concreteOnlyDependency));
@@ -51,12 +62,14 @@ namespace Abioc
                                            throw new ArgumentNullException(nameof(mixedDependencyInferface));
                 MixedDependencyClass = mixedDependencyClass ??
                                        throw new ArgumentNullException(nameof(mixedDependencyClass));
+                ValueTypeDependency = valueTypeDependency;
             }
 
             public ConcreteOnlyDependency ConcreteOnlyDependency { get; }
             public IInterfaceOnlyDependency InterfaceOnlyDependency { get; }
             public IMixedDependency MixedDependencyInferface { get; }
             public MixedDependency MixedDependencyClass { get; }
+            public ValueTypeDependency ValueTypeDependency { get; }
         }
     }
 
@@ -65,6 +78,7 @@ namespace Abioc
         protected ConcreteOnlyDependency ExpectedConcreteOnlyDependency;
         protected InterfaceOnlyDependency ExpectedInterfaceOnlyDependency;
         protected MixedDependency ExpectedMixedDependency;
+        protected ValueTypeDependency ExpectedValueTypeDependency;
 
         protected abstract TService GetService<TService>();
 
@@ -123,6 +137,22 @@ namespace Abioc
                 .NotBeNull()
                 .And.BeSameAs(ExpectedMixedDependency);
         }
+
+        [Fact]
+        public void ItShouldResolveAValueTypeDependency()
+        {
+            // Act
+            DependentClass actual = GetService<DependentClass>();
+
+            // Assert
+            actual.Should().NotBeNull();
+            actual.ValueTypeDependency
+                .Should()
+                .Be(ExpectedValueTypeDependency);
+            actual.ValueTypeDependency.Guid
+                .Should()
+                .Be(ExpectedValueTypeDependency.Guid);
+        }
     }
 
     public class WhenSingletonDependenciesWithAContext : InjectedSingletonTestsBase
@@ -134,12 +164,14 @@ namespace Abioc
             ExpectedConcreteOnlyDependency = new ConcreteOnlyDependency();
             ExpectedInterfaceOnlyDependency = new InterfaceOnlyDependency();
             ExpectedMixedDependency = new MixedDependency();
+            ExpectedValueTypeDependency = new ValueTypeDependency(Guid.NewGuid());
 
             _container =
                 new RegistrationSetup<int>()
                     .RegisterFixed(ExpectedConcreteOnlyDependency)
                     .RegisterFixed<IInterfaceOnlyDependency>(ExpectedInterfaceOnlyDependency)
                     .RegisterFixed<IMixedDependency, MixedDependency>(ExpectedMixedDependency)
+                    .RegisterFixed(ExpectedValueTypeDependency)
                     .Register<DependentClass>()
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
@@ -158,12 +190,14 @@ namespace Abioc
             ExpectedConcreteOnlyDependency = new ConcreteOnlyDependency();
             ExpectedInterfaceOnlyDependency = new InterfaceOnlyDependency();
             ExpectedMixedDependency = new MixedDependency();
+            ExpectedValueTypeDependency = new ValueTypeDependency(Guid.NewGuid());
 
             _container =
                 new RegistrationSetup()
                     .RegisterFixed(ExpectedConcreteOnlyDependency)
                     .RegisterFixed<IInterfaceOnlyDependency>(ExpectedInterfaceOnlyDependency)
                     .RegisterFixed<IMixedDependency, MixedDependency>(ExpectedMixedDependency)
+                    .RegisterFixed(ExpectedValueTypeDependency)
                     .Register<DependentClass>()
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
