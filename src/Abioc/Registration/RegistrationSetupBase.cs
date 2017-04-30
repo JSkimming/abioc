@@ -218,5 +218,40 @@ namespace Abioc.Registration
         {
             return RegisterFactory<TImplementation, TImplementation>(factory);
         }
+
+        /// <summary>
+        /// Registers a fixed <paramref name="value"/> used as a singleton throughout constructions.
+        /// </summary>
+        /// <typeparam name="TService">
+        /// The type of the service to by satisfied during registration. The <typeparamref name="TService"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <typeparamref name="TImplementation"/>.
+        /// </typeparam>
+        /// <typeparam name="TImplementation">The type of the fixed <paramref name="value"/>.</typeparam>
+        /// <param name="value">
+        /// The <see cref="InjectedSingletonRegistration{TImplementation}.Value"/> of type
+        /// <typeparamref name="TImplementation"/>
+        /// </param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public TDerived RegisterFixed<TService, TImplementation>(TImplementation value)
+            where TImplementation : TService
+        {
+            return Register<TService, TImplementation>(c => c.UseFixed(value));
+        }
+
+        /// <summary>
+        /// Registers a fixed <paramref name="value"/> used as a singleton throughout constructions.
+        /// </summary>
+        /// <typeparam name="TImplementation">The type of the fixed <paramref name="value"/>.</typeparam>
+        /// <param name="value">
+        /// The <see cref="InjectedSingletonRegistration{TImplementation}.Value"/> of type
+        /// <typeparamref name="TImplementation"/>
+        /// </param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public TDerived RegisterFixed<TImplementation>(TImplementation value)
+            where TImplementation : class
+        {
+            return RegisterFixed<TImplementation, TImplementation>(value);
+        }
     }
 }

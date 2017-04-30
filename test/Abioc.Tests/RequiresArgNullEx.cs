@@ -26,6 +26,10 @@ namespace Abioc
 
         [Theory, RequiresArgNullExAutoMoq(typeof(AbiocContainer))]
         [Exclude(
+            Type = typeof(InjectedSingletonRegistrationCompositionExtension),
+            Method = "UseFixed",
+            Parameter = "value")]
+        [Exclude(
             Type = typeof(RegistrationSetupBase<RegistrationSetup>),
             Method = "RegisterFixed",
             Parameter = "value")]
@@ -33,6 +37,7 @@ namespace Abioc
         [Substitute(typeof(ConstructionContext<>), typeof(ConstructionContext<int>))]
         [Substitute(typeof(FactoryRegistration<>), typeof(FactoryRegistration<object>))]
         [Substitute(typeof(FactoryRegistrationVisitor<>), typeof(FactoryRegistrationVisitor<object>))]
+        [Substitute(typeof(InjectedSingletonRegistration<>), typeof(InjectedSingletonRegistration<int>))]
         [Substitute(typeof(RegistrationComposer<>), typeof(RegistrationComposer<int>))]
         [Substitute(typeof(RegistrationComposer<,>), typeof(RegistrationComposer<int, int>))]
         [Substitute(typeof(RegistrationSetupBase<>), typeof(RegistrationSetupBase<RegistrationSetup>))]
