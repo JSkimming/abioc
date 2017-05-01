@@ -13,7 +13,7 @@ namespace Abioc.Registration
     /// <see cref="IRegistration.ImplementationType"/> using a single public constructor.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class SingleConstructorRegistration : IRegistration
+    public class SingleConstructorRegistration : RegistrationBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SingleConstructorRegistration"/> class.
@@ -32,7 +32,7 @@ namespace Abioc.Registration
         /// <summary>
         /// Gets the <see cref="IRegistration.ImplementationType"/> of the <see cref="IRegistration"/>.
         /// </summary>
-        public Type ImplementationType { get; }
+        public override Type ImplementationType { get; }
 
         private string DebuggerDisplay => $"{GetType().Name}: Type={ImplementationType.Name}";
     }

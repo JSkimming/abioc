@@ -17,12 +17,14 @@ namespace Abioc
         internal class RegistrationWithoutAVisitor : IRegistration
         {
             public Type ImplementationType => GetType();
+
+            public bool Internal { get; set; }
         }
     }
 
     public class WhenComposingAndARegistrationHasNoVisitor
     {
-        private RegistrationSetup _setup;
+        private readonly RegistrationSetup _setup;
 
         public WhenComposingAndARegistrationHasNoVisitor()
         {

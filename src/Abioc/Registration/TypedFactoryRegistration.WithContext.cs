@@ -17,7 +17,7 @@ namespace Abioc.Registration
     /// </typeparam>
     /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class TypedFactoryRegistration<TExtra, TImplementation> : IRegistration
+    public class TypedFactoryRegistration<TExtra, TImplementation> : RegistrationBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TypedFactoryRegistration{TExtra, ImplementationType}"/> class.
@@ -36,7 +36,7 @@ namespace Abioc.Registration
         /// <summary>
         /// Gets the <see cref="IRegistration.ImplementationType"/> of the <see cref="IRegistration"/>.
         /// </summary>
-        public Type ImplementationType => typeof(TImplementation);
+        public override Type ImplementationType => typeof(TImplementation);
 
         /// <summary>
         /// Gets the

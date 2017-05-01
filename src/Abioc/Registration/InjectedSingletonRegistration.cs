@@ -13,7 +13,7 @@ namespace Abioc.Registration
     /// </summary>
     /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class InjectedSingletonRegistration<TImplementation> : IRegistration
+    public class InjectedSingletonRegistration<TImplementation> : RegistrationBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="InjectedSingletonRegistration{TImplementation}"/> class.
@@ -29,7 +29,7 @@ namespace Abioc.Registration
         /// <summary>
         /// Gets the <see cref="IRegistration.ImplementationType"/> of the <see cref="IRegistration"/>.
         /// </summary>
-        public Type ImplementationType => typeof(TImplementation);
+        public override Type ImplementationType => typeof(TImplementation);
 
         /// <summary>
         /// Gets the constant value.

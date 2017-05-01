@@ -16,7 +16,7 @@ namespace Abioc.Registration
     /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class FactoryRegistration<TExtra> : IRegistration
+    public class FactoryRegistration<TExtra> : RegistrationBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FactoryRegistration{TExtra}"/> class.
@@ -41,7 +41,7 @@ namespace Abioc.Registration
         /// <summary>
         /// Gets the <see cref="IRegistration.ImplementationType"/> of the <see cref="IRegistration"/>.
         /// </summary>
-        public Type ImplementationType { get; }
+        public override Type ImplementationType { get; }
 
         /// <summary>
         /// Gets the
