@@ -16,5 +16,16 @@ namespace Abioc.Registration
         /// Gets the <see cref="IRegistration.ImplementationType"/> of the <see cref="IRegistration"/>.
         /// </summary>
         Type ImplementationType { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a registration is internal; e.g. it is required as a dependency for
+        /// other registrations but will not be resolved externally via a call to
+        /// <see cref="AbiocContainer.GetService"/> or <see cref="AbiocContainer.GetServices"/>.
+        /// </summary>
+        /// <remarks>
+        /// This is simple performance optimization to prevent unnecessary dependency injection type mappings from
+        /// polluting the resolution and therefore slowing it down.
+        /// </remarks>
+        bool Internal { get; set; }
     }
 }
