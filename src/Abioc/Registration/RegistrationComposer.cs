@@ -31,6 +31,18 @@ namespace Abioc.Registration
         public IRegistration Registration { get; private set; }
 
         /// <summary>
+        /// Sets the <see cref="Registration"/>.<see cref="IRegistration.Internal"/> property to <see langword="true"/>
+        /// to indicate it is required as a dependency for other registrations but will not be resolved externally via
+        /// a call to <see cref="AbiocContainer.GetService"/> or <see cref="AbiocContainer.GetServices"/>.
+        /// </summary>
+        /// <returns>This registration composer to be used in a fluent configuration.</returns>
+        public RegistrationComposer<TImplementation> Internal()
+        {
+            Registration.Internal = true;
+            return this;
+        }
+
+        /// <summary>
         /// Replaces the current <see cref="Registration"/> with the <paramref name="newRegistration"/>.
         /// </summary>
         /// <param name="newRegistration">The new <see cref="IRegistration"/>.</param>

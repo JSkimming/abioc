@@ -17,7 +17,7 @@ namespace Abioc.Registration
     public class RegistrationSetup<TExtra> : RegistrationSetupBase<RegistrationSetup<TExtra>>
     {
         /// <summary>
-        /// Registers an <paramref name="implementationType"/> for generation with the registration
+        /// Registers an <paramref name="implementationType"/> for generation with the
         /// <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
         /// </summary>
         /// <param name="serviceType">
@@ -52,7 +52,7 @@ namespace Abioc.Registration
         }
 
         /// <summary>
-        /// Registers an <paramref name="implementationType"/> for generation with the registration
+        /// Registers an <paramref name="implementationType"/> for generation with the
         /// <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
         /// </summary>
         /// <param name="implementationType">The type of the implemented service to provide.</param>
@@ -66,7 +66,7 @@ namespace Abioc.Registration
         }
 
         /// <summary>
-        /// Registers an <typeparamref name="TImplementation"/> for generation with the registration
+        /// Registers an <typeparamref name="TImplementation"/> for generation with the
         /// <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
         /// </summary>
         /// <typeparam name="TService">
@@ -95,7 +95,7 @@ namespace Abioc.Registration
         }
 
         /// <summary>
-        /// Registers an <typeparamref name="TImplementation"/> for generation with the registration
+        /// Registers an <typeparamref name="TImplementation"/> for generation with the
         /// <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
         /// </summary>
         /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
@@ -106,6 +106,85 @@ namespace Abioc.Registration
             where TImplementation : class
         {
             return Register<TImplementation, TImplementation>(compose);
+        }
+
+        /// <summary>
+        /// Registers an internal <paramref name="implementationType"/> for generation with the
+        /// <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
+        /// </summary>
+        /// <param name="serviceType">
+        /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <paramref name="implementationType"/>.
+        /// </param>
+        /// <param name="implementationType">The type of the implemented service to provide.</param>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationSetup<TExtra> RegisterInternal(
+            Type serviceType,
+            Type implementationType,
+            Action<RegistrationComposer<TExtra, object>> compose = null)
+        {
+            void InternalCompose(RegistrationComposer<TExtra, object> composer)
+            {
+                compose?.Invoke(composer);
+                composer.Internal();
+            }
+
+            return Register(serviceType, implementationType, InternalCompose);
+        }
+
+        /// <summary>
+        /// Registers an internal <paramref name="implementationType"/> for generation with the
+        /// <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
+        /// </summary>
+        /// <param name="implementationType">The type of the implemented service to provide.</param>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationSetup<TExtra> RegisterInternal(
+            Type implementationType,
+            Action<RegistrationComposer<TExtra, object>> compose = null)
+        {
+            return RegisterInternal(implementationType, implementationType, compose);
+        }
+
+        /// <summary>
+        /// Registers an internal <typeparamref name="TImplementation"/> for generation with the
+        /// <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
+        /// </summary>
+        /// <typeparam name="TService">
+        /// The type of the service to by satisfied during registration. The <typeparamref name="TService"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <typeparamref name="TImplementation"/>.
+        /// </typeparam>
+        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationSetup<TExtra> RegisterInternal<TService, TImplementation>(
+            Action<RegistrationComposer<TExtra, TImplementation>> compose = null)
+            where TImplementation : TService
+        {
+            void InternalCompose(RegistrationComposer<TExtra, TImplementation> composer)
+            {
+                compose?.Invoke(composer);
+                composer.Internal();
+            }
+
+            return Register<TService, TImplementation>(InternalCompose);
+        }
+
+        /// <summary>
+        /// Registers an internal <typeparamref name="TImplementation"/> for generation with the
+        /// <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
+        /// </summary>
+        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationSetup<TExtra> RegisterInternal<TImplementation>(
+            Action<RegistrationComposer<TExtra, TImplementation>> compose = null)
+            where TImplementation : class
+        {
+            return RegisterInternal<TImplementation, TImplementation>(compose);
         }
 
         /// <summary>
