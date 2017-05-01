@@ -65,7 +65,7 @@ namespace Abioc.Compilation
                 (Dictionary<Type, Func<ConstructionContext<TExtra>, object>>)getCreateMapMethod.Invoke(null, null);
 
             IEnumerable<(Type type, Func<ConstructionContext<TExtra>, object>[] compositions)> iocMappings =
-                from kvp in setup.Registrations
+                from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
@@ -110,7 +110,7 @@ namespace Abioc.Compilation
                 (Dictionary<Type, Func<object>>)getCreateMapMethod.Invoke(null, null);
 
             IEnumerable<(Type type, Func<object>[] compositions)> iocMappings =
-                from kvp in setup.Registrations
+                from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
