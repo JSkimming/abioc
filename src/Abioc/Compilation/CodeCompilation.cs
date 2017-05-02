@@ -50,28 +50,27 @@ namespace Abioc.Compilation
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            ////Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
-            Assembly assembly = CompileCode(code, srcAssembly);
+            Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+            ////Assembly assembly = CompileCode(code, srcAssembly);
+
+            Type type = assembly.GetType("Abioc.Generated.Container");
+            object instance = Activator.CreateInstance(type);
+            IContainer<TExtra> container = (IContainer<TExtra>)instance;
+            IContainerInitialization<TExtra> initialization = (IContainerInitialization<TExtra>)instance;
 
             if (fieldValues.Length > 0)
             {
-                var initializeFieldsMethod = GetInitializeFieldsMethodInfo(assembly);
-
-                initializeFieldsMethod.Invoke(null, new object[] { fieldValues });
+                initialization.InitializeFields(fieldValues);
             }
 
-            MethodInfo getCreateMapMethod = GetCreateMapMethodInfo(assembly);
-            Dictionary<Type, Func<ConstructionContext<TExtra>, object>> createMap =
-                (Dictionary<Type, Func<ConstructionContext<TExtra>, object>>)getCreateMapMethod.Invoke(null, null);
-
-            Func<Type, ConstructionContext<TExtra>, object> getServiceMethod = GetGetServiceMethod<TExtra>(assembly);
+            Dictionary<Type, Func<ConstructionContext<TExtra>, object>> createMap = initialization.GetCreateMap();
 
             IEnumerable<(Type type, Func<ConstructionContext<TExtra>, object>[] compositions)> iocMappings =
                 from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
-            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(getServiceMethod);
+            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container.GetService);
         }
 
         /// <summary>
@@ -97,80 +96,27 @@ namespace Abioc.Compilation
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            ////Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
-            Assembly assembly = CompileCode(code, srcAssembly);
+            Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
+            ////Assembly assembly = CompileCode(code, srcAssembly);
+
+            Type type = assembly.GetType("Abioc.Generated.Container");
+            object instance = Activator.CreateInstance(type);
+            IContainer container = (IContainer)instance;
+            IContainerInitialization initialization = (IContainerInitialization)instance;
 
             if (fieldValues.Length > 0)
             {
-                var initializeFieldsMethod = GetInitializeFieldsMethodInfo(assembly);
-
-                initializeFieldsMethod.Invoke(null, new object[] { fieldValues });
+                initialization.InitializeFields(fieldValues);
             }
 
-            MethodInfo getCreateMapMethod = GetCreateMapMethodInfo(assembly);
-            Dictionary<Type, Func<object>> createMap =
-                (Dictionary<Type, Func<object>>)getCreateMapMethod.Invoke(null, null);
-
-            Func<Type, object> getServiceMethod = GetGetServiceMethod(assembly);
+            Dictionary<Type, Func<object>> createMap = initialization.GetCreateMap();
 
             IEnumerable<(Type type, Func<object>[] compositions)> iocMappings =
                 from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
-            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(getServiceMethod);
-        }
-
-        private static MethodInfo GetCreateMapMethodInfo(Assembly assembly)
-        {
-            if (assembly == null)
-                throw new ArgumentNullException(nameof(assembly));
-
-            Type type = assembly.GetType("Abioc.Generated.Construction");
-
-            MethodInfo getCreateMapMethod =
-                type.GetTypeInfo().GetMethod("GetCreateMap", BindingFlags.NonPublic | BindingFlags.Static);
-
-            return getCreateMapMethod;
-        }
-
-        private static Func<Type, ConstructionContext<TExtra>, object> GetGetServiceMethod<TExtra>(Assembly assembly)
-        {
-            if (assembly == null)
-                throw new ArgumentNullException(nameof(assembly));
-
-            Type type = assembly.GetType("Abioc.Generated.Construction");
-
-            MethodInfo getGetServiceMethodInfo =
-                type.GetTypeInfo().GetMethod("GetGetServiceMethod", BindingFlags.NonPublic | BindingFlags.Static);
-
-            return (Func<Type, ConstructionContext<TExtra>, object>)getGetServiceMethodInfo.Invoke(null, null);
-        }
-
-        private static Func<Type, object> GetGetServiceMethod(Assembly assembly)
-        {
-            if (assembly == null)
-                throw new ArgumentNullException(nameof(assembly));
-
-            Type type = assembly.GetType("Abioc.Generated.Construction");
-
-            MethodInfo getGetServiceMethodInfo =
-                type.GetTypeInfo().GetMethod("GetGetServiceMethod", BindingFlags.NonPublic | BindingFlags.Static);
-
-            return (Func<Type, object>)getGetServiceMethodInfo.Invoke(null, null);
-        }
-
-        private static MethodInfo GetInitializeFieldsMethodInfo(Assembly assembly)
-        {
-            if (assembly == null)
-                throw new ArgumentNullException(nameof(assembly));
-
-            Type type = assembly.GetType("Abioc.Generated.Construction");
-
-            MethodInfo getCreateMapMethod =
-                type.GetTypeInfo().GetMethod("InitializeFields", BindingFlags.NonPublic | BindingFlags.Static);
-
-            return getCreateMapMethod;
+            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container.GetService);
         }
 
         private static Assembly CompileCode(string code, Assembly srcAssembly)

@@ -50,7 +50,7 @@ namespace Abioc.Compilation
         /// <returns>A new instance of the <see cref="AbiocContainer"/> class.</returns>
         public static AbiocContainer<TExtra> ToContainer<TExtra>(
             this IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>[]> multiMappings,
-            Func<Type, ConstructionContext<TExtra>, object> generatedGetService)
+            Func<Type, TExtra, object> generatedGetService)
         {
             if (multiMappings == null)
                 throw new ArgumentNullException(nameof(multiMappings));

@@ -19,7 +19,7 @@ namespace Abioc
         /// The compiler generated GetService method.
         /// </summary>
 #pragma warning disable SA1401 // Fields must be private
-        public readonly Func<Type, ConstructionContext<TExtra>, object> GeneratedGetService;
+        public readonly Func<Type, TExtra, object> GeneratedGetService;
 #pragma warning restore SA1401 // Fields must be private
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Abioc
         public AbiocContainer(
             IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>> singleMappings,
             IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>[]> multiMappings,
-            Func<Type, ConstructionContext<TExtra>, object> generatedGetService)
+            Func<Type, TExtra, object> generatedGetService)
         {
             if (singleMappings == null)
                 throw new ArgumentNullException(nameof(singleMappings));

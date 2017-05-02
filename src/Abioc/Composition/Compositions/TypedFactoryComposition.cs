@@ -106,7 +106,7 @@ namespace Abioc.Composition.Compositions
                     ? $"System.Func<{ConstructionContextType.ToCompileName()}, {returnType}>"
                     : $"System.Func<{returnType}>";
 
-            string field = $"private static {fieldType} {fieldName};";
+            string field = $"private {fieldType} {fieldName};";
             return new[] { field };
         }
 

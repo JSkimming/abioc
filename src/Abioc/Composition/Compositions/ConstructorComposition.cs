@@ -86,7 +86,7 @@ namespace Abioc.Composition.Compositions
                 : string.Empty;
 
             string methodName = GetComposeMethodName(context, simpleName);
-            string signature = $"private static {Type.ToCompileName()} {methodName}({parameter})";
+            string signature = $"private {Type.ToCompileName()} {methodName}({parameter})";
 
             string instanceExpression = GetInstanceExpression(context, simpleName);
             instanceExpression = CodeGen.Indent(instanceExpression);
