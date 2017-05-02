@@ -16,7 +16,7 @@ namespace Abioc.Registration
         where TDerived : RegistrationSetupBase<TDerived>
     {
         /// <summary>
-        /// Gets the context.
+        /// Gets the setup registrations.
         /// </summary>
         public Dictionary<Type, List<IRegistration>> Registrations { get; }
             = new Dictionary<Type, List<IRegistration>>(32);

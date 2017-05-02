@@ -51,7 +51,7 @@ namespace Abioc
                 $"'{typeof(DependantClass)}'. Is there a missing registration mapping?";
 
             // Act
-            Action action = () => _setup.Compose().GenerateCode();
+            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
 
             // Assert
             action

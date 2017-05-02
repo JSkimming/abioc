@@ -16,23 +16,35 @@ namespace Abioc
     public class AbiocContainer<TExtra>
     {
         /// <summary>
+        /// The compiler generated GetService method.
+        /// </summary>
+#pragma warning disable SA1401 // Fields must be private
+        public readonly Func<Type, ConstructionContext<TExtra>, object> GeneratedGetService;
+#pragma warning restore SA1401 // Fields must be private
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AbiocContainer{TExtra}"/> class.
         /// </summary>
         /// <param name="singleMappings">The compiled mapping from a type to a single create function.</param>
         /// <param name="multiMappings">
         /// The compiled mapping from a type to potentially multiple create functions.
         /// </param>
+        /// <param name="generatedGetService">The compiler generated GetService method.</param>
         public AbiocContainer(
             IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>> singleMappings,
-            IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>[]> multiMappings)
+            IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>[]> multiMappings,
+            Func<Type, ConstructionContext<TExtra>, object> generatedGetService)
         {
             if (singleMappings == null)
                 throw new ArgumentNullException(nameof(singleMappings));
             if (multiMappings == null)
                 throw new ArgumentNullException(nameof(multiMappings));
+            if (generatedGetService == null)
+                throw new ArgumentNullException(nameof(generatedGetService));
 
             SingleMappings = singleMappings;
             MultiMappings = multiMappings;
+            GeneratedGetService = generatedGetService;
         }
 
         /// <summary>

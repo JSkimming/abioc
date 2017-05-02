@@ -7,6 +7,7 @@ namespace Abioc.Composition
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Abioc.Registration;
 
     /// <summary>
     /// Generates the code from a <see cref="CompositionContext"/>.
@@ -23,20 +24,38 @@ namespace Abioc.Composition
         /// Generates the code from the composition <paramref name="context"/>.
         /// </summary>
         /// <param name="context">The <see cref="CompositionContext"/>.</param>
+        /// <param name="registrations">The setup <see cref="RegistrationSetupBase{T}.Registrations"/>.</param>
         /// <returns>The generated code from the composition <paramref name="context"/>.</returns>
-        public static (string generatedCode, object[] fieldValues) GenerateCode(this CompositionContext context)
+        public static (string generatedCode, object[] fieldValues) GenerateCode(
+            this CompositionContext context,
+            IReadOnlyDictionary<Type, List<IRegistration>> registrations)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
+            if (registrations == null)
+                throw new ArgumentNullException(nameof(registrations));
+
+            return context.GenerateCode(registrations.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray()));
+        }
+
+        private static (string generatedCode, object[] fieldValues) GenerateCode(
+            this CompositionContext context,
+            IReadOnlyDictionary<Type, IRegistration[]> registrations)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            if (registrations == null)
+                throw new ArgumentNullException(nameof(registrations));
 
             IReadOnlyList<IComposition> compositions =
                 context.Compositions.Values.DistinctBy(r => r.Type).OrderBy(r => r.Type.ToCompileName()).ToList();
 
-            var code = new CodeCompositions(context.ConstructionContext);
+            var code = new CodeCompositions(registrations, context.ConstructionContext);
 
             // First try with simple method names.
             foreach (IComposition composition in compositions)
             {
+                code.UsingSimpleNames = true;
                 Type type = composition.Type;
                 string composeMethodName = composition.GetComposeMethodName(context, simpleName: true);
                 bool requiresConstructionContext = composition.RequiresConstructionContext(context);
@@ -56,6 +75,7 @@ namespace Abioc.Composition
                 // Now try with complex names, this should prevent conflicts.
                 foreach (IComposition composition in compositions)
                 {
+                    code.UsingSimpleNames = false;
                     Type type = composition.Type;
                     string composeMethodName = composition.GetComposeMethodName(context, simpleName: false);
                     bool requiresConstructionContext = composition.RequiresConstructionContext(context);
@@ -103,6 +123,11 @@ namespace Abioc.Composition
             composeMapMethod = CodeGen.Indent(NewLine + composeMapMethod, 2);
             builder.Append(composeMapMethod);
 
+            builder.Append(NewLine);
+            string getServiceMethod = GenerateGetServiceMethod(context, code);
+            getServiceMethod = CodeGen.Indent(NewLine + getServiceMethod, 2);
+            builder.Append(getServiceMethod);
+
             builder.AppendFormat("{0}    }}{0}}}{0}", NewLine);
 
             var generatedCode = builder.ToString();
@@ -129,7 +154,7 @@ namespace Abioc.Composition
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
-            var builder = new StringBuilder(1014);
+            var builder = new StringBuilder(1024);
             builder.AppendFormat(
                 "private static void InitializeFields(" +
                 "{0}    System.Collections.Generic.IReadOnlyList<object> values){0}{{",
@@ -154,7 +179,7 @@ namespace Abioc.Composition
                 ? $"System.Collections.Generic.Dictionary<System.Type, System.Func<{code.ConstructionContext}, object>>"
                 : "System.Collections.Generic.Dictionary<System.Type, System.Func<object>>";
 
-            var builder = new StringBuilder(1014);
+            var builder = new StringBuilder(1024);
             builder.AppendFormat(
                 "private static {0} GetCreateMap(){1}{{{1}    return new {0}{1}    {{",
                 composeMapType,
@@ -168,6 +193,65 @@ namespace Abioc.Composition
             builder.Append(initializers);
 
             builder.AppendFormat("{0}    }};{0}}}", NewLine);
+            return builder.ToString();
+        }
+
+        private static string GenerateGetServiceMethod(CompositionContext context, CodeCompositions code)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            if (code == null)
+                throw new ArgumentNullException(nameof(code));
+
+            string parameter = code.HasConstructionContext
+                ? $",{NewLine}    {code.ConstructionContext} context"
+                : string.Empty;
+
+            var builder = new StringBuilder(1024);
+            builder.AppendFormat(
+                "private static object GetService({0}    System.Type serviceType{1}){0}{{{0}    " +
+                "switch (serviceType.GetHashCode()){0}    {{",
+                NewLine,
+                parameter);
+
+            IEnumerable<(Type key, IComposition composition)> singleIocMappings =
+                from kvp in code.Registrations
+                where kvp.Value.Count(r => !r.Internal) == 1
+                orderby kvp.Key.GetHashCode()
+                select (kvp.Key, context.Compositions[kvp.Value.Single(r => !r.Internal).ImplementationType]);
+
+            IEnumerable<string> caseSnippets = singleIocMappings.Select(m => GetCaseSnippet(m.key, m.composition));
+            string caseStatements = string.Join(NewLine, caseSnippets);
+            caseStatements = CodeGen.Indent(NewLine + caseStatements, 2);
+            builder.Append(caseStatements);
+
+            string GetCaseSnippet(Type key, IComposition composition)
+            {
+                string keyComment = key.ToCompileName();
+                string instanceExpression = composition.GetInstanceExpression(context, code.UsingSimpleNames);
+                instanceExpression = CodeGen.Indent(instanceExpression, 1);
+
+                string caseSnippet =
+                    $"case {key.GetHashCode()}: // {keyComment}{NewLine}    return {instanceExpression};";
+                return caseSnippet;
+            }
+
+            builder.AppendFormat("{0}    }}{0}{0}    return null;{0}}}", NewLine);
+
+            if (code.HasConstructionContext)
+            {
+                builder.AppendFormat(
+                    "{0}{0}private static System.Func<System.Type, {1}, object> GetGetServiceMethod(){0}{{{0}    return GetService;{0}}}",
+                    NewLine,
+                    code.ConstructionContext);
+            }
+            else
+            {
+                builder.AppendFormat(
+                    "{0}{0}private static System.Func<System.Type, object> GetGetServiceMethod(){0}{{{0}    return GetService;{0}}}",
+                    NewLine);
+            }
+
             return builder.ToString();
         }
 
@@ -186,10 +270,18 @@ namespace Abioc.Composition
 
         private class CodeCompositions
         {
-            public CodeCompositions(string constructionContext = null)
+            public CodeCompositions(
+                IReadOnlyDictionary<Type, IRegistration[]> registrations,
+                string constructionContext = null)
             {
+                if (registrations == null)
+                    throw new ArgumentNullException(nameof(registrations));
+
+                Registrations = registrations;
                 ConstructionContext = constructionContext;
             }
+
+            public IReadOnlyDictionary<Type, IRegistration[]> Registrations { get; }
 
             public string ConstructionContext { get; }
 
@@ -203,6 +295,8 @@ namespace Abioc.Composition
             public List<string> Fields { get; } = new List<string>(32);
 
             public List<(string snippet, object value)> FieldInitializations { get; } = new List<(string, object)>(32);
+
+            public bool UsingSimpleNames { get; set; }
         }
     }
 }
