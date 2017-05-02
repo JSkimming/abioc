@@ -39,7 +39,7 @@ namespace Abioc.Compilation
         public void ItShouldThrowAnInvalidOperationsException()
         {
             // Arrange
-            (string code, object[] fieldValues) = _setup.Compose().GenerateCode();
+            (string code, object[] fieldValues) = _setup.Compose().GenerateCode(_setup.Registrations);
             code = code.Replace("CompilationErrorTestClass1", "CompilationErrorTestClass");
             _output.WriteLine(code);
 

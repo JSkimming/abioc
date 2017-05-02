@@ -103,6 +103,7 @@
     <Compile Include="ExampleServices.cs" />
     <Compile Include="FactoryServicesTests.cs" />
     <Compile Include="Filter\NotDelegate.cs" />
+    <Compile Include="GeneratedGetServiceTests.cs" />
     <Compile Include="InjectedSingletonTests.cs" />
     <Compile Include="MissingConstructorDependencyTests.cs" />
     <Compile Include="MissingRegistrationVisitorTests.cs" />

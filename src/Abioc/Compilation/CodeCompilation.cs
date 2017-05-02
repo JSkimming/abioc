@@ -64,12 +64,14 @@ namespace Abioc.Compilation
             Dictionary<Type, Func<ConstructionContext<TExtra>, object>> createMap =
                 (Dictionary<Type, Func<ConstructionContext<TExtra>, object>>)getCreateMapMethod.Invoke(null, null);
 
+            Func<Type, ConstructionContext<TExtra>, object> getServiceMethod = GetGetServiceMethod<TExtra>(assembly);
+
             IEnumerable<(Type type, Func<ConstructionContext<TExtra>, object>[] compositions)> iocMappings =
                 from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
-            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer();
+            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(getServiceMethod);
         }
 
         /// <summary>
@@ -109,12 +111,14 @@ namespace Abioc.Compilation
             Dictionary<Type, Func<object>> createMap =
                 (Dictionary<Type, Func<object>>)getCreateMapMethod.Invoke(null, null);
 
+            Func<Type, object> getServiceMethod = GetGetServiceMethod(assembly);
+
             IEnumerable<(Type type, Func<object>[] compositions)> iocMappings =
                 from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
-            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer();
+            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(getServiceMethod);
         }
 
         private static MethodInfo GetCreateMapMethodInfo(Assembly assembly)
@@ -128,6 +132,32 @@ namespace Abioc.Compilation
                 type.GetTypeInfo().GetMethod("GetCreateMap", BindingFlags.NonPublic | BindingFlags.Static);
 
             return getCreateMapMethod;
+        }
+
+        private static Func<Type, ConstructionContext<TExtra>, object> GetGetServiceMethod<TExtra>(Assembly assembly)
+        {
+            if (assembly == null)
+                throw new ArgumentNullException(nameof(assembly));
+
+            Type type = assembly.GetType("Abioc.Generated.Construction");
+
+            MethodInfo getGetServiceMethodInfo =
+                type.GetTypeInfo().GetMethod("GetGetServiceMethod", BindingFlags.NonPublic | BindingFlags.Static);
+
+            return (Func<Type, ConstructionContext<TExtra>, object>)getGetServiceMethodInfo.Invoke(null, null);
+        }
+
+        private static Func<Type, object> GetGetServiceMethod(Assembly assembly)
+        {
+            if (assembly == null)
+                throw new ArgumentNullException(nameof(assembly));
+
+            Type type = assembly.GetType("Abioc.Generated.Construction");
+
+            MethodInfo getGetServiceMethodInfo =
+                type.GetTypeInfo().GetMethod("GetGetServiceMethod", BindingFlags.NonPublic | BindingFlags.Static);
+
+            return (Func<Type, object>)getGetServiceMethodInfo.Invoke(null, null);
         }
 
         private static MethodInfo GetInitializeFieldsMethodInfo(Assembly assembly)

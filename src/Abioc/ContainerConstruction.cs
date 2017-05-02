@@ -46,7 +46,7 @@ namespace Abioc
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            (string generatedCode, object[] fieldValues) = setup.Compose().GenerateCode();
+            (string generatedCode, object[] fieldValues) = setup.Compose().GenerateCode(setup.Registrations);
             code = generatedCode;
 
             AbiocContainer container = CodeCompilation.Compile(setup, code, fieldValues, srcAssembly);
@@ -93,7 +93,7 @@ namespace Abioc
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            (string generatedCode, object[] fieldValues) = setup.Compose().GenerateCode();
+            (string generatedCode, object[] fieldValues) = setup.Compose().GenerateCode(setup.Registrations);
             code = generatedCode;
 
             AbiocContainer<TExtra> container = CodeCompilation.Compile(setup, code, fieldValues, srcAssembly);
