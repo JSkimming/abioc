@@ -129,6 +129,11 @@ namespace Abioc.Composition
             getServiceMethod = CodeGen.Indent(NewLine + getServiceMethod, 2);
             builder.Append(getServiceMethod);
 
+            builder.Append(NewLine);
+            string getServicesMethod = GenerateGetServicesMethod(context, code);
+            getServicesMethod = CodeGen.Indent(NewLine + getServicesMethod, 2);
+            builder.Append(getServicesMethod);
+
             builder.AppendFormat("{0}    }}{0}}}{0}", NewLine);
 
             var generatedCode = builder.ToString();
@@ -244,6 +249,65 @@ namespace Abioc.Composition
             }
 
             builder.AppendFormat("{0}    }}{0}{0}    return null;{0}}}", NewLine);
+
+            return builder.ToString();
+        }
+
+        private static string GenerateGetServicesMethod(CompositionContext context, CodeCompositions code)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            if (code == null)
+                throw new ArgumentNullException(nameof(code));
+
+            string parameter = code.HasConstructionContext
+                ? $",{NewLine}    {context.ExtraDataType} extraData"
+                : string.Empty;
+
+            string contextVariable = code.HasConstructionContext
+                ? $"{NewLine}    var context = new {code.ConstructionContext}(typeof(object), typeof(object), " +
+                  $"typeof(object), extraData);"
+                : string.Empty;
+
+            var builder = new StringBuilder(1024);
+            builder.AppendFormat(
+                "public System.Collections.Generic.IEnumerable<object> GetServices(" +
+                "{0}    System.Type serviceType{1})" +
+                "{0}{{{2}{0}    switch (serviceType.GetHashCode()){0}    {{",
+                NewLine,
+                parameter,
+                contextVariable);
+
+            IEnumerable<(Type key, IEnumerable<IComposition> compositions)> singleIocMappings =
+                from kvp in code.Registrations
+                where kvp.Value.Any(r => !r.Internal)
+                let compositions = kvp.Value.Where(r => !r.Internal)
+                    .Select(r => context.Compositions[r.ImplementationType])
+                orderby kvp.Key.GetHashCode()
+                select (kvp.Key, compositions);
+
+            IEnumerable<string> caseSnippets = singleIocMappings.Select(m => GetCaseSnippet(m.key, m.compositions));
+            string caseStatements = string.Join(NewLine, caseSnippets);
+            caseStatements = CodeGen.Indent(NewLine + caseStatements, 2);
+            builder.Append(caseStatements);
+
+            string GetCaseSnippet(Type key, IEnumerable<IComposition> compositions)
+            {
+                string keyComment = key.ToCompileName();
+
+                IEnumerable<string> instanceExpressions =
+                    compositions
+                        .Select(c => $"{NewLine}yield return {c.GetInstanceExpression(context, code.UsingSimpleNames)};")
+                        .Select(instanceExpression => CodeGen.Indent(instanceExpression));
+
+                string yieldStatements = string.Join(string.Empty, instanceExpressions);
+
+                string caseSnippet =
+                    $"case {key.GetHashCode()}: // {keyComment}{yieldStatements}{NewLine}    break;";
+                return caseSnippet;
+            }
+
+            builder.AppendFormat("{0}    }}{0}}}", NewLine);
 
             return builder.ToString();
         }
