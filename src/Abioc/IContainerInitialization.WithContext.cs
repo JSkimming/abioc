@@ -12,14 +12,8 @@ namespace Abioc
     /// <typeparam name="TExtra">
     /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
-    public interface IContainerInitialization<TExtra>
+    public interface IContainerInitialization<TExtra> : IContainer<TExtra>
     {
-        /// <summary>
-        /// Initializes all the fields of the container.
-        /// </summary>
-        /// <param name="values">The initialization values.</param>
-        void InitializeFields(IReadOnlyList<object> values);
-
         /// <summary>
         /// Returns the dictionary of types to factory functions.
         /// </summary>

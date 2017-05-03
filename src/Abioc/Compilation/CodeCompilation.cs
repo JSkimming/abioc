@@ -8,6 +8,7 @@ namespace Abioc.Compilation
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
     using System.Text;
     using Abioc.Composition;
@@ -21,8 +22,8 @@ namespace Abioc.Compilation
     /// </summary>
     public static class CodeCompilation
     {
-        private static readonly ConcurrentDictionary<string, Assembly> Compilations
-            = new ConcurrentDictionary<string, Assembly>();
+        private static readonly ConcurrentDictionary<string, Compilation> Compilations
+            = new ConcurrentDictionary<string, Compilation>();
 
         /// <summary>
         /// Compiles the <paramref name="code"/> for the registration <paramref name="setup"/>.
@@ -50,18 +51,19 @@ namespace Abioc.Compilation
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
-            ////Assembly assembly = CompileCode(code, srcAssembly);
+            Compilation compilation = Compilations.GetOrAdd(code, GetOrAdd);
 
-            Type type = assembly.GetType("Abioc.Generated.Container");
-            object instance = Activator.CreateInstance(type);
-            IContainer<TExtra> container = (IContainer<TExtra>)instance;
-            IContainerInitialization<TExtra> initialization = (IContainerInitialization<TExtra>)instance;
-
-            if (fieldValues.Length > 0)
+            Compilation GetOrAdd(string c)
             {
-                initialization.InitializeFields(fieldValues);
+                Assembly assembly = CompileCode(c, srcAssembly);
+                Type containerType = assembly.GetType("Abioc.Generated.Container");
+                Func<object[], IContainer<TExtra>> containerFactory = CreateContainerFactory<TExtra>(containerType);
+                return new Compilation(assembly, containerType, containerFactory);
             }
+
+            var factory = (Func<object[], IContainer<TExtra>>)compilation.ContainerFactory;
+            IContainer<TExtra> container = factory(fieldValues);
+            IContainerInitialization<TExtra> initialization = (IContainerInitialization<TExtra>)container;
 
             Dictionary<Type, Func<ConstructionContext<TExtra>, object>> createMap = initialization.GetCreateMap();
 
@@ -96,18 +98,19 @@ namespace Abioc.Compilation
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
-            ////Assembly assembly = CompileCode(code, srcAssembly);
+            Compilation compilation = Compilations.GetOrAdd(code, GetOrAdd);
 
-            Type type = assembly.GetType("Abioc.Generated.Container");
-            object instance = Activator.CreateInstance(type);
-            IContainer container = (IContainer)instance;
-            IContainerInitialization initialization = (IContainerInitialization)instance;
-
-            if (fieldValues.Length > 0)
+            Compilation GetOrAdd(string c)
             {
-                initialization.InitializeFields(fieldValues);
+                Assembly assembly = CompileCode(c, srcAssembly);
+                Type containerType = assembly.GetType("Abioc.Generated.Container");
+                Func<object[], IContainer> containerFactory = CreateContainerFactory(containerType);
+                return new Compilation(assembly, containerType, containerFactory);
             }
+
+            var factory = (Func<object[], IContainer>)compilation.ContainerFactory;
+            IContainer container = factory(fieldValues);
+            IContainerInitialization initialization = (IContainerInitialization)container;
 
             Dictionary<Type, Func<object>> createMap = initialization.GetCreateMap();
 
@@ -117,6 +120,36 @@ namespace Abioc.Compilation
                 select (kvp.Key, compositions);
 
             return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container.GetService);
+        }
+
+        private static Func<object[], IContainer<TExtra>> CreateContainerFactory<TExtra>(Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            ConstructorInfo constructorInfo = type.GetTypeInfo().GetConstructor(new[] { typeof(object[]) });
+            ParameterExpression parameter = Expression.Parameter(typeof(object[]), "fieldValues");
+            NewExpression expression = Expression.New(constructorInfo, parameter);
+            Expression<Func<object[], IContainer<TExtra>>> lambda =
+                Expression.Lambda<Func<object[], IContainer<TExtra>>>(expression, parameter);
+
+            Func<object[], IContainer<TExtra>> factory = lambda.Compile();
+            return factory;
+        }
+
+        private static Func<object[], IContainer> CreateContainerFactory(Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            ConstructorInfo constructorInfo = type.GetTypeInfo().GetConstructor(new[] { typeof(object[]) });
+            ParameterExpression parameter = Expression.Parameter(typeof(object[]), "fieldValues");
+            NewExpression expression = Expression.New(constructorInfo, parameter);
+            Expression<Func<object[], IContainer>> lambda =
+                Expression.Lambda<Func<object[], IContainer>>(expression, parameter);
+
+            Func<object[], IContainer> factory = lambda.Compile();
+            return factory;
         }
 
         private static Assembly CompileCode(string code, Assembly srcAssembly)
@@ -202,6 +235,22 @@ namespace Abioc.Compilation
                 throw new ArgumentNullException(nameof(diagnostics));
 
             // TODO: Format this into something useful.
+        }
+
+        private class Compilation
+        {
+            private readonly Assembly _assembly;
+
+            private readonly Type _containerType;
+
+            public Compilation(Assembly assembly, Type containerType, object containerFactory)
+            {
+                _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
+                _containerType = containerType ?? throw new ArgumentNullException(nameof(containerType));
+                ContainerFactory = containerFactory ?? throw new ArgumentNullException(nameof(containerFactory));
+            }
+
+            public object ContainerFactory { get; }
         }
     }
 }

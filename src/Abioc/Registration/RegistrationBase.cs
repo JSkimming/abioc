@@ -6,8 +6,6 @@ namespace Abioc.Registration
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// A base class that provides a default implementation of a <see cref="IRegistration"/>.

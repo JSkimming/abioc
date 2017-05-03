@@ -4,10 +4,8 @@
 namespace Abioc.Composition
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using Abioc.Registration;
 
     /// <summary>

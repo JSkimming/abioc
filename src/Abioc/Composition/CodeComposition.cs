@@ -115,7 +115,7 @@ namespace Abioc.Composition
             builder.Append(fieldsAndMethods);
 
             builder.Append(NewLine);
-            string fieldInitializationsMethod = GenerateFieldInitializationsMethod(code);
+            string fieldInitializationsMethod = GenerateConstructor(code);
             fieldInitializationsMethod = CodeGen.Indent(NewLine + fieldInitializationsMethod, 2);
             builder.Append(fieldInitializationsMethod);
 
@@ -150,21 +150,21 @@ namespace Abioc.Composition
             return fieldsAndMethods;
         }
 
-        private static string GenerateFieldInitializationsMethod(CodeCompositions code)
+        private static string GenerateConstructor(CodeCompositions code)
         {
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
             var builder = new StringBuilder(1024);
             builder.AppendFormat(
-                "public void InitializeFields(" +
-                "{0}    System.Collections.Generic.IReadOnlyList<object> values){0}{{",
+                "public Container(" +
+                "{0}    object[] fieldValues){0}{{",
                 NewLine);
 
             for (int index = 0; index < code.FieldInitializations.Count; index++)
             {
                 (string snippet, object value) = code.FieldInitializations[index];
-                builder.Append($"{NewLine}    {snippet}values[{index}];");
+                builder.Append($"{NewLine}    {snippet}fieldValues[{index}];");
             }
 
             builder.AppendFormat("{0}}}", NewLine);

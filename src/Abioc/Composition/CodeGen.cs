@@ -6,7 +6,6 @@ namespace Abioc.Composition
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
 
     /// <summary>
     /// Helper method for code generation.
