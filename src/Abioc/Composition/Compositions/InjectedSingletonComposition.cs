@@ -57,12 +57,12 @@ namespace Abioc.Composition.Compositions
             string method =
                 Type.GetTypeInfo().IsValueType
                     ? string.Format(
-                        "private static object {0}(){1}{{{1}    return (object){2};{1}}}",
+                        "private object {0}(){1}{{{1}    return (object){2};{1}}}",
                         methodName,
                         Environment.NewLine,
                         instanceExpression)
                     : string.Format(
-                        "private static {0} {1}(){2}{{{2}    return {3};{2}}}",
+                        "private {0} {1}(){2}{{{2}    return {3};{2}}}",
                         Type.ToCompileName(),
                         methodName,
                         Environment.NewLine,
@@ -103,7 +103,7 @@ namespace Abioc.Composition.Compositions
             string fieldName = GetInjectedFieldName();
             string fieldType = Type.ToCompileName();
 
-            string field = $"private static {fieldType} {fieldName};";
+            string field = $"private {fieldType} {fieldName};";
             return new[] { field };
         }
 

@@ -77,12 +77,12 @@ namespace Abioc.Composition.Compositions
             string methodSignature =
                 requiresConstructionContext
                     ? string.Format(
-                        @"private static {0} {1}(
+                        @"private {0} {1}(
     {2} context)",
                         factoredType,
                         composeMethodName,
                         ConstructionContextType.ToCompileName())
-                    : $"private static {factoredType} {composeMethodName}()";
+                    : $"private {factoredType} {composeMethodName}()";
 
             string factoryCall =
                 requiresConstructionContext
@@ -158,7 +158,7 @@ namespace Abioc.Composition.Compositions
                     ? $"System.Func<{ConstructionContextType.ToCompileName()}, object>"
                     : $"System.Func<object>";
 
-            string field = $"private static {fieldType} {fieldName};";
+            string field = $"private {fieldType} {fieldName};";
             return new[] { field };
         }
 

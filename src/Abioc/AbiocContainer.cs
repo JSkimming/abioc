@@ -16,7 +16,7 @@ namespace Abioc
         /// The compiler generated GetService method.
         /// </summary>
 #pragma warning disable SA1401 // Fields must be private
-        public readonly Func<Type, object> GeneratedGetService;
+        public readonly IContainer GeneratedContainer;
 #pragma warning restore SA1401 // Fields must be private
 
         /// <summary>
@@ -26,22 +26,22 @@ namespace Abioc
         /// <param name="multiMappings">
         /// The compiled mapping from a type to potentially multiple create functions.
         /// </param>
-        /// <param name="generatedGetService">The compiler generated GetService method.</param>
+        /// <param name="generatedContainer">The runtime generated container.</param>
         public AbiocContainer(
             IReadOnlyDictionary<Type, Func<object>> singleMappings,
             IReadOnlyDictionary<Type, Func<object>[]> multiMappings,
-            Func<Type, object> generatedGetService)
+            IContainer generatedContainer)
         {
             if (singleMappings == null)
                 throw new ArgumentNullException(nameof(singleMappings));
             if (multiMappings == null)
                 throw new ArgumentNullException(nameof(multiMappings));
-            if (generatedGetService == null)
-                throw new ArgumentNullException(nameof(generatedGetService));
+            if (generatedContainer == null)
+                throw new ArgumentNullException(nameof(generatedContainer));
 
             SingleMappings = singleMappings;
             MultiMappings = multiMappings;
-            GeneratedGetService = generatedGetService;
+            GeneratedContainer = generatedContainer;
         }
 
         /// <summary>

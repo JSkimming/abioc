@@ -4,10 +4,8 @@
 namespace Abioc.Composition
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using Abioc.Registration;
 
     /// <summary>
@@ -30,7 +28,9 @@ namespace Abioc.Composition
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
 
-            return setup.Registrations.Compose(typeof(ConstructionContext<TExtra>).ToCompileName());
+            return setup.Registrations.Compose(
+                typeof(TExtra).ToCompileName(),
+                typeof(ConstructionContext<TExtra>).ToCompileName());
         }
 
         /// <summary>
@@ -49,12 +49,13 @@ namespace Abioc.Composition
 
         private static CompositionContext Compose(
             this IReadOnlyDictionary<Type, List<IRegistration>> registrations,
+            string extraDataType = null,
             string constructionContext = null)
         {
             if (registrations == null)
                 throw new ArgumentNullException(nameof(registrations));
 
-            var context = new CompositionContext(constructionContext);
+            var context = new CompositionContext(extraDataType, constructionContext);
 
             ProcessRegistrations(registrations, context);
 

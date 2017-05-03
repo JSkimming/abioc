@@ -15,9 +15,11 @@ namespace Abioc.Composition
         /// <summary>
         /// Initializes a new instance of the <see cref="CompositionContext"/> class.
         /// </summary>
+        /// <param name="extraDataType">The type of the <see cref="ConstructionContext{T}.Extra"/> data.</param>
         /// <param name="constructionContext">The type of the <see cref="ConstructionContext{T}"/>.</param>
-        public CompositionContext(string constructionContext = null)
+        public CompositionContext(string extraDataType = null, string constructionContext = null)
         {
+            ExtraDataType = extraDataType;
             ConstructionContext = constructionContext ?? string.Empty;
         }
 
@@ -25,6 +27,11 @@ namespace Abioc.Composition
         /// Gets the context.
         /// </summary>
         public Dictionary<Type, IComposition> Compositions { get; } = new Dictionary<Type, IComposition>(32);
+
+        /// <summary>
+        /// Gets the type of the <see cref="ConstructionContext{T}.Extra"/> data.
+        /// </summary>
+        public string ExtraDataType { get; }
 
         /// <summary>
         /// Gets the type of the <see cref="ConstructionContext{T}"/>.

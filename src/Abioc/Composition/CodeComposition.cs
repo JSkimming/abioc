@@ -101,22 +101,23 @@ namespace Abioc.Composition
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
+            string genericContainerParam = code.HasConstructionContext ? $"<{context.ExtraDataType}>" : string.Empty;
+
             var builder = new StringBuilder(10240);
             builder.AppendFormat(
-                "namespace Abioc.Generated{0}{{{0}    public static class Construction{0}    {{",
-                NewLine);
+                "namespace Abioc.Generated{0}{{{0}    internal class Container : " +
+                "Abioc.IContainerInitialization{1}, Abioc.IContainer{1}{0}    {{",
+                NewLine,
+                genericContainerParam);
 
             string fieldsAndMethods = GenerateFieldsAndMethods(code);
             fieldsAndMethods = CodeGen.Indent(NewLine + fieldsAndMethods, 2);
             builder.Append(fieldsAndMethods);
 
-            if (code.FieldInitializations.Any())
-            {
-                builder.Append(NewLine);
-                string fieldInitializationsMethod = GenerateFieldInitializationsMethod(code);
-                fieldInitializationsMethod = CodeGen.Indent(NewLine + fieldInitializationsMethod, 2);
-                builder.Append(fieldInitializationsMethod);
-            }
+            builder.Append(NewLine);
+            string fieldInitializationsMethod = GenerateConstructor(code);
+            fieldInitializationsMethod = CodeGen.Indent(NewLine + fieldInitializationsMethod, 2);
+            builder.Append(fieldInitializationsMethod);
 
             builder.Append(NewLine);
             string composeMapMethod = GenerateComposeMapMethod(code);
@@ -149,21 +150,21 @@ namespace Abioc.Composition
             return fieldsAndMethods;
         }
 
-        private static string GenerateFieldInitializationsMethod(CodeCompositions code)
+        private static string GenerateConstructor(CodeCompositions code)
         {
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
             var builder = new StringBuilder(1024);
             builder.AppendFormat(
-                "private static void InitializeFields(" +
-                "{0}    System.Collections.Generic.IReadOnlyList<object> values){0}{{",
+                "public Container(" +
+                "{0}    object[] fieldValues){0}{{",
                 NewLine);
 
             for (int index = 0; index < code.FieldInitializations.Count; index++)
             {
                 (string snippet, object value) = code.FieldInitializations[index];
-                builder.Append($"{NewLine}    {snippet}values[{index}];");
+                builder.Append($"{NewLine}    {snippet}fieldValues[{index}];");
             }
 
             builder.AppendFormat("{0}}}", NewLine);
@@ -181,7 +182,7 @@ namespace Abioc.Composition
 
             var builder = new StringBuilder(1024);
             builder.AppendFormat(
-                "private static {0} GetCreateMap(){1}{{{1}    return new {0}{1}    {{",
+                "public {0} GetCreateMap(){1}{{{1}    return new {0}{1}    {{",
                 composeMapType,
                 NewLine);
 
@@ -204,15 +205,21 @@ namespace Abioc.Composition
                 throw new ArgumentNullException(nameof(code));
 
             string parameter = code.HasConstructionContext
-                ? $",{NewLine}    {code.ConstructionContext} context"
+                ? $",{NewLine}    {context.ExtraDataType} extraData"
+                : string.Empty;
+
+            string contextVariable = code.HasConstructionContext
+                ? $"{NewLine}    var context = new {code.ConstructionContext}(typeof(object), typeof(object), " +
+                  $"typeof(object), extraData);"
                 : string.Empty;
 
             var builder = new StringBuilder(1024);
             builder.AppendFormat(
-                "private static object GetService({0}    System.Type serviceType{1}){0}{{{0}    " +
+                "public object GetService({0}    System.Type serviceType{1}){0}{{{2}{0}    " +
                 "switch (serviceType.GetHashCode()){0}    {{",
                 NewLine,
-                parameter);
+                parameter,
+                contextVariable);
 
             IEnumerable<(Type key, IComposition composition)> singleIocMappings =
                 from kvp in code.Registrations
@@ -237,20 +244,6 @@ namespace Abioc.Composition
             }
 
             builder.AppendFormat("{0}    }}{0}{0}    return null;{0}}}", NewLine);
-
-            if (code.HasConstructionContext)
-            {
-                builder.AppendFormat(
-                    "{0}{0}private static System.Func<System.Type, {1}, object> GetGetServiceMethod(){0}{{{0}    return GetService;{0}}}",
-                    NewLine,
-                    code.ConstructionContext);
-            }
-            else
-            {
-                builder.AppendFormat(
-                    "{0}{0}private static System.Func<System.Type, object> GetGetServiceMethod(){0}{{{0}    return GetService;{0}}}",
-                    NewLine);
-            }
 
             return builder.ToString();
         }

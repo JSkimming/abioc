@@ -8,6 +8,7 @@ namespace Abioc.Compilation
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
     using System.Text;
     using Abioc.Composition;
@@ -21,8 +22,8 @@ namespace Abioc.Compilation
     /// </summary>
     public static class CodeCompilation
     {
-        private static readonly ConcurrentDictionary<string, Assembly> Compilations
-            = new ConcurrentDictionary<string, Assembly>();
+        private static readonly ConcurrentDictionary<string, Compilation> Compilations
+            = new ConcurrentDictionary<string, Compilation>();
 
         /// <summary>
         /// Compiles the <paramref name="code"/> for the registration <paramref name="setup"/>.
@@ -50,28 +51,28 @@ namespace Abioc.Compilation
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            ////Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
-            Assembly assembly = CompileCode(code, srcAssembly);
+            Compilation compilation = Compilations.GetOrAdd(code, GetOrAdd);
 
-            if (fieldValues.Length > 0)
+            Compilation GetOrAdd(string c)
             {
-                var initializeFieldsMethod = GetInitializeFieldsMethodInfo(assembly);
-
-                initializeFieldsMethod.Invoke(null, new object[] { fieldValues });
+                Assembly assembly = CompileCode(c, srcAssembly);
+                Type containerType = assembly.GetType("Abioc.Generated.Container");
+                Func<object[], IContainer<TExtra>> containerFactory = CreateContainerFactory<TExtra>(containerType);
+                return new Compilation(assembly, containerType, containerFactory);
             }
 
-            MethodInfo getCreateMapMethod = GetCreateMapMethodInfo(assembly);
-            Dictionary<Type, Func<ConstructionContext<TExtra>, object>> createMap =
-                (Dictionary<Type, Func<ConstructionContext<TExtra>, object>>)getCreateMapMethod.Invoke(null, null);
+            var factory = (Func<object[], IContainer<TExtra>>)compilation.ContainerFactory;
+            IContainer<TExtra> container = factory(fieldValues);
+            IContainerInitialization<TExtra> initialization = (IContainerInitialization<TExtra>)container;
 
-            Func<Type, ConstructionContext<TExtra>, object> getServiceMethod = GetGetServiceMethod<TExtra>(assembly);
+            Dictionary<Type, Func<ConstructionContext<TExtra>, object>> createMap = initialization.GetCreateMap();
 
             IEnumerable<(Type type, Func<ConstructionContext<TExtra>, object>[] compositions)> iocMappings =
                 from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
-            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(getServiceMethod);
+            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container);
         }
 
         /// <summary>
@@ -97,80 +98,58 @@ namespace Abioc.Compilation
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            ////Assembly assembly = Compilations.GetOrAdd(code, c => CompileCode(c, srcAssembly));
-            Assembly assembly = CompileCode(code, srcAssembly);
+            Compilation compilation = Compilations.GetOrAdd(code, GetOrAdd);
 
-            if (fieldValues.Length > 0)
+            Compilation GetOrAdd(string c)
             {
-                var initializeFieldsMethod = GetInitializeFieldsMethodInfo(assembly);
-
-                initializeFieldsMethod.Invoke(null, new object[] { fieldValues });
+                Assembly assembly = CompileCode(c, srcAssembly);
+                Type containerType = assembly.GetType("Abioc.Generated.Container");
+                Func<object[], IContainer> containerFactory = CreateContainerFactory(containerType);
+                return new Compilation(assembly, containerType, containerFactory);
             }
 
-            MethodInfo getCreateMapMethod = GetCreateMapMethodInfo(assembly);
-            Dictionary<Type, Func<object>> createMap =
-                (Dictionary<Type, Func<object>>)getCreateMapMethod.Invoke(null, null);
+            var factory = (Func<object[], IContainer>)compilation.ContainerFactory;
+            IContainer container = factory(fieldValues);
+            IContainerInitialization initialization = (IContainerInitialization)container;
 
-            Func<Type, object> getServiceMethod = GetGetServiceMethod(assembly);
+            Dictionary<Type, Func<object>> createMap = initialization.GetCreateMap();
 
             IEnumerable<(Type type, Func<object>[] compositions)> iocMappings =
                 from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
-            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(getServiceMethod);
+            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container);
         }
 
-        private static MethodInfo GetCreateMapMethodInfo(Assembly assembly)
+        private static Func<object[], IContainer<TExtra>> CreateContainerFactory<TExtra>(Type type)
         {
-            if (assembly == null)
-                throw new ArgumentNullException(nameof(assembly));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
-            Type type = assembly.GetType("Abioc.Generated.Construction");
+            ConstructorInfo constructorInfo = type.GetTypeInfo().GetConstructor(new[] { typeof(object[]) });
+            ParameterExpression parameter = Expression.Parameter(typeof(object[]), "fieldValues");
+            NewExpression expression = Expression.New(constructorInfo, parameter);
+            Expression<Func<object[], IContainer<TExtra>>> lambda =
+                Expression.Lambda<Func<object[], IContainer<TExtra>>>(expression, parameter);
 
-            MethodInfo getCreateMapMethod =
-                type.GetTypeInfo().GetMethod("GetCreateMap", BindingFlags.NonPublic | BindingFlags.Static);
-
-            return getCreateMapMethod;
+            Func<object[], IContainer<TExtra>> factory = lambda.Compile();
+            return factory;
         }
 
-        private static Func<Type, ConstructionContext<TExtra>, object> GetGetServiceMethod<TExtra>(Assembly assembly)
+        private static Func<object[], IContainer> CreateContainerFactory(Type type)
         {
-            if (assembly == null)
-                throw new ArgumentNullException(nameof(assembly));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
-            Type type = assembly.GetType("Abioc.Generated.Construction");
+            ConstructorInfo constructorInfo = type.GetTypeInfo().GetConstructor(new[] { typeof(object[]) });
+            ParameterExpression parameter = Expression.Parameter(typeof(object[]), "fieldValues");
+            NewExpression expression = Expression.New(constructorInfo, parameter);
+            Expression<Func<object[], IContainer>> lambda =
+                Expression.Lambda<Func<object[], IContainer>>(expression, parameter);
 
-            MethodInfo getGetServiceMethodInfo =
-                type.GetTypeInfo().GetMethod("GetGetServiceMethod", BindingFlags.NonPublic | BindingFlags.Static);
-
-            return (Func<Type, ConstructionContext<TExtra>, object>)getGetServiceMethodInfo.Invoke(null, null);
-        }
-
-        private static Func<Type, object> GetGetServiceMethod(Assembly assembly)
-        {
-            if (assembly == null)
-                throw new ArgumentNullException(nameof(assembly));
-
-            Type type = assembly.GetType("Abioc.Generated.Construction");
-
-            MethodInfo getGetServiceMethodInfo =
-                type.GetTypeInfo().GetMethod("GetGetServiceMethod", BindingFlags.NonPublic | BindingFlags.Static);
-
-            return (Func<Type, object>)getGetServiceMethodInfo.Invoke(null, null);
-        }
-
-        private static MethodInfo GetInitializeFieldsMethodInfo(Assembly assembly)
-        {
-            if (assembly == null)
-                throw new ArgumentNullException(nameof(assembly));
-
-            Type type = assembly.GetType("Abioc.Generated.Construction");
-
-            MethodInfo getCreateMapMethod =
-                type.GetTypeInfo().GetMethod("InitializeFields", BindingFlags.NonPublic | BindingFlags.Static);
-
-            return getCreateMapMethod;
+            Func<object[], IContainer> factory = lambda.Compile();
+            return factory;
         }
 
         private static Assembly CompileCode(string code, Assembly srcAssembly)
@@ -189,16 +168,29 @@ namespace Abioc.Compilation
                 outputKind: OutputKind.DynamicallyLinkedLibrary,
                 optimizationLevel: OptimizationLevel.Release);
 
+            string[] assemblyReferences =
+            {
+                typeof(object).GetTypeInfo().Assembly.Location,
+                typeof(Enumerable).GetTypeInfo().Assembly.Location,
+                GetSystemAssemblyPathByName("System.Collections.dll"),
+                GetSystemAssemblyPathByName("System.Runtime.dll"),
+                GetSystemAssemblyPathByName("mscorlib.dll"),
+                typeof(CodeCompilation).GetTypeInfo().Assembly.Location,
+                srcAssembly.Location,
+            };
+
+            IEnumerable<PortableExecutableReference> references =
+                assemblyReferences
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(s => s)
+                    .Select(s => MetadataReference.CreateFromFile(s));
+
             // Create a compilation for the syntax tree
-            var compilation = CSharpCompilation.Create($"{Guid.NewGuid():N}.dll")
-                .WithOptions(options)
-                .AddReferences(MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location))
-                .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location))
-                .AddReferences(MetadataReference.CreateFromFile(GetSystemAssemblyPathByName("System.Runtime.dll")))
-                .AddReferences(MetadataReference.CreateFromFile(GetSystemAssemblyPathByName("mscorlib.dll")))
-                .AddReferences(MetadataReference.CreateFromFile(typeof(CodeCompilation).GetTypeInfo().Assembly.Location))
-                .AddReferences(MetadataReference.CreateFromFile(srcAssembly.Location))
-                .AddSyntaxTrees(tree);
+            CSharpCompilation compilation = CSharpCompilation.Create(
+                $"{Guid.NewGuid():N}.dll",
+                new[] { tree },
+                references,
+                options);
 
             using (var stream = new MemoryStream())
             {
@@ -256,6 +248,22 @@ namespace Abioc.Compilation
                 throw new ArgumentNullException(nameof(diagnostics));
 
             // TODO: Format this into something useful.
+        }
+
+        private class Compilation
+        {
+            private readonly Assembly _assembly;
+
+            private readonly Type _containerType;
+
+            public Compilation(Assembly assembly, Type containerType, object containerFactory)
+            {
+                _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
+                _containerType = containerType ?? throw new ArgumentNullException(nameof(containerType));
+                ContainerFactory = containerFactory ?? throw new ArgumentNullException(nameof(containerFactory));
+            }
+
+            public object ContainerFactory { get; }
         }
     }
 }
