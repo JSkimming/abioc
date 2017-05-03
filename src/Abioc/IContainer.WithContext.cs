@@ -4,6 +4,7 @@
 namespace Abioc
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The interface implemented by the generated class for the dependency injection container.
@@ -20,5 +21,13 @@ namespace Abioc
         /// <param name="extraData">The custom extra data used during construction.</param>
         /// <returns>The service of type <paramref name="serviceType"/>.</returns>
         object GetService(Type serviceType, TExtra extraData);
+
+        /// <summary>
+        /// Gets any services of the <paramref name="serviceType"/>.
+        /// </summary>
+        /// <param name="serviceType">The type of the services to get.</param>
+        /// <param name="extraData">The custom extra data used during construction.</param>
+        /// <returns>Any services of the <paramref name="serviceType"/>.</returns>
+        IEnumerable<object> GetServices(Type serviceType, TExtra extraData);
     }
 }

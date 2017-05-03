@@ -10,7 +10,7 @@ namespace Abioc
     /// <summary>
     /// The compiled context of function mappings.
     /// </summary>
-    public class AbiocContainer
+    public class AbiocContainer : IContainer
     {
         /// <summary>
         /// The compiler generated GetService method.
@@ -67,14 +67,7 @@ namespace Abioc
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
-            // If there are any factories, use them.
-            if (MultiMappings.TryGetValue(serviceType, out Func<object>[] factories))
-            {
-                return factories.Select(f => f());
-            }
-
-            // Otherwise return an empty enumerable to indicate there are no matches.
-            return Enumerable.Empty<object>();
+            return GeneratedContainer.GetServices(serviceType);
         }
 
         /// <summary>
@@ -104,10 +97,9 @@ namespace Abioc
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
-            if (SingleMappings.TryGetValue(serviceType, out Func<object> factory))
-            {
-                return factory();
-            }
+            object service = GeneratedContainer.GetService(serviceType);
+            if (service != null)
+                return service;
 
             // Produce a descriptive exception message, depending on where there are no mappings or multiple.
             if (!MultiMappings.ContainsKey(serviceType))

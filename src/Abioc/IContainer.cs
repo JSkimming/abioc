@@ -4,6 +4,7 @@
 namespace Abioc
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The interface implemented by the generated class for the dependency injection container.
@@ -16,5 +17,12 @@ namespace Abioc
         /// <param name="serviceType">The type of the service to get.</param>
         /// <returns>The service of type <paramref name="serviceType"/>.</returns>
         object GetService(Type serviceType);
+
+        /// <summary>
+        /// Gets any services of the <paramref name="serviceType"/>.
+        /// </summary>
+        /// <param name="serviceType">The type of the services to get.</param>
+        /// <returns>Any services of the <paramref name="serviceType"/>.</returns>
+        IEnumerable<object> GetServices(Type serviceType);
     }
 }

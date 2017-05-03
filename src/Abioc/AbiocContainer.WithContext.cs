@@ -13,7 +13,7 @@ namespace Abioc
     /// <typeparam name="TExtra">
     /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
-    public class AbiocContainer<TExtra>
+    public class AbiocContainer<TExtra> : IContainer<TExtra>
     {
         /// <summary>
         /// The compiler generated GetService method.
@@ -61,25 +61,17 @@ namespace Abioc
         /// Gets any services that are defined in the <see cref="MultiMappings"/> for the
         /// <paramref name="serviceType"/>.
         /// </summary>
-        /// <param name="extraData">The custom extra data used during construction.</param>
         /// <param name="serviceType">The type of the service to get.</param>
+        /// <param name="extraData">The custom extra data used during construction.</param>
         /// <returns>
         /// Any services that are defined in the <see cref="MultiMappings"/> for the <paramref name="serviceType"/>.
         /// </returns>
-        public IEnumerable<object> GetServices(TExtra extraData, Type serviceType)
+        public IEnumerable<object> GetServices(Type serviceType, TExtra extraData)
         {
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
-            // If there are any factories, use them.
-            if (MultiMappings.TryGetValue(serviceType, out Func<ConstructionContext<TExtra>, object>[] factories))
-            {
-                var context = new ConstructionContext<TExtra>(typeof(object), serviceType, typeof(object), extraData);
-                return factories.Select(f => f(context));
-            }
-
-            // Otherwise return an empty enumerable to indicate there are no matches.
-            return Enumerable.Empty<object>();
+            return GeneratedContainer.GetServices(serviceType, extraData);
         }
 
         /// <summary>
@@ -93,29 +85,27 @@ namespace Abioc
         /// </returns>
         public IEnumerable<TService> GetServices<TService>(TExtra extraData)
         {
-            return GetServices(extraData, typeof(TService)).Cast<TService>();
+            return GetServices(typeof(TService), extraData).Cast<TService>();
         }
 
         /// <summary>
         /// Gets the service that is defined in the <see cref="SingleMappings"/> for the
         /// <paramref name="serviceType"/>.
         /// </summary>
-        /// <param name="extraData">The custom extra data used during construction.</param>
         /// <param name="serviceType">The type of the service to get.</param>
+        /// <param name="extraData">The custom extra data used during construction.</param>
         /// <returns>
         /// The service that is defined in the <see cref="SingleMappings"/> for the <paramref name="serviceType"/>.
         /// </returns>
         /// <exception cref="DiException">There are no mappings for the <paramref name="serviceType"/>.</exception>
-        public object GetService(TExtra extraData, Type serviceType)
+        public object GetService(Type serviceType, TExtra extraData)
         {
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
-            if (SingleMappings.TryGetValue(serviceType, out Func<ConstructionContext<TExtra>, object> factory))
-            {
-                var context = new ConstructionContext<TExtra>(typeof(object), serviceType, typeof(object), extraData);
-                return factory(context);
-            }
+            object service = GeneratedContainer.GetService(serviceType, extraData);
+            if (service != null)
+                return service;
 
             // Produce a descriptive exception message, depending on where there are no mappings or multiple.
             if (!MultiMappings.ContainsKey(serviceType))
@@ -139,7 +129,7 @@ namespace Abioc
         /// <exception cref="DiException">There are no mappings for the <typeparamref name="TService"/>.</exception>
         public TService GetService<TService>(TExtra extraData)
         {
-            return (TService)GetService(extraData, typeof(TService));
+            return (TService)GetService(typeof(TService), extraData);
         }
     }
 }
