@@ -168,16 +168,29 @@ namespace Abioc.Compilation
                 outputKind: OutputKind.DynamicallyLinkedLibrary,
                 optimizationLevel: OptimizationLevel.Release);
 
+            string[] assemblyReferences =
+            {
+                typeof(object).GetTypeInfo().Assembly.Location,
+                typeof(Enumerable).GetTypeInfo().Assembly.Location,
+                GetSystemAssemblyPathByName("System.Collections.dll"),
+                GetSystemAssemblyPathByName("System.Runtime.dll"),
+                GetSystemAssemblyPathByName("mscorlib.dll"),
+                typeof(CodeCompilation).GetTypeInfo().Assembly.Location,
+                srcAssembly.Location,
+            };
+
+            IEnumerable<PortableExecutableReference> references =
+                assemblyReferences
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(s => s)
+                    .Select(s => MetadataReference.CreateFromFile(s));
+
             // Create a compilation for the syntax tree
-            var compilation = CSharpCompilation.Create($"{Guid.NewGuid():N}.dll")
-                .WithOptions(options)
-                .AddReferences(MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location))
-                .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location))
-                .AddReferences(MetadataReference.CreateFromFile(GetSystemAssemblyPathByName("System.Runtime.dll")))
-                .AddReferences(MetadataReference.CreateFromFile(GetSystemAssemblyPathByName("mscorlib.dll")))
-                .AddReferences(MetadataReference.CreateFromFile(typeof(CodeCompilation).GetTypeInfo().Assembly.Location))
-                .AddReferences(MetadataReference.CreateFromFile(srcAssembly.Location))
-                .AddSyntaxTrees(tree);
+            CSharpCompilation compilation = CSharpCompilation.Create(
+                $"{Guid.NewGuid():N}.dll",
+                new[] { tree },
+                references,
+                options);
 
             using (var stream = new MemoryStream())
             {
