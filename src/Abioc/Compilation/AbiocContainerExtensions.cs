@@ -18,23 +18,23 @@ namespace Abioc.Compilation
         /// <param name="multiMappings">
         /// The compiled mapping from a type to potentially multiple create functions.
         /// </param>
-        /// <param name="generatedGetService">The compiler generated GetService method.</param>
+        /// <param name="generatedContainer">The runtime generated container.</param>
         /// <returns>A new instance of the <see cref="AbiocContainer"/> class.</returns>
         public static AbiocContainer ToContainer(
             this IReadOnlyDictionary<Type, Func<object>[]> multiMappings,
-            Func<Type, object> generatedGetService)
+            IContainer generatedContainer)
         {
             if (multiMappings == null)
                 throw new ArgumentNullException(nameof(multiMappings));
-            if (generatedGetService == null)
-                throw new ArgumentNullException(nameof(generatedGetService));
+            if (generatedContainer == null)
+                throw new ArgumentNullException(nameof(generatedContainer));
 
             Dictionary<Type, Func<object>> singleMappings =
                 multiMappings
                     .Where(kvp => kvp.Value.Length == 1)
                     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Single());
 
-            return new AbiocContainer(singleMappings, multiMappings, generatedGetService);
+            return new AbiocContainer(singleMappings, multiMappings, generatedContainer);
         }
 
         /// <summary>
@@ -46,23 +46,23 @@ namespace Abioc.Compilation
         /// <param name="multiMappings">
         /// The compiled mapping from a type to potentially multiple create functions.
         /// </param>
-        /// <param name="generatedGetService">The compiler generated GetService method.</param>
+        /// <param name="generatedContainer">The runtime generated container.</param>
         /// <returns>A new instance of the <see cref="AbiocContainer"/> class.</returns>
         public static AbiocContainer<TExtra> ToContainer<TExtra>(
             this IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>[]> multiMappings,
-            Func<Type, TExtra, object> generatedGetService)
+            IContainer<TExtra> generatedContainer)
         {
             if (multiMappings == null)
                 throw new ArgumentNullException(nameof(multiMappings));
-            if (generatedGetService == null)
-                throw new ArgumentNullException(nameof(generatedGetService));
+            if (generatedContainer == null)
+                throw new ArgumentNullException(nameof(generatedContainer));
 
             Dictionary<Type, Func<ConstructionContext<TExtra>, object>> singleMappings =
                 multiMappings
                     .Where(kvp => kvp.Value.Length == 1)
                     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Single());
 
-            return new AbiocContainer<TExtra>(singleMappings, multiMappings, generatedGetService);
+            return new AbiocContainer<TExtra>(singleMappings, multiMappings, generatedContainer);
         }
     }
 }

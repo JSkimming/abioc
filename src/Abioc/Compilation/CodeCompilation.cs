@@ -72,7 +72,7 @@ namespace Abioc.Compilation
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
-            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container.GetService);
+            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Abioc.Compilation
                 let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
                 select (kvp.Key, compositions);
 
-            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container.GetService);
+            return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container);
         }
 
         private static Func<object[], IContainer<TExtra>> CreateContainerFactory<TExtra>(Type type)

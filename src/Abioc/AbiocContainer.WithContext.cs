@@ -19,7 +19,7 @@ namespace Abioc
         /// The compiler generated GetService method.
         /// </summary>
 #pragma warning disable SA1401 // Fields must be private
-        public readonly Func<Type, TExtra, object> GeneratedGetService;
+        public readonly IContainer<TExtra> GeneratedContainer;
 #pragma warning restore SA1401 // Fields must be private
 
         /// <summary>
@@ -29,22 +29,22 @@ namespace Abioc
         /// <param name="multiMappings">
         /// The compiled mapping from a type to potentially multiple create functions.
         /// </param>
-        /// <param name="generatedGetService">The compiler generated GetService method.</param>
+        /// <param name="generatedContainer">The runtime generated container.</param>
         public AbiocContainer(
             IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>> singleMappings,
             IReadOnlyDictionary<Type, Func<ConstructionContext<TExtra>, object>[]> multiMappings,
-            Func<Type, TExtra, object> generatedGetService)
+            IContainer<TExtra> generatedContainer)
         {
             if (singleMappings == null)
                 throw new ArgumentNullException(nameof(singleMappings));
             if (multiMappings == null)
                 throw new ArgumentNullException(nameof(multiMappings));
-            if (generatedGetService == null)
-                throw new ArgumentNullException(nameof(generatedGetService));
+            if (generatedContainer == null)
+                throw new ArgumentNullException(nameof(generatedContainer));
 
             SingleMappings = singleMappings;
             MultiMappings = multiMappings;
-            GeneratedGetService = generatedGetService;
+            GeneratedContainer = generatedContainer;
         }
 
         /// <summary>

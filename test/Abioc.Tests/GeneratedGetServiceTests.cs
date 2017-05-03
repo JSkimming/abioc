@@ -40,12 +40,12 @@ namespace Abioc
 
         protected override TService GetService<TService>()
         {
-            return (TService)_container.GeneratedGetService(typeof(TService), 1);
+            return (TService)_container.GeneratedContainer.GetService(typeof(TService), 1);
         }
 
         protected override IEnumerable<TService> GetServices<TService>()
         {
-            object service = _container.GeneratedGetService(typeof(TService), 1);
+            object service = _container.GeneratedContainer.GetService(typeof(TService), 1);
             if (service != null)
             {
                 yield return (TService)service;
@@ -78,12 +78,12 @@ namespace Abioc
 
         protected override TService GetService<TService>()
         {
-            return (TService)_container.GeneratedGetService(typeof(TService));
+            return (TService)_container.GeneratedContainer.GetService(typeof(TService));
         }
 
         protected override IEnumerable<TService> GetServices<TService>()
         {
-            object service = _container.GeneratedGetService(typeof(TService));
+            object service = _container.GeneratedContainer.GetService(typeof(TService));
             if (service != null)
             {
                 yield return (TService)service;
