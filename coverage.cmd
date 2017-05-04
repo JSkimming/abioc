@@ -37,8 +37,8 @@
 ::@echo "%xunit_exe%" %test_assemblies% -noshadow -html "%xunit_results%"
 ::@"%xunit_exe%" %test_assemblies% -noshadow -html "%xunit_results%"
 
-@echo "%cover_exe%" -register:user "-target:%xunit_exe%" "-targetargs:%test_assemblies% -noshadow -html %xunit_results%" -returntargetcode -filter:^"%coverage_filter%^" "-output:%coverage_results%"
-@"%cover_exe%" -register:user "-target:%xunit_exe%" "-targetargs:%test_assemblies% -noshadow -html %xunit_results%" -returntargetcode -filter:^"%coverage_filter%^" "-output:%coverage_results%"
+@echo "%cover_exe%" -register:user "-target:%xunit_exe%" "-targetargs:%test_assemblies% -parallel none -noshadow -html %xunit_results%" -returntargetcode -filter:^"%coverage_filter%^" "-output:%coverage_results%"
+@"%cover_exe%" -register:user "-target:%xunit_exe%" "-targetargs:%test_assemblies% -parallel none -noshadow -html %xunit_results%" -returntargetcode -filter:^"%coverage_filter%^" "-output:%coverage_results%"
 @IF ERRORLEVEL 1 (
    echo Error executing the xunit tests
    EXIT /B 2
