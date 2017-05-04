@@ -218,8 +218,7 @@ namespace Abioc
                 new RegistrationSetup<int>()
                     .RegisterInternal(typeof(IInternalInterfaceDependency), typeof(InternalInterfaceDependency))
                     .RegisterInternal<InternalConcreteDependency>()
-                    .Register<InternalFactoredDependency>(
-                        c => c.UseFactory(e => ExpectedFactoredDependency).Internal())
+                    .RegisterFactory(c => ExpectedFactoredDependency, c => c.Internal())
                     .Register<InternalFixedDependency>(c => c.UseFixed(ExpectedFixedDependency).Internal())
                     .Register<InternalAndExternalDependency>()
                     .Register<DependentClass>()
@@ -246,8 +245,7 @@ namespace Abioc
                 new RegistrationSetup()
                     .RegisterInternal<IInternalInterfaceDependency, InternalInterfaceDependency>()
                     .RegisterInternal(typeof(InternalConcreteDependency))
-                    .Register<InternalFactoredDependency>(
-                        c => c.UseFactory(() => ExpectedFactoredDependency).Internal())
+                    .RegisterFactory(() => ExpectedFactoredDependency, c => c.Internal())
                     .Register<InternalFixedDependency>(c => c.UseFixed(ExpectedFixedDependency).Internal())
                     .Register<InternalAndExternalDependency>()
                     .Register<DependentClass>()

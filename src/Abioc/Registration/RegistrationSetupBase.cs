@@ -204,17 +204,24 @@ namespace Abioc.Registration
         /// <param name="factory">
         /// The factory function that produces services of type <paramref name="implementationType"/>.
         /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterFactory(Type serviceType, Type implementationType, Func<object> factory)
+        public TDerived RegisterFactory(
+            Type serviceType,
+            Type implementationType,
+            Func<object> factory,
+            Action<RegistrationComposer> compose = null)
         {
-            if (implementationType == null)
-                throw new ArgumentNullException(nameof(implementationType));
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            return Register(serviceType, implementationType, c => c.UseFactory(implementationType, factory));
+            void InternalCompose(RegistrationComposer composer)
+            {
+                composer.UseFactory(implementationType, factory);
+                compose?.Invoke(composer);
+            }
+
+            return Register(serviceType, implementationType, InternalCompose);
         }
 
         /// <summary>
@@ -225,10 +232,14 @@ namespace Abioc.Registration
         /// <param name="factory">
         /// The factory function that produces services of type <paramref name="implementationType"/>.
         /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterFactory(Type implementationType, Func<object> factory)
+        public TDerived RegisterFactory(
+            Type implementationType,
+            Func<object> factory,
+            Action<RegistrationComposer> compose = null)
         {
-            return RegisterFactory(implementationType, implementationType, factory);
+            return RegisterFactory(implementationType, implementationType, factory, compose);
         }
 
         /// <summary>
@@ -245,14 +256,23 @@ namespace Abioc.Registration
         /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
         /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
         /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterFactory<TService, TImplementation>(Func<TImplementation> factory)
+        public TDerived RegisterFactory<TService, TImplementation>(
+            Func<TImplementation> factory,
+            Action<RegistrationComposer<TImplementation>> compose = null)
             where TImplementation : class, TService
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            return Register<TService, TImplementation>(c => c.UseFactory(factory));
+            void InternalCompose(RegistrationComposer<TImplementation> composer)
+            {
+                composer.UseFactory(factory);
+                compose?.Invoke(composer);
+            }
+
+            return Register<TService, TImplementation>(InternalCompose);
         }
 
         /// <summary>
@@ -264,11 +284,14 @@ namespace Abioc.Registration
         /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
         /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
         /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterFactory<TImplementation>(Func<TImplementation> factory)
+        public TDerived RegisterFactory<TImplementation>(
+            Func<TImplementation> factory,
+            Action<RegistrationComposer<TImplementation>> compose = null)
             where TImplementation : class
         {
-            return RegisterFactory<TImplementation, TImplementation>(factory);
+            return RegisterFactory<TImplementation, TImplementation>(factory, compose);
         }
 
         /// <summary>

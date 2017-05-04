@@ -121,20 +121,24 @@ namespace Abioc.Registration
         /// <param name="factory">
         /// The factory function that produces services of type <paramref name="implementationType"/>.
         /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterFactory(
             Type serviceType,
             Type implementationType,
-            Func<ConstructionContext<TExtra>, object> factory)
+            Func<ConstructionContext<TExtra>, object> factory,
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
         {
-            if (implementationType == null)
-                throw new ArgumentNullException(nameof(implementationType));
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            return Register(serviceType, implementationType, c => c.UseFactory(implementationType, factory));
+            void InternalCompose(RegistrationComposerExtra<TExtra> composer)
+            {
+                composer.UseFactory(implementationType, factory);
+                compose?.Invoke(composer);
+            }
+
+            return Register(serviceType, implementationType, InternalCompose);
         }
 
         /// <summary>
@@ -145,11 +149,14 @@ namespace Abioc.Registration
         /// <param name="factory">
         /// The factory function that produces services of type <paramref name="implementationType"/>.
         /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterFactory(
-            Type implementationType, Func<ConstructionContext<TExtra>, object> factory)
+            Type implementationType,
+            Func<ConstructionContext<TExtra>, object> factory,
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
         {
-            return RegisterFactory(implementationType, implementationType, factory);
+            return RegisterFactory(implementationType, implementationType, factory, compose);
         }
 
         /// <summary>
@@ -166,15 +173,23 @@ namespace Abioc.Registration
         /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
         /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
         /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterFactory<TService, TImplementation>(
-            Func<ConstructionContext<TExtra>, TImplementation> factory)
+            Func<ConstructionContext<TExtra>, TImplementation> factory,
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
             where TImplementation : class, TService
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            return Register<TService, TImplementation>(c => c.UseFactory(factory));
+            void InternalCompose(RegistrationComposerExtra<TExtra, TImplementation> composer)
+            {
+                composer.UseFactory(factory);
+                compose?.Invoke(composer);
+            }
+
+            return Register<TService, TImplementation>(InternalCompose);
         }
 
         /// <summary>
@@ -186,12 +201,14 @@ namespace Abioc.Registration
         /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
         /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
         /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterFactory<TImplementation>(
-            Func<ConstructionContext<TExtra>, TImplementation> factory)
+            Func<ConstructionContext<TExtra>, TImplementation> factory,
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
             where TImplementation : class
         {
-            return RegisterFactory<TImplementation, TImplementation>(factory);
+            return RegisterFactory<TImplementation, TImplementation>(factory, compose);
         }
     }
 }
