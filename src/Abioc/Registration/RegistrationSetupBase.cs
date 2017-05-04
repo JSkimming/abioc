@@ -145,20 +145,10 @@ namespace Abioc.Registration
         /// <paramref name="implementationType"/>.
         /// </param>
         /// <param name="implementationType">The type of the implemented service to provide.</param>
-        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterInternal(
-            Type serviceType,
-            Type implementationType,
-            Action<RegistrationComposer> compose = null)
+        public TDerived RegisterInternal(Type serviceType, Type implementationType)
         {
-            void InternalCompose(RegistrationComposer composer)
-            {
-                compose?.Invoke(composer);
-                composer.Internal();
-            }
-
-            return Register(serviceType, implementationType, InternalCompose);
+            return Register(serviceType, implementationType, c => c.Internal());
         }
 
         /// <summary>
@@ -166,11 +156,10 @@ namespace Abioc.Registration
         /// <see cref="Registrations"/>.
         /// </summary>
         /// <param name="implementationType">The type of the implemented service to provide.</param>
-        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterInternal(Type implementationType, Action<RegistrationComposer> compose = null)
+        public TDerived RegisterInternal(Type implementationType)
         {
-            return RegisterInternal(implementationType, implementationType, compose);
+            return RegisterInternal(implementationType, implementationType);
         }
 
         /// <summary>
@@ -183,19 +172,11 @@ namespace Abioc.Registration
         /// <typeparamref name="TImplementation"/>.
         /// </typeparam>
         /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
-        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterInternal<TService, TImplementation>(
-            Action<RegistrationComposer<TImplementation>> compose = null)
+        public TDerived RegisterInternal<TService, TImplementation>()
             where TImplementation : TService
         {
-            void InternalCompose(RegistrationComposer<TImplementation> composer)
-            {
-                compose?.Invoke(composer);
-                composer.Internal();
-            }
-
-            return Register<TService, TImplementation>(InternalCompose);
+            return Register<TService, TImplementation>(c => c.Internal());
         }
 
         /// <summary>
@@ -203,12 +184,11 @@ namespace Abioc.Registration
         /// <see cref="Registrations"/>.
         /// </summary>
         /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
-        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterInternal<TImplementation>(Action<RegistrationComposer<TImplementation>> compose = null)
+        public TDerived RegisterInternal<TImplementation>()
             where TImplementation : class
         {
-            return RegisterInternal<TImplementation, TImplementation>(compose);
+            return RegisterInternal<TImplementation, TImplementation>();
         }
 
         /// <summary>

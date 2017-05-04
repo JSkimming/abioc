@@ -216,11 +216,11 @@ namespace Abioc
 
             _container =
                 new RegistrationSetup<int>()
-                    .RegisterInternal<IInternalInterfaceDependency, InternalInterfaceDependency>()
-                    .RegisterInternal(typeof(InternalConcreteDependency))
-                    .RegisterInternal(typeof(InternalFactoredDependency),
-                        c => c.UseFactory(typeof(InternalFactoredDependency), () => ExpectedFactoredDependency))
-                    .RegisterInternal<InternalFixedDependency>(c => c.UseFixed(ExpectedFixedDependency))
+                    .RegisterInternal(typeof(IInternalInterfaceDependency), typeof(InternalInterfaceDependency))
+                    .RegisterInternal<InternalConcreteDependency>()
+                    .Register<InternalFactoredDependency>(
+                        c => c.UseFactory(e => ExpectedFactoredDependency).Internal())
+                    .Register<InternalFixedDependency>(c => c.UseFixed(ExpectedFixedDependency).Internal())
                     .Register<InternalAndExternalDependency>()
                     .Register<DependentClass>()
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
@@ -246,9 +246,9 @@ namespace Abioc
                 new RegistrationSetup()
                     .RegisterInternal<IInternalInterfaceDependency, InternalInterfaceDependency>()
                     .RegisterInternal(typeof(InternalConcreteDependency))
-                    .RegisterInternal(typeof(InternalFactoredDependency),
-                        c => c.UseFactory(typeof(InternalFactoredDependency), () => ExpectedFactoredDependency))
-                    .RegisterInternal<InternalFixedDependency>(c => c.UseFixed(ExpectedFixedDependency))
+                    .Register<InternalFactoredDependency>(
+                        c => c.UseFactory(() => ExpectedFactoredDependency).Internal())
+                    .Register<InternalFixedDependency>(c => c.UseFixed(ExpectedFixedDependency).Internal())
                     .Register<InternalAndExternalDependency>()
                     .Register<DependentClass>()
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
