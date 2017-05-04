@@ -8,12 +8,12 @@ namespace Abioc.Registration
     using System.Linq;
 
     /// <summary>
-    /// Extension methods on <see cref="RegistrationComposer{T}"/> to use <see cref="TypedFactoryRegistration{T}"/>.
+    /// Extension methods on <see cref="RegistrationComposer"/> to use <see cref="TypedFactoryRegistration{T}"/>.
     /// </summary>
     public static class TypedFactoryRegistrationCompositionExtension
     {
         /// <summary>
-        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer{T}.Registration"/> with a
+        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer.Registration"/> with a
         /// <see cref="TypedFactoryRegistration{TImplementation}"/>.
         /// </summary>
         /// <typeparam name="TImplementation">
@@ -38,7 +38,7 @@ namespace Abioc.Registration
         }
 
         /// <summary>
-        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer{T}.Registration"/> with a
+        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposerExtra{T}.Registration"/> with a
         /// <see cref="TypedFactoryRegistration{TImplementation}"/>.
         /// </summary>
         /// <typeparam name="TExtra">
@@ -52,8 +52,8 @@ namespace Abioc.Registration
         /// The factory function that produces services of type <typeparamref name="TImplementation"/>.
         /// </param>
         /// <returns>The registration <paramref name="composer"/> to be used in a fluent configuration.</returns>
-        public static RegistrationComposer<TExtra, TImplementation> UseFactory<TExtra, TImplementation>(
-            this RegistrationComposer<TExtra, TImplementation> composer,
+        public static RegistrationComposerExtra<TExtra, TImplementation> UseFactory<TExtra, TImplementation>(
+            this RegistrationComposerExtra<TExtra, TImplementation> composer,
             Func<ConstructionContext<TExtra>, TImplementation> factory)
         {
             if (composer == null)

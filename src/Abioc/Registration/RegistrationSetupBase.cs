@@ -64,7 +64,7 @@ namespace Abioc.Registration
         public TDerived Register(
             Type serviceType,
             Type implementationType,
-            Action<RegistrationComposer<object>> compose = null)
+            Action<RegistrationComposer> compose = null)
         {
             if (implementationType == null)
                 throw new ArgumentNullException(nameof(implementationType));
@@ -78,7 +78,7 @@ namespace Abioc.Registration
                 return Register(serviceType, defaultRegistration);
             }
 
-            var composer = new RegistrationComposer<object>(defaultRegistration);
+            var composer = new RegistrationComposer(defaultRegistration);
             compose(composer);
 
             return Register(serviceType, composer.Registration);
@@ -90,7 +90,7 @@ namespace Abioc.Registration
         /// <param name="implementationType">The type of the implemented service to provide.</param>
         /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived Register(Type implementationType, Action<RegistrationComposer<object>> compose = null)
+        public TDerived Register(Type implementationType, Action<RegistrationComposer> compose = null)
         {
             return Register(implementationType, implementationType, compose);
         }
@@ -150,9 +150,9 @@ namespace Abioc.Registration
         public TDerived RegisterInternal(
             Type serviceType,
             Type implementationType,
-            Action<RegistrationComposer<object>> compose = null)
+            Action<RegistrationComposer> compose = null)
         {
-            void InternalCompose(RegistrationComposer<object> composer)
+            void InternalCompose(RegistrationComposer composer)
             {
                 compose?.Invoke(composer);
                 composer.Internal();
@@ -168,7 +168,7 @@ namespace Abioc.Registration
         /// <param name="implementationType">The type of the implemented service to provide.</param>
         /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterInternal(Type implementationType, Action<RegistrationComposer<object>> compose = null)
+        public TDerived RegisterInternal(Type implementationType, Action<RegistrationComposer> compose = null)
         {
             return RegisterInternal(implementationType, implementationType, compose);
         }

@@ -31,7 +31,7 @@ namespace Abioc.Registration
         public RegistrationSetup<TExtra> Register(
             Type serviceType,
             Type implementationType,
-            Action<RegistrationComposer<TExtra, object>> compose = null)
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
         {
             if (implementationType == null)
                 throw new ArgumentNullException(nameof(implementationType));
@@ -45,7 +45,7 @@ namespace Abioc.Registration
                 return Register(serviceType, defaultRegistration);
             }
 
-            var composer = new RegistrationComposer<TExtra, object>(defaultRegistration);
+            var composer = new RegistrationComposerExtra<TExtra>(defaultRegistration);
             compose(composer);
 
             return Register(serviceType, composer.Registration);
@@ -60,7 +60,7 @@ namespace Abioc.Registration
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> Register(
             Type implementationType,
-            Action<RegistrationComposer<TExtra, object>> compose = null)
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
         {
             return Register(implementationType, implementationType, compose);
         }
@@ -78,7 +78,7 @@ namespace Abioc.Registration
         /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> Register<TService, TImplementation>(
-            Action<RegistrationComposer<TExtra, TImplementation>> compose = null)
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
             where TImplementation : TService
         {
             IRegistration defaultRegistration = new SingleConstructorRegistration(typeof(TImplementation));
@@ -88,7 +88,7 @@ namespace Abioc.Registration
                 return Register(typeof(TService), defaultRegistration);
             }
 
-            var composer = new RegistrationComposer<TExtra, TImplementation>(defaultRegistration);
+            var composer = new RegistrationComposerExtra<TExtra, TImplementation>(defaultRegistration);
             compose(composer);
 
             return Register(typeof(TService), composer.Registration);
@@ -102,7 +102,7 @@ namespace Abioc.Registration
         /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> Register<TImplementation>(
-            Action<RegistrationComposer<TExtra, TImplementation>> compose = null)
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
             where TImplementation : class
         {
             return Register<TImplementation, TImplementation>(compose);
@@ -123,9 +123,9 @@ namespace Abioc.Registration
         public RegistrationSetup<TExtra> RegisterInternal(
             Type serviceType,
             Type implementationType,
-            Action<RegistrationComposer<TExtra, object>> compose = null)
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
         {
-            void InternalCompose(RegistrationComposer<TExtra, object> composer)
+            void InternalCompose(RegistrationComposerExtra<TExtra> composer)
             {
                 compose?.Invoke(composer);
                 composer.Internal();
@@ -143,7 +143,7 @@ namespace Abioc.Registration
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterInternal(
             Type implementationType,
-            Action<RegistrationComposer<TExtra, object>> compose = null)
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
         {
             return RegisterInternal(implementationType, implementationType, compose);
         }
@@ -161,10 +161,10 @@ namespace Abioc.Registration
         /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterInternal<TService, TImplementation>(
-            Action<RegistrationComposer<TExtra, TImplementation>> compose = null)
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
             where TImplementation : TService
         {
-            void InternalCompose(RegistrationComposer<TExtra, TImplementation> composer)
+            void InternalCompose(RegistrationComposerExtra<TExtra, TImplementation> composer)
             {
                 compose?.Invoke(composer);
                 composer.Internal();
@@ -181,7 +181,7 @@ namespace Abioc.Registration
         /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterInternal<TImplementation>(
-            Action<RegistrationComposer<TExtra, TImplementation>> compose = null)
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
             where TImplementation : class
         {
             return RegisterInternal<TImplementation, TImplementation>(compose);

@@ -8,15 +8,18 @@ namespace Abioc.Registration
     /// <summary>
     /// Helper class used in the fluent composition of a registration.
     /// </summary>
-    public class RegistrationComposer
+    /// <typeparam name="TExtra">
+    /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
+    /// </typeparam>
+    public class RegistrationComposerExtra<TExtra>
     {
         private bool _internal;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RegistrationComposer"/> class.
+        /// Initializes a new instance of the <see cref="RegistrationComposerExtra{TExtra}"/> class.
         /// </summary>
         /// <param name="registration">The current <see cref="IRegistration"/>.</param>
-        public RegistrationComposer(IRegistration registration)
+        public RegistrationComposerExtra(IRegistration registration)
         {
             if (registration == null)
                 throw new ArgumentNullException(nameof(registration));
@@ -35,7 +38,7 @@ namespace Abioc.Registration
         /// a call to <see cref="IContainer.GetService"/> or <see cref="IContainer.GetServices"/>.
         /// </summary>
         /// <returns>This registration composer to be used in a fluent configuration.</returns>
-        public RegistrationComposer Internal()
+        public RegistrationComposerExtra<TExtra> Internal()
         {
             Registration.Internal = _internal = true;
             return this;

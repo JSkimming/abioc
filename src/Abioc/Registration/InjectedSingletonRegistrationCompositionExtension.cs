@@ -8,13 +8,13 @@ namespace Abioc.Registration
     using System.Linq;
 
     /// <summary>
-    /// Extension methods on <see cref="RegistrationComposer{T}"/> to use
+    /// Extension methods on <see cref="RegistrationComposer"/> to use
     /// <see cref="InjectedSingletonRegistration{T}"/>.
     /// </summary>
     public static class InjectedSingletonRegistrationCompositionExtension
     {
         /// <summary>
-        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer{T}.Registration"/> with a
+        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer.Registration"/> with a
         /// <see cref="InjectedSingletonRegistration{TImplementation}"/>.
         /// </summary>
         /// <typeparam name="TImplementation">The type of the <paramref name="value"/>.</typeparam>
