@@ -13,7 +13,7 @@ namespace Abioc.Registration
     /// <see cref="IRegistration.ImplementationType"/> through a factory function.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class SingletonRegistration : IRegistration
+    public class SingletonRegistration : RegistrationBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SingletonRegistration"/> class.
@@ -30,7 +30,7 @@ namespace Abioc.Registration
         /// <summary>
         /// Gets the <see cref="IRegistration.ImplementationType"/> of the <see cref="IRegistration"/>.
         /// </summary>
-        public Type ImplementationType => Inner.ImplementationType;
+        public override Type ImplementationType => Inner.ImplementationType;
 
         /// <summary>
         /// Gets the <see cref="Inner"/> <see cref="IRegistration"/>.

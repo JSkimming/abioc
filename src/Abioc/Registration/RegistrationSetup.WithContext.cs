@@ -212,8 +212,8 @@ namespace Abioc.Registration
         }
 
         /// <summary>
-        /// Registers an <paramref name="implementationType"/> for generation with a <paramref name="factory"/>
-        /// provider for singleton generation. Only one value will ever be provided after the initial factoring.
+        /// Registers an <paramref name="implementationType"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
         /// </summary>
         /// <param name="serviceType">
         /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
@@ -221,44 +221,39 @@ namespace Abioc.Registration
         /// <paramref name="implementationType"/>.
         /// </param>
         /// <param name="implementationType">The type of the implemented service.</param>
-        /// <param name="factory">
-        /// The factory function that produces services of type <paramref name="implementationType"/>.
-        /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterSingleton(
             Type serviceType,
             Type implementationType,
-            Func<ConstructionContext<TExtra>, object> factory)
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
         {
-            if (implementationType == null)
-                throw new ArgumentNullException(nameof(implementationType));
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
-            if (factory == null)
-                throw new ArgumentNullException(nameof(factory));
+            void InternalCompose(RegistrationComposerExtra<TExtra> composer)
+            {
+                compose?.Invoke(composer);
+                composer.ToSingleton();
+            }
 
-            return Register(serviceType, implementationType, c => c.UseFactory(factory).ToSingleton());
+            return Register(serviceType, implementationType, InternalCompose);
         }
 
         /// <summary>
-        /// Registers an <paramref name="implementationType"/> for generation with a <paramref name="factory"/>
-        /// provider for singleton generation. Only one value will ever be provided after the initial factoring.
+        /// Registers an <paramref name="implementationType"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
         /// </summary>
         /// <param name="implementationType">The type of the implemented service.</param>
-        /// <param name="factory">
-        /// The factory function that produces services of type <paramref name="implementationType"/>.
-        /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterSingleton(
             Type implementationType,
-            Func<ConstructionContext<TExtra>, object> factory)
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
         {
-            return RegisterSingleton(implementationType, implementationType, factory);
+            return RegisterSingleton(implementationType, implementationType, compose);
         }
 
         /// <summary>
-        /// Registers an <typeparamref name="TImplementation"/> for generation with a <paramref name="factory"/>
-        /// provider for singleton generation. Only one value will ever be provided after the initial factoring.
+        /// Registers an <typeparamref name="TImplementation"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
         /// </summary>
         /// <typeparam name="TService">
         /// The type of the service to by satisfied during registration. The <typeparamref name="TService"/> should be
@@ -266,36 +261,33 @@ namespace Abioc.Registration
         /// <typeparamref name="TImplementation"/>.
         /// </typeparam>
         /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
-        /// <param name="factory">
-        /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
-        /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
-        /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterSingleton<TService, TImplementation>(
-            Func<ConstructionContext<TExtra>, TImplementation> factory)
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
             where TImplementation : class, TService
         {
-            if (factory == null)
-                throw new ArgumentNullException(nameof(factory));
+            void InternalCompose(RegistrationComposerExtra<TExtra, TImplementation> composer)
+            {
+                compose?.Invoke(composer);
+                composer.ToSingleton();
+            }
 
-            return Register<TService, TImplementation>(c => c.UseFactory(factory).ToSingleton());
+            return Register<TService, TImplementation>(InternalCompose);
         }
 
         /// <summary>
-        /// Registers an <typeparamref name="TImplementation"/> for generation with a <paramref name="factory"/>
-        /// provider for singleton generation. Only one value will ever be provided after the initial factoring.
+        /// Registers an <typeparamref name="TImplementation"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
         /// </summary>
         /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
-        /// <param name="factory">
-        /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
-        /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
-        /// </param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public RegistrationSetup<TExtra> RegisterSingleton<TImplementation>(
-            Func<ConstructionContext<TExtra>, TImplementation> factory)
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
             where TImplementation : class
         {
-            return RegisterSingleton<TImplementation, TImplementation>(factory);
+            return RegisterSingleton<TImplementation, TImplementation>(compose);
         }
     }
 }

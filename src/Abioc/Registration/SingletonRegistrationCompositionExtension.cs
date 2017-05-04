@@ -8,25 +8,37 @@ namespace Abioc.Registration
     using System.Linq;
 
     /// <summary>
-    /// Extension methods on <see cref="RegistrationComposer{T}"/> to use <see cref="SingletonRegistration"/>.
+    /// Extension methods on <see cref="RegistrationComposer"/> to use <see cref="SingletonRegistration"/>.
     /// </summary>
     public static class SingletonRegistrationCompositionExtension
     {
         /// <summary>
-        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer{T}.Registration"/> with a
+        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer.Registration"/> with a
         /// <see cref="SingletonRegistration"/>.
         /// </summary>
-        /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
         /// <param name="composer">The registration composer.</param>
-        /// <returns>The registration <paramref name="composer"/> to be used in a fluent configuration.</returns>
-        public static RegistrationComposer<TImplementation> ToSingleton<TImplementation>(
-            this RegistrationComposer<TImplementation> composer)
+        public static void ToSingleton(this RegistrationComposer composer)
         {
             if (composer == null)
                 throw new ArgumentNullException(nameof(composer));
 
             composer.Replace(new SingletonRegistration(composer.Registration));
-            return composer;
+        }
+
+        /// <summary>
+        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposerExtra{T}.Registration"/> with a
+        /// <see cref="SingletonRegistration"/>.
+        /// </summary>
+        /// <typeparam name="TExtra">
+        /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
+        /// </typeparam>
+        /// <param name="composer">The registration composer.</param>
+        public static void ToSingleton<TExtra>(this RegistrationComposerExtra<TExtra> composer)
+        {
+            if (composer == null)
+                throw new ArgumentNullException(nameof(composer));
+
+            composer.Replace(new SingletonRegistration(composer.Registration));
         }
     }
 }

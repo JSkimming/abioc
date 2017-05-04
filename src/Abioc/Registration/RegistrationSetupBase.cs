@@ -338,15 +338,20 @@ namespace Abioc.Registration
         /// <paramref name="implementationType"/>.
         /// </param>
         /// <param name="implementationType">The type of the implemented service.</param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterSingleton(Type serviceType, Type implementationType)
+        public TDerived RegisterSingleton(
+            Type serviceType,
+            Type implementationType,
+            Action<RegistrationComposer> compose = null)
         {
-            if (implementationType == null)
-                throw new ArgumentNullException(nameof(implementationType));
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
+            void InternalCompose(RegistrationComposer composer)
+            {
+                compose?.Invoke(composer);
+                composer.ToSingleton();
+            }
 
-            return Register(serviceType, implementationType, c => c.ToSingleton());
+            return Register(serviceType, implementationType, InternalCompose);
         }
 
         /// <summary>
@@ -354,10 +359,11 @@ namespace Abioc.Registration
         /// provided after the initial creation.
         /// </summary>
         /// <param name="implementationType">The type of the implemented service.</param>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterSingleton(Type implementationType)
+        public TDerived RegisterSingleton(Type implementationType, Action<RegistrationComposer> compose = null)
         {
-            return RegisterSingleton(implementationType, implementationType);
+            return RegisterSingleton(implementationType, implementationType, compose);
         }
 
         /// <summary>
@@ -370,11 +376,19 @@ namespace Abioc.Registration
         /// <typeparamref name="TImplementation"/>.
         /// </typeparam>
         /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterSingleton<TService, TImplementation>()
+        public TDerived RegisterSingleton<TService, TImplementation>(
+            Action<RegistrationComposer<TImplementation>> compose = null)
             where TImplementation : class, TService
         {
-            return Register<TService, TImplementation>(c => c.ToSingleton());
+            void InternalCompose(RegistrationComposer<TImplementation> composer)
+            {
+                compose?.Invoke(composer);
+                composer.ToSingleton();
+            }
+
+            return Register<TService, TImplementation>(InternalCompose);
         }
 
         /// <summary>
@@ -382,91 +396,13 @@ namespace Abioc.Registration
         /// provided after the initial creation.
         /// </summary>
         /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="compose">The action to further compose the registration.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterSingleton<TImplementation>()
+        public TDerived RegisterSingleton<TImplementation>(
+            Action<RegistrationComposer<TImplementation>> compose = null)
             where TImplementation : class
         {
-            return RegisterSingleton<TImplementation, TImplementation>();
-        }
-
-        /// <summary>
-        /// Registers an <paramref name="implementationType"/> for generation with a <paramref name="factory"/>
-        /// provider for singleton generation. Only one value will ever be provided after the initial factoring.
-        /// </summary>
-        /// <param name="serviceType">
-        /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
-        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
-        /// <paramref name="implementationType"/>.
-        /// </param>
-        /// <param name="implementationType">The type of the implemented service.</param>
-        /// <param name="factory">
-        /// The factory function that produces services of type <paramref name="implementationType"/>.
-        /// </param>
-        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterSingleton(Type serviceType, Type implementationType, Func<object> factory)
-        {
-            if (implementationType == null)
-                throw new ArgumentNullException(nameof(implementationType));
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
-            if (factory == null)
-                throw new ArgumentNullException(nameof(factory));
-
-            return Register(serviceType, implementationType, c => c.UseFactory(factory).ToSingleton());
-        }
-
-        /// <summary>
-        /// Registers an <paramref name="implementationType"/> for generation with a <paramref name="factory"/>
-        /// provider for singleton generation. Only one value will ever be provided after the initial factoring.
-        /// </summary>
-        /// <param name="implementationType">The type of the implemented service.</param>
-        /// <param name="factory">
-        /// The factory function that produces services of type <paramref name="implementationType"/>.
-        /// </param>
-        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterSingleton(Type implementationType, Func<object> factory)
-        {
-            return RegisterSingleton(implementationType, implementationType, factory);
-        }
-
-        /// <summary>
-        /// Registers an <typeparamref name="TImplementation"/> for generation with a <paramref name="factory"/>
-        /// provider for singleton generation. Only one value will ever be provided after the initial factoring.
-        /// </summary>
-        /// <typeparam name="TService">
-        /// The type of the service to by satisfied during registration. The <typeparamref name="TService"/> should be
-        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
-        /// <typeparamref name="TImplementation"/>.
-        /// </typeparam>
-        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
-        /// <param name="factory">
-        /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
-        /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
-        /// </param>
-        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterSingleton<TService, TImplementation>(Func<TImplementation> factory)
-            where TImplementation : class, TService
-        {
-            if (factory == null)
-                throw new ArgumentNullException(nameof(factory));
-
-            return Register<TService, TImplementation>(c => c.UseFactory(factory).ToSingleton());
-        }
-
-        /// <summary>
-        /// Registers an <typeparamref name="TImplementation"/> for generation with a <paramref name="factory"/>
-        /// provider for singleton generation. Only one value will ever be provided after the initial factoring.
-        /// </summary>
-        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
-        /// <param name="factory">
-        /// The factory function that produces services of type <typeparamref name="TImplementation"/>. If not
-        /// specified the an instance of <typeparamref name="TImplementation"/> will be automatically generated.
-        /// </param>
-        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
-        public TDerived RegisterSingleton<TImplementation>(Func<TImplementation> factory)
-            where TImplementation : class
-        {
-            return RegisterSingleton<TImplementation, TImplementation>(factory);
+            return RegisterSingleton<TImplementation, TImplementation>(compose);
         }
     }
 }
