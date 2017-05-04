@@ -114,6 +114,7 @@
     <Compile Include="RequiresArgNullEx.cs" />
     <Compile Include="RequiresArgNullExAutoMoqAttribute.cs" />
     <Compile Include="SingleClassTests.cs" />
+    <Compile Include="SingletonTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
