@@ -15,6 +15,10 @@ namespace Abioc
 
     namespace FactoryServices
     {
+        public class InternalService1
+        {
+        }
+
         public interface IService3
         {
         }
@@ -42,13 +46,19 @@ namespace Abioc
 
         public class DependentService
         {
-            public DependentService(Service1 service1, Service2 service2, IService3 service3)
+            public DependentService(
+                InternalService1 internalService1,
+                Service1 service1,
+                Service2 service2,
+                IService3 service3)
             {
+                InternalService1 = internalService1 ?? throw new ArgumentNullException(nameof(internalService1));
                 Service1 = service1 ?? throw new ArgumentNullException(nameof(service1));
                 Service2 = service2 ?? throw new ArgumentNullException(nameof(service2));
                 Service3 = service3 ?? throw new ArgumentNullException(nameof(service3));
             }
 
+            public InternalService1 InternalService1 { get; }
             public Service1 Service1 { get; }
             public Service2 Service2 { get; }
             public IService3 Service3 { get; }
@@ -111,6 +121,7 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup<int>()
+                    .RegisterFactory(c => new InternalService1(), c => c.Internal())
                     .RegisterFactory(Service1.CreateService1WithContext)
                     .RegisterFactory(Service2.CreateService2WithContext)
                     .RegisterFactory<IService3, Service3>(Service3.CreateService3WithContext)
@@ -156,6 +167,7 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup()
+                    .RegisterFactory(() => new InternalService1(), c => c.Internal())
                     .RegisterFactory(Service1.CreateService1WithoutContext)
                     .RegisterFactory(Service2.CreateService2WithoutContext)
                     .RegisterFactory<IService3, Service3>(Service3.CreateService3WithoutContext)
@@ -201,6 +213,7 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup<int>()
+                    .RegisterFactory(typeof(InternalService1), c => new InternalService1(), c => c.Internal())
                     .RegisterFactory(typeof(Service1), Service1.CreateService1WithContext)
                     .RegisterFactory(typeof(Service2), Service2.CreateService2WithContext)
                     .RegisterFactory(typeof(IService3), typeof(Service3), Service3.CreateService3WithContext)
@@ -246,6 +259,7 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup()
+                    .RegisterFactory(typeof(InternalService1), () => new InternalService1(), c => c.Internal())
                     .RegisterFactory(typeof(Service1), Service1.CreateService1WithoutContext)
                     .RegisterFactory(typeof(Service2), Service2.CreateService2WithoutContext)
                     .RegisterFactory(typeof(IService3), typeof(Service3), Service3.CreateService3WithoutContext)
@@ -291,6 +305,7 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup<int>()
+                    .RegisterFactory(typeof(InternalService1), c => new InternalService1(), c => c.Internal())
                     .RegisterFactory(Service1.CreateService1WithContext)
                     .RegisterFactory(typeof(Service2), Service2.CreateService2WithContext)
                     .RegisterFactory<IService3>(Service3.CreateService3WithContext)
@@ -337,6 +352,7 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup()
+                    .RegisterFactory(typeof(InternalService1), () => new InternalService1(), c => c.Internal())
                     .RegisterFactory(Service1.CreateService1WithoutContext)
                     .RegisterFactory(typeof(Service2), Service2.CreateService2WithoutContext)
                     .RegisterFactory<IService3>(Service3.CreateService3WithoutContext)

@@ -8,12 +8,12 @@ namespace Abioc.Registration
     using System.Linq;
 
     /// <summary>
-    /// Extension methods on <see cref="RegistrationComposer{T}"/> to use <see cref="FactoryRegistration"/>.
+    /// Extension methods on <see cref="RegistrationComposer"/> to use <see cref="FactoryRegistration"/>.
     /// </summary>
     public static class FactoryRegistrationCompositionExtension
     {
         /// <summary>
-        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer{T}.Registration"/> with a
+        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer.Registration"/> with a
         /// <see cref="FactoryRegistration"/>.
         /// </summary>
         /// <param name="composer">The registration composer.</param>
@@ -22,8 +22,8 @@ namespace Abioc.Registration
         /// The factory function that produces services of type <paramref name="implementationType"/>.
         /// </param>
         /// <returns>The registration <paramref name="composer"/> to be used in a fluent configuration.</returns>
-        public static RegistrationComposer<object> UseFactory(
-            this RegistrationComposer<object> composer,
+        public static RegistrationComposer UseFactory(
+            this RegistrationComposer composer,
             Type implementationType,
             Func<object> factory)
         {
@@ -37,7 +37,7 @@ namespace Abioc.Registration
         }
 
         /// <summary>
-        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposer{T}.Registration"/> with a
+        /// Replaces the <paramref name="composer"/>.<see cref="RegistrationComposerExtra{T}.Registration"/> with a
         /// <see cref="FactoryRegistration"/>.
         /// </summary>
         /// <typeparam name="TExtra">
@@ -49,8 +49,8 @@ namespace Abioc.Registration
         /// The factory function that produces services of type <paramref name="implementationType"/>.
         /// </param>
         /// <returns>The registration <paramref name="composer"/> to be used in a fluent configuration.</returns>
-        public static RegistrationComposer<TExtra, object> UseFactory<TExtra>(
-            this RegistrationComposer<TExtra, object> composer,
+        public static RegistrationComposerExtra<TExtra> UseFactory<TExtra>(
+            this RegistrationComposerExtra<TExtra> composer,
             Type implementationType,
             Func<ConstructionContext<TExtra>, object> factory)
         {

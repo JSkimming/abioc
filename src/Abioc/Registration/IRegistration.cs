@@ -20,7 +20,7 @@ namespace Abioc.Registration
         /// <summary>
         /// Gets or sets a value indicating whether a registration is internal; e.g. it is required as a dependency for
         /// other registrations but will not be resolved externally via a call to
-        /// <see cref="AbiocContainer.GetService"/> or <see cref="AbiocContainer.GetServices"/>.
+        /// <see cref="IContainer.GetService"/> or <see cref="IContainer.GetServices"/>.
         /// </summary>
         /// <remarks>
         /// This is simple performance optimization to prevent unnecessary dependency injection type mappings from
