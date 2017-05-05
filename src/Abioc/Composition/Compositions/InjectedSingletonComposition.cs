@@ -103,7 +103,7 @@ namespace Abioc.Composition.Compositions
             string fieldName = GetInjectedFieldName();
             string fieldType = Type.ToCompileName();
 
-            string field = $"private {fieldType} {fieldName};";
+            string field = $"private readonly {fieldType} {fieldName};";
             return new[] { field };
         }
 

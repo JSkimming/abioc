@@ -210,5 +210,84 @@ namespace Abioc.Registration
         {
             return RegisterFactory<TImplementation, TImplementation>(factory, compose);
         }
+
+        /// <summary>
+        /// Registers an <paramref name="implementationType"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
+        /// </summary>
+        /// <param name="serviceType">
+        /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <paramref name="implementationType"/>.
+        /// </param>
+        /// <param name="implementationType">The type of the implemented service.</param>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationSetup<TExtra> RegisterSingleton(
+            Type serviceType,
+            Type implementationType,
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
+        {
+            void InternalCompose(RegistrationComposerExtra<TExtra> composer)
+            {
+                compose?.Invoke(composer);
+                composer.ToSingleton();
+            }
+
+            return Register(serviceType, implementationType, InternalCompose);
+        }
+
+        /// <summary>
+        /// Registers an <paramref name="implementationType"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
+        /// </summary>
+        /// <param name="implementationType">The type of the implemented service.</param>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationSetup<TExtra> RegisterSingleton(
+            Type implementationType,
+            Action<RegistrationComposerExtra<TExtra>> compose = null)
+        {
+            return RegisterSingleton(implementationType, implementationType, compose);
+        }
+
+        /// <summary>
+        /// Registers an <typeparamref name="TImplementation"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
+        /// </summary>
+        /// <typeparam name="TService">
+        /// The type of the service to by satisfied during registration. The <typeparamref name="TService"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <typeparamref name="TImplementation"/>.
+        /// </typeparam>
+        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationSetup<TExtra> RegisterSingleton<TService, TImplementation>(
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
+            where TImplementation : class, TService
+        {
+            void InternalCompose(RegistrationComposerExtra<TExtra, TImplementation> composer)
+            {
+                compose?.Invoke(composer);
+                composer.ToSingleton();
+            }
+
+            return Register<TService, TImplementation>(InternalCompose);
+        }
+
+        /// <summary>
+        /// Registers an <typeparamref name="TImplementation"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
+        /// </summary>
+        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public RegistrationSetup<TExtra> RegisterSingleton<TImplementation>(
+            Action<RegistrationComposerExtra<TExtra, TImplementation>> compose = null)
+            where TImplementation : class
+        {
+            return RegisterSingleton<TImplementation, TImplementation>(compose);
+        }
     }
 }

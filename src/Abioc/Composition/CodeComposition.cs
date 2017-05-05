@@ -57,13 +57,15 @@ namespace Abioc.Composition
             {
                 code.UsingSimpleNames = true;
                 Type type = composition.Type;
-                string composeMethodName = composition.GetComposeMethodName(context, simpleName: true);
+                string composeMethodName = composition.GetComposeMethodName(context, code.UsingSimpleNames);
                 bool requiresConstructionContext = composition.RequiresConstructionContext(context);
 
                 code.ComposeMethods.Add((composeMethodName, type, requiresConstructionContext));
-                code.Methods.AddRange(composition.GetMethods(context, simpleName: true));
+                code.Methods.AddRange(composition.GetMethods(context, code.UsingSimpleNames));
                 code.Fields.AddRange(composition.GetFields(context));
                 code.FieldInitializations.AddRange(composition.GetFieldInitializations(context));
+                code.AdditionalInitializations.AddRange(
+                    composition.GetAdditionalInitializations(context, code.UsingSimpleNames));
             }
 
             // Check if there are any name conflicts.
@@ -71,17 +73,20 @@ namespace Abioc.Composition
             {
                 code.ComposeMethods.Clear();
                 code.Methods.Clear();
+                code.AdditionalInitializations.Clear();
 
                 // Now try with complex names, this should prevent conflicts.
                 foreach (IComposition composition in compositions)
                 {
                     code.UsingSimpleNames = false;
                     Type type = composition.Type;
-                    string composeMethodName = composition.GetComposeMethodName(context, simpleName: false);
+                    string composeMethodName = composition.GetComposeMethodName(context, code.UsingSimpleNames);
                     bool requiresConstructionContext = composition.RequiresConstructionContext(context);
 
                     code.ComposeMethods.Add((composeMethodName, type, requiresConstructionContext));
-                    code.Methods.AddRange(composition.GetMethods(context, simpleName: false));
+                    code.Methods.AddRange(composition.GetMethods(context, code.UsingSimpleNames));
+                    code.AdditionalInitializations.AddRange(
+                        composition.GetAdditionalInitializations(context, code.UsingSimpleNames));
                 }
             }
 
@@ -172,6 +177,11 @@ namespace Abioc.Composition
                 builder.Append($"{NewLine}    {snippet}fieldValues[{index}];");
             }
 
+            foreach (string additionalInitialization in code.AdditionalInitializations)
+            {
+                builder.Append(CodeGen.Indent(NewLine + additionalInitialization));
+            }
+
             builder.AppendFormat("{0}}}", NewLine);
             return builder.ToString();
         }
@@ -214,8 +224,7 @@ namespace Abioc.Composition
                 : string.Empty;
 
             string contextVariable = code.HasConstructionContext
-                ? $"{NewLine}    var context = new {code.ConstructionContext}(typeof(object), typeof(object), " +
-                  $"typeof(object), extraData);"
+                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(extraData);"
                 : string.Empty;
 
             var builder = new StringBuilder(1024);
@@ -265,8 +274,7 @@ namespace Abioc.Composition
                 : string.Empty;
 
             string contextVariable = code.HasConstructionContext
-                ? $"{NewLine}    var context = new {code.ConstructionContext}(typeof(object), typeof(object), " +
-                  $"typeof(object), extraData);"
+                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(extraData);"
                 : string.Empty;
 
             var builder = new StringBuilder(1024);
@@ -352,6 +360,8 @@ namespace Abioc.Composition
             public List<string> Fields { get; } = new List<string>(32);
 
             public List<(string snippet, object value)> FieldInitializations { get; } = new List<(string, object)>(32);
+
+            public List<string> AdditionalInitializations { get; } = new List<string>(32);
 
             public bool UsingSimpleNames { get; set; }
         }

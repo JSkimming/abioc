@@ -90,6 +90,21 @@ namespace Abioc.Composition
         IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context);
 
         /// <summary>
+        /// Returns the code of additional initializations to the executes after the field initializations.
+        /// </summary>
+        /// <param name="context">The whole composition context.</param>
+        /// <param name="simpleName">
+        /// <p>
+        /// If <see langword="true"/> simple method names should be produced; otherwise produce complex method names.
+        /// </p>
+        /// <p>
+        /// A simple method may potentially produce conflicts; though it will produce more readable code.
+        /// </p>
+        /// </param>
+        /// <returns>The code of additional initializations to the executes after the field initializations.</returns>
+        IEnumerable<string> GetAdditionalInitializations(CompositionContext context, bool simpleName);
+
+        /// <summary>
         /// Returns the value indicating whether the <see cref="IComposition"/> requires a
         /// <see cref="ConstructionContext{T}"/>.
         /// </summary>

@@ -327,5 +327,82 @@ namespace Abioc.Registration
         {
             return RegisterFixed<TImplementation, TImplementation>(value);
         }
+
+        /// <summary>
+        /// Registers an <paramref name="implementationType"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
+        /// </summary>
+        /// <param name="serviceType">
+        /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <paramref name="implementationType"/>.
+        /// </param>
+        /// <param name="implementationType">The type of the implemented service.</param>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public TDerived RegisterSingleton(
+            Type serviceType,
+            Type implementationType,
+            Action<RegistrationComposer> compose = null)
+        {
+            void InternalCompose(RegistrationComposer composer)
+            {
+                compose?.Invoke(composer);
+                composer.ToSingleton();
+            }
+
+            return Register(serviceType, implementationType, InternalCompose);
+        }
+
+        /// <summary>
+        /// Registers an <paramref name="implementationType"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
+        /// </summary>
+        /// <param name="implementationType">The type of the implemented service.</param>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public TDerived RegisterSingleton(Type implementationType, Action<RegistrationComposer> compose = null)
+        {
+            return RegisterSingleton(implementationType, implementationType, compose);
+        }
+
+        /// <summary>
+        /// Registers an <typeparamref name="TImplementation"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
+        /// </summary>
+        /// <typeparam name="TService">
+        /// The type of the service to by satisfied during registration. The <typeparamref name="TService"/> should be
+        /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
+        /// <typeparamref name="TImplementation"/>.
+        /// </typeparam>
+        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public TDerived RegisterSingleton<TService, TImplementation>(
+            Action<RegistrationComposer<TImplementation>> compose = null)
+            where TImplementation : class, TService
+        {
+            void InternalCompose(RegistrationComposer<TImplementation> composer)
+            {
+                compose?.Invoke(composer);
+                composer.ToSingleton();
+            }
+
+            return Register<TService, TImplementation>(InternalCompose);
+        }
+
+        /// <summary>
+        /// Registers an <typeparamref name="TImplementation"/> for singleton generation. Only one value will ever be
+        /// provided after the initial creation.
+        /// </summary>
+        /// <typeparam name="TImplementation">The type of the implemented service.</typeparam>
+        /// <param name="compose">The action to further compose the registration.</param>
+        /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
+        public TDerived RegisterSingleton<TImplementation>(
+            Action<RegistrationComposer<TImplementation>> compose = null)
+            where TImplementation : class
+        {
+            return RegisterSingleton<TImplementation, TImplementation>(compose);
+        }
     }
 }

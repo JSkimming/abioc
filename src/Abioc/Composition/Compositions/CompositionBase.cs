@@ -40,6 +40,15 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
+        public IEnumerable<string> GetAdditionalInitializations(CompositionContext context, bool simpleName)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
+            return Enumerable.Empty<string>();
+        }
+
+        /// <inheritdoc />
         public virtual IEnumerable<string> GetFields(CompositionContext context)
         {
             if (context == null)

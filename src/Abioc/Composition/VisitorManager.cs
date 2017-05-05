@@ -25,8 +25,8 @@ namespace Abioc.Composition
 
         private readonly CompositionContext _context;
 
-        private Dictionary<Type, List<IRegistrationVisitor>> _visitors =
-            new Dictionary<Type, List<IRegistrationVisitor>>();
+        private readonly Dictionary<Type, IRegistrationVisitor[]> _visitors =
+            new Dictionary<Type, IRegistrationVisitor[]>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VisitorManager"/> class.
@@ -82,23 +82,27 @@ namespace Abioc.Composition
                 throw new ArgumentNullException(nameof(manager));
 
             Type visitorType = typeof(IRegistrationVisitor<TRegistration>);
-            if (!manager._visitors.TryGetValue(visitorType, out var list))
+            if (!manager._visitors.TryGetValue(visitorType, out IRegistrationVisitor[] visitors))
             {
                 IEnumerable<IRegistrationVisitor> newVisitors = VisitorFactory.CreateVisitors<TRegistration>();
-                list = newVisitors.ToList();
+                visitors = newVisitors.ToArray();
 
-                if (list.Count == 0)
+                if (visitors.Length == 0)
                 {
                     string message = $"There are no visitors for registrations of type '{visitorType}'.";
                     throw new CompositionException(message);
                 }
 
-                list.ForEach(v => v.Initialize(manager._context));
+                foreach (IRegistrationVisitor visitor in visitors)
+                {
+                    visitor.Initialize(manager._context);
+                    (visitor as IRegistrationVisitorEx)?.InitializeEx(manager);
+                }
 
-                manager._visitors[visitorType] = list;
+                manager._visitors[visitorType] = visitors;
             }
 
-            foreach (var visitor in list.Cast<IRegistrationVisitor<TRegistration>>())
+            foreach (var visitor in visitors.Cast<IRegistrationVisitor<TRegistration>>())
             {
                 visitor.Accept((TRegistration)registration);
             }
