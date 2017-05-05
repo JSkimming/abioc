@@ -15,6 +15,11 @@ namespace Abioc
     public struct ConstructionContext<TExtra>
     {
         /// <summary>
+        /// The default construction context to be used when one cannot be provided.
+        /// </summary>
+        public static readonly ConstructionContext<TExtra> Default = default(ConstructionContext<TExtra>);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ConstructionContext{TExtra}"/> struct.
         /// </summary>
         /// <param name="implementationType">The <see cref="ImplementationType"/>.</param>
@@ -22,18 +27,11 @@ namespace Abioc
         /// <param name="recipientType">The <see cref="RecipientType"/>.</param>
         /// <param name="extra">The <see cref="Extra"/> construction context information.</param>
         public ConstructionContext(
-            Type implementationType,
-            Type serviceType,
-            Type recipientType,
-            TExtra extra)
+            Type implementationType = null,
+            Type serviceType = null,
+            Type recipientType = null,
+            TExtra extra = default(TExtra))
         {
-            if (implementationType == null)
-                throw new ArgumentNullException(nameof(implementationType));
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
-            if (recipientType == null)
-                throw new ArgumentNullException(nameof(recipientType));
-
             ImplementationType = implementationType;
             ServiceType = serviceType;
             RecipientType = recipientType;

@@ -15,7 +15,11 @@ namespace Abioc
 
     namespace SingletonTests
     {
-        public class ConcreteOnlyDependency
+        public class ConcreteOnlyDependency1
+        {
+        }
+
+        public class ConcreteOnlyDependency2
         {
         }
 
@@ -38,13 +42,16 @@ namespace Abioc
         public class DependentClass
         {
             public DependentClass(
-                ConcreteOnlyDependency concreteOnlyDependency,
+                ConcreteOnlyDependency1 concreteOnlyDependency1,
+                ConcreteOnlyDependency2 concreteOnlyDependency2,
                 IInterfaceOnlyDependency interfaceOnlyDependency,
                 IMixedDependency mixedDependencyInferface,
                 MixedDependency mixedDependencyClass)
             {
-                ConcreteOnlyDependency = concreteOnlyDependency ??
-                                         throw new ArgumentNullException(nameof(concreteOnlyDependency));
+                ConcreteOnlyDependency1 = concreteOnlyDependency1 ??
+                                         throw new ArgumentNullException(nameof(concreteOnlyDependency1));
+                ConcreteOnlyDependency2 = concreteOnlyDependency2 ??
+                                          throw new ArgumentNullException(nameof(concreteOnlyDependency2));
                 InterfaceOnlyDependency = interfaceOnlyDependency ??
                                           throw new ArgumentNullException(nameof(interfaceOnlyDependency));
                 MixedDependencyInferface = mixedDependencyInferface ??
@@ -53,7 +60,8 @@ namespace Abioc
                                        throw new ArgumentNullException(nameof(mixedDependencyClass));
             }
 
-            public ConcreteOnlyDependency ConcreteOnlyDependency { get; }
+            public ConcreteOnlyDependency1 ConcreteOnlyDependency1 { get; }
+            public ConcreteOnlyDependency2 ConcreteOnlyDependency2 { get; }
             public IInterfaceOnlyDependency InterfaceOnlyDependency { get; }
             public IMixedDependency MixedDependencyInferface { get; }
             public MixedDependency MixedDependencyClass { get; }
@@ -74,10 +82,14 @@ namespace Abioc
             actual.Should().NotBeNull();
 
             DependentClass second = GetService<DependentClass>();
-            actual.ConcreteOnlyDependency
+            actual.ConcreteOnlyDependency1
                 .Should()
                 .NotBeNull()
-                .And.BeSameAs(second.ConcreteOnlyDependency);
+                .And.BeSameAs(second.ConcreteOnlyDependency1);
+            actual.ConcreteOnlyDependency2
+                .Should()
+                .NotBeNull()
+                .And.BeSameAs(second.ConcreteOnlyDependency2);
         }
 
         [Fact]
@@ -141,7 +153,9 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup<int>()
-                    .RegisterSingleton<ConcreteOnlyDependency>()
+                    .RegisterSingleton(typeof(ConcreteOnlyDependency1),
+                        c => c.UseFactory(typeof(ConcreteOnlyDependency1), f => new ConcreteOnlyDependency1()))
+                    .RegisterSingleton(typeof(ConcreteOnlyDependency2))
                     .RegisterSingleton<IInterfaceOnlyDependency>(c => c.UseFactory(f => new InterfaceOnlyDependency()))
                     .RegisterSingleton<IMixedDependency, MixedDependency>()
                     .Register<DependentClass>()
@@ -161,7 +175,9 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup()
-                    .RegisterSingleton<ConcreteOnlyDependency>()
+                    .RegisterSingleton(typeof(ConcreteOnlyDependency1),
+                        c => c.UseFactory(typeof(ConcreteOnlyDependency1), () => new ConcreteOnlyDependency1()))
+                    .RegisterSingleton(typeof(ConcreteOnlyDependency2))
                     .RegisterSingleton<IInterfaceOnlyDependency>(c => c.UseFactory(() => new InterfaceOnlyDependency()))
                     .RegisterSingleton<IMixedDependency, MixedDependency>()
                     .Register<DependentClass>()

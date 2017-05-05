@@ -158,7 +158,7 @@ namespace Abioc.Composition.Compositions
                     ? $"System.Func<{ConstructionContextType.ToCompileName()}, object>"
                     : $"System.Func<object>";
 
-            string field = $"private {fieldType} {fieldName};";
+            string field = $"private readonly {fieldType} {fieldName};";
             return new[] { field };
         }
 

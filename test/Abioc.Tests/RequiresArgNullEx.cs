@@ -33,6 +33,9 @@ namespace Abioc
             Type = typeof(RegistrationSetupBase<RegistrationSetup>),
             Method = "RegisterFixed",
             Parameter = "value")]
+        [Exclude(
+            Type = typeof(ConstructionContextExtensions),
+            Parameter = "extra")]
         [Substitute(typeof(AbiocContainer<>), typeof(AbiocContainer<int>))]
         [Substitute(typeof(ConstructionContext<>), typeof(ConstructionContext<int>))]
         [Substitute(typeof(FactoryRegistration<>), typeof(FactoryRegistration<object>))]
