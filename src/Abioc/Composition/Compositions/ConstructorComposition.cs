@@ -13,6 +13,8 @@ namespace Abioc.Composition.Compositions
     /// </summary>
     public class ConstructorComposition : CompositionBase
     {
+        private readonly List<IParameterExpression> _parameterExpressions;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConstructorComposition"/> class.
         /// </summary>
@@ -29,6 +31,8 @@ namespace Abioc.Composition.Compositions
 
             Type = type;
             Parameters = parameters;
+
+            _parameterExpressions = new List<IParameterExpression>(parameters.Count);
         }
 
         /// <summary>
@@ -48,7 +52,7 @@ namespace Abioc.Composition.Compositions
                 throw new ArgumentNullException(nameof(context));
 
             // Get the expressions for the all the constructor parameters.
-            IReadOnlyList<IComposition> compositions = GetParameterCompositions(context);
+            IEnumerable<IParameterExpression> compositions = GetParameterExpressions(context);
             IEnumerable<string> parameterExpressions =
                 compositions.Select(c => c.GetInstanceExpression(context, simpleName));
 
@@ -99,24 +103,47 @@ namespace Abioc.Composition.Compositions
         /// <inheritdoc/>
         public override bool RequiresConstructionContext(CompositionContext context)
         {
-            return GetParameterCompositions(context).Any(c => c.RequiresConstructionContext(context));
+            return GetParameterExpressions(context).Any(c => c.RequiresConstructionContext(context));
         }
 
-        private IReadOnlyList<IComposition> GetParameterCompositions(CompositionContext context)
+        private IEnumerable<IParameterExpression> GetParameterExpressions(CompositionContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            try
+            if (_parameterExpressions.Count == Parameters.Count)
+                return _parameterExpressions;
+
+            foreach (ParameterInfo parameter in Parameters)
             {
-                return GetCompositions(context, Parameters.Select(p => p.ParameterType)).ToList();
+                if (context.Compositions.TryGetValue(parameter.ParameterType, out IComposition composition))
+                {
+                    IParameterExpression expression = new SimpleParameterExpression(composition);
+                    _parameterExpressions.Add(expression);
+                    continue;
+                }
+
+                TypeInfo parameterTypeInfo = parameter.ParameterType.GetTypeInfo();
+                if (parameterTypeInfo.IsGenericType)
+                {
+                    Type genericTypeDefinition = parameter.ParameterType.GetTypeInfo().GetGenericTypeDefinition();
+                    if (typeof(IEnumerable<>) == genericTypeDefinition)
+                    {
+                        Type enumerableType = parameter.ParameterType.GetTypeInfo().GenericTypeArguments.Single();
+                        IParameterExpression expression =
+                            new EnumerableParameterExpression(enumerableType, context.ConstructionContext.Length > 0);
+                        _parameterExpressions.Add(expression);
+                        continue;
+                    }
+                }
+
+                string message =
+                    $"Failed to get the compositions for the parameter '{parameter}' to the constructor of " +
+                    $"'{Type}'. Is there a missing registration mapping?";
+                throw new CompositionException(message);
             }
-            catch (Exception ex)
-            {
-                string message = "Failed to get the compositions for the parameters to the constructor of " +
-                                 $"'{Type}'. Is there a missing registration mapping?";
-                throw new CompositionException(message, ex);
-            }
+
+            return _parameterExpressions;
         }
     }
 }
