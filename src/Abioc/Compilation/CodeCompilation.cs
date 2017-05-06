@@ -159,9 +159,11 @@ namespace Abioc.Compilation
             if (srcAssembly == null)
                 throw new ArgumentNullException(nameof(srcAssembly));
 
-            string tempFileName = Path.GetTempFileName();
-            File.WriteAllText(tempFileName, code, Encoding.UTF8);
-            SyntaxTree tree = SyntaxFactory.ParseSyntaxTree(code, path: tempFileName, encoding: Encoding.UTF8);
+            // Need to review the code gen and file saving later.
+            ////string tempFileName = Path.GetTempFileName();
+            ////File.WriteAllText(tempFileName, code, Encoding.UTF8);
+            ////SyntaxTree tree = SyntaxFactory.ParseSyntaxTree(code, path: tempFileName, encoding: Encoding.UTF8);
+            SyntaxTree tree = SyntaxFactory.ParseSyntaxTree(code, encoding: Encoding.UTF8);
             ProcessDiagnostics(tree);
 
             var options = new CSharpCompilationOptions(

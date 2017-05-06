@@ -59,31 +59,5 @@ namespace Abioc.Composition.Compositions
 
         /// <inheritdoc />
         public abstract bool RequiresConstructionContext(CompositionContext context);
-
-        /// <summary>
-        /// Gets all the compositions for the specified <paramref name="types"/>.
-        /// </summary>
-        /// <param name="context">The <see cref="CompositionContext"/>.</param>
-        /// <param name="types">The types for which to retrieve the compositions.</param>
-        /// <returns>All the compositions for the specified <paramref name="types"/>.</returns>
-        protected static IEnumerable<IComposition> GetCompositions(CompositionContext context, IEnumerable<Type> types)
-        {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-            if (types == null)
-                throw new ArgumentNullException(nameof(types));
-
-            foreach (Type type in types)
-            {
-                if (context.Compositions.TryGetValue(type, out IComposition composition))
-                {
-                    yield return composition;
-                }
-                else
-                {
-                    throw new CompositionException($"There is no composition for the type: '{type}'.");
-                }
-            }
-        }
     }
 }

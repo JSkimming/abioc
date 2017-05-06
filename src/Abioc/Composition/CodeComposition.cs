@@ -110,7 +110,7 @@ namespace Abioc.Composition
 
             var builder = new StringBuilder(10240);
             builder.AppendFormat(
-                "namespace Abioc.Generated{0}{{{0}    internal class Container : " +
+                "namespace Abioc.Generated{0}{{{0}    using System.Linq;{0}{0}    internal class Container : " +
                 "Abioc.IContainerInitialization{1}, Abioc.IContainer{1}{0}    {{",
                 NewLine,
                 genericContainerParam);

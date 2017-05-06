@@ -47,8 +47,8 @@ namespace Abioc
         {
             // Arrange
             string expectedMessage =
-                "Failed to get the compositions for the parameters to the constructor of " +
-                $"'{typeof(DependantClass)}'. Is there a missing registration mapping?";
+                $"Failed to get the compositions for the parameter '{typeof(DependencyClass2)} dependency2' to the " +
+                $"constructor of '{typeof(DependantClass)}'. Is there a missing registration mapping?";
 
             // Act
             Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
