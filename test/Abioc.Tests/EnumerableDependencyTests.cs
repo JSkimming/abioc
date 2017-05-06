@@ -7,6 +7,7 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Abioc.Composition;
     using Abioc.EnumerableDependencyTests;
     using Abioc.Registration;
     using FluentAssertions;
@@ -61,7 +62,17 @@ namespace Abioc
             public IMultipleDependency[] MultipleDependencies { get; }
             public IZeroDependency[] ZeroDependencies { get; }
             public ISingleDependency[] SingleDependencies { get; }
+        }
 
+        public interface IUnsupportedGenericInterface<T>
+        {
+        }
+
+        public class ClassWithUnsupportedGenericDependency
+        {
+            public ClassWithUnsupportedGenericDependency(IUnsupportedGenericInterface<SingleDependency> dependency)
+            {
+            }
         }
     }
 
@@ -156,5 +167,36 @@ namespace Abioc
         }
 
         protected override TService GetService<TService>() => _container.GetService<TService>();
+    }
+
+    public class WhenRegisteringClassWinAnUnsupportedGenericDependency
+    {
+        private readonly RegistrationSetup _setup;
+
+        public WhenRegisteringClassWinAnUnsupportedGenericDependency()
+        {
+            _setup =
+                new RegistrationSetup()
+                    .Register<SingleDependency>()
+                    .Register<ClassWithUnsupportedGenericDependency>();
+        }
+
+        [Fact]
+        public void ItShouldThrowACompositionException()
+        {
+            // Arrange
+            string expectedMessage =
+                $"Failed to get the compositions for the parameter " +
+                $"'{typeof(IUnsupportedGenericInterface<SingleDependency>)} dependency' to the constructor of " +
+                $"'{typeof(ClassWithUnsupportedGenericDependency)}'. Is there a missing registration mapping?";
+
+            // Act
+            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+
+            // Assert
+            action
+                .ShouldThrow<CompositionException>()
+                .WithMessage(expectedMessage);
+        }
     }
 }
