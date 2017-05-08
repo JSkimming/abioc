@@ -108,6 +108,7 @@
     <Compile Include="MissingConstructorDependencyTests.cs" />
     <Compile Include="MissingRegistrationVisitorTests.cs" />
     <Compile Include="NestedClassTests.cs" />
+    <Compile Include="PreventCompositionOverwriteTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegisterInternalTests.cs" />
     <Compile Include="RegistrationPrecedenceTests.cs" />
