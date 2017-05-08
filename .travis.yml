@@ -8,4 +8,4 @@ branches:
 install:
   - dotnet restore abioc.core.sln
 script:
-  - dotnet test -f netcoreapp1.1 test/Abioc.Tests/Abioc.TestsCore.csproj
+  - dotnet test -c Release -f netcoreapp1.1 test/Abioc.Tests/Abioc.TestsCore.csproj
