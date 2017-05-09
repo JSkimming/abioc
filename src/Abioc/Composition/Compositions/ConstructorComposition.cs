@@ -126,10 +126,10 @@ namespace Abioc.Composition.Compositions
                 TypeInfo parameterTypeInfo = parameter.ParameterType.GetTypeInfo();
                 if (parameterTypeInfo.IsGenericType)
                 {
-                    Type genericTypeDefinition = parameter.ParameterType.GetTypeInfo().GetGenericTypeDefinition();
+                    Type genericTypeDefinition = parameterTypeInfo.GetGenericTypeDefinition();
                     if (typeof(IEnumerable<>) == genericTypeDefinition)
                     {
-                        Type enumerableType = parameter.ParameterType.GetTypeInfo().GenericTypeArguments.Single();
+                        Type enumerableType = parameterTypeInfo.GenericTypeArguments.Single();
                         IParameterExpression expression =
                             new EnumerableParameterExpression(enumerableType, context.ConstructionContext.Length > 0);
                         _parameterExpressions.Add(expression);

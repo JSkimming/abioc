@@ -110,6 +110,7 @@
     <Compile Include="NestedClassTests.cs" />
     <Compile Include="PreventCompositionOverwriteTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyInjectionTests.cs" />
     <Compile Include="RegisterInternalTests.cs" />
     <Compile Include="RegistrationPrecedenceTests.cs" />
     <Compile Include="RequireConstructionContextTests.cs" />

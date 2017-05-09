@@ -128,6 +128,24 @@ namespace Abioc
         }
     }
 
+    public class WhenRunningInTheDebuggerPropertyDependencyRegistrationShould : DebuggerDisplayTestsBase
+    {
+        private readonly Type _implementationType;
+
+        public WhenRunningInTheDebuggerPropertyDependencyRegistrationShould()
+        {
+            var sut = new PropertyDependencyRegistration(new SingleConstructorRegistration(GetType()));
+            _implementationType = sut.ImplementationType;
+            GetDebuggerDisplay(sut);
+        }
+
+        [Fact]
+        public void IncludeImplementationTypeInTheDebuggerDisplay()
+        {
+            DebuggerDisplayText.Should().Contain(_implementationType.Name);
+        }
+    }
+
     public class WhenRunningInTheDebuggerSingleConstructorRegistrationShould : DebuggerDisplayTestsBase
     {
         private readonly Type _implementationType;
@@ -136,6 +154,24 @@ namespace Abioc
         {
             _implementationType = GetType();
             var sut = new SingleConstructorRegistration(_implementationType);
+            GetDebuggerDisplay(sut);
+        }
+
+        [Fact]
+        public void IncludeImplementationTypeInTheDebuggerDisplay()
+        {
+            DebuggerDisplayText.Should().Contain(_implementationType.Name);
+        }
+    }
+
+    public class WhenRunningInTheDebuggerSingletonRegistrationShould : DebuggerDisplayTestsBase
+    {
+        private readonly Type _implementationType;
+
+        public WhenRunningInTheDebuggerSingletonRegistrationShould()
+        {
+            var sut = new SingletonRegistration(new SingleConstructorRegistration(GetType()));
+            _implementationType = sut.ImplementationType;
             GetDebuggerDisplay(sut);
         }
 

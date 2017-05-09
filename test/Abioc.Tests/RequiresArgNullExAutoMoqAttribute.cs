@@ -6,6 +6,7 @@ namespace Abioc
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
     using AutoTest.ArgNullEx;
     using AutoTest.ArgNullEx.Xunit;
@@ -34,6 +35,8 @@ namespace Abioc
         private static IArgumentNullExceptionFixture CreateFixture(Assembly assemblyUnderTest)
         {
             var fixture = new Fixture().Customize(new AbiocCustomization());
+
+            fixture.Register<LambdaExpression>(fixture.Create<Expression<Action>>);
 
             var argNullFixture = new ArgumentNullExceptionFixture(assemblyUnderTest, fixture);
 
