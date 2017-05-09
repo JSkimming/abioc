@@ -326,97 +326,38 @@ namespace Abioc
         protected override TService GetService<TService>() => _container.GetService<TService>();
     }
 
-    public abstract class WhenRegistrationIsMissingPropertyInjectedDependenciesBase
+    public class WhenRegistrationIsMissingPropertyInjectedDependencies
     {
-        protected abstract TService GetService<TService>();
+        private readonly RegistrationSetup _setup;
 
-        [Fact]
-        public void ItShouldThowACompositionExceptionIfIsAMissingSpecifiedPropertyDependency()
+        public WhenRegistrationIsMissingPropertyInjectedDependencies()
         {
-            // Arrange
-            string expectedMessage =
-                "TODO: This should be a nice descriptive error message.";
-
-            // Act
-            Action action = () => GetService<ConcreteClassWith3InjectedProperties>();
-
-            // Assert
-            action
-                .ShouldThrow<CompositionException>()
-                .WithMessage(expectedMessage);
-        }
-
-        [Fact]
-        public void ItShouldThowACompositionExceptionIfIsAMissingInjectAllPropertyDependency()
-        {
-            // Arrange
-            string expectedMessage =
-                "TODO: This should be a nice descriptive error message.";
-
-            // Act
-            Action action = () => GetService<ConcreteClassWithSetOnlyProperty>();
-
-            // Assert
-            action
-                .ShouldThrow<CompositionException>()
-                .WithMessage(expectedMessage);
-        }
-    }
-
-    public class WhenRegistrationIsMissingPropertyInjectedDependenciesWithAContext
-        : WhenRegistrationIsMissingPropertyInjectedDependenciesBase
-    {
-        private readonly AbiocContainer<int> _container;
-
-        public WhenRegistrationIsMissingPropertyInjectedDependenciesWithAContext(ITestOutputHelper output)
-        {
-            _container =
-                new RegistrationSetup<int>()
-                    // Dependencies
-                    .Register<IInterfaceDependency1, ConcreteDependency1>()
-                    .Register<IInterfaceDependency3, ConcreteDependency3>()
-                    // Concrete classes
-                    .Register<ConcreteClassWith3InjectedProperties>(
-                        composer => composer
-                            .InjectProperty(s => s.Dependency1)
-                            .InjectProperty(s => s.Dependency2)
-                            .InjectProperty(s => s.Dependency3))
-                    .Register<ConcreteClassWithSetOnlyProperty>(
-                        composer => composer.InjectAllProperties())
-                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
-
-            output.WriteLine(code);
-        }
-
-        protected override TService GetService<TService>() => _container.GetService<TService>(1);
-    }
-
-    public class WhenRegistrationIsMissingPropertyInjectedDependenciesWithoutAContext
-        : WhenRegistrationIsMissingPropertyInjectedDependenciesBase
-    {
-        private readonly AbiocContainer _container;
-
-        public WhenRegistrationIsMissingPropertyInjectedDependenciesWithoutAContext(ITestOutputHelper output)
-        {
-            _container =
+            _setup =
                 new RegistrationSetup()
                     // Dependencies
                     .Register<IInterfaceDependency1, ConcreteDependency1>()
                     .Register<IInterfaceDependency3, ConcreteDependency3>()
                     // Concrete classes
-                    .Register<ConcreteClassWith3InjectedProperties>(
-                        composer => composer
-                            .InjectProperty(s => s.Dependency1)
-                            .InjectProperty(s => s.Dependency2)
-                            .InjectProperty(s => s.Dependency3))
                     .Register<ConcreteClassWithSetOnlyProperty>(
-                        composer => composer.InjectAllProperties())
-                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
-
-            output.WriteLine(code);
+                        composer => composer.InjectAllProperties());
         }
 
-        protected override TService GetService<TService>() => _container.GetService<TService>();
+        [Fact]
+        public void ItShouldThowACompositionException()
+        {
+            // Arrange
+            string expectedMessage =
+                "Failed to get the composition for the property 'IInterfaceDependency2 Dependency2' of the instance " +
+                $"'{typeof(ConcreteClassWithSetOnlyProperty)}'. Is there a missing registration mapping?";
+
+            // Act
+            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+
+            // Assert
+            action
+                .ShouldThrow<CompositionException>()
+                .WithMessage(expectedMessage);
+        }
     }
 
     public abstract class WhenAddingAnInjectAllPropertiesAfterHavingAddedAnInjectPropertyBase
