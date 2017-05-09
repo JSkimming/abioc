@@ -106,6 +106,20 @@ namespace Abioc
 
             public IInterfaceDependency3 GetDependency3() => _dependency3;
         }
+
+        public class ClassWithEnumerablePropertyDependency
+        {
+            public IEnumerable<ConcreteDependency1> Dependency { get; set; }
+        }
+
+        public interface IUnsupportedGenericInterface<T>
+        {
+        }
+
+        public class ClassWithUnsupportedGenericPropertyDependency
+        {
+            public IUnsupportedGenericInterface<ConcreteDependency1> Dependency { get; set; }
+        }
     }
 
     public abstract class WhenRegisteringClassesWithInjectedPropertiesBase
@@ -447,6 +461,71 @@ namespace Abioc
                     composer => composer
                         .InjectAllProperties()
                         .InjectProperty(s => s.Dependency1));
+        }
+    }
+
+    public class WhenRegisteringClassWithAnEnumerablePropertyDependency
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenRegisteringClassWithAnEnumerablePropertyDependency(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup()
+                    .Register<ConcreteDependency1>()
+                    .Register<ClassWithEnumerablePropertyDependency>(
+                        composer => composer.InjectAllProperties())
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        [Fact]
+        public void ItShouldCreateAClassWithAnInjectedProperty()
+        {
+            // Act
+            ClassWithEnumerablePropertyDependency actual =
+                _container.GetService<ClassWithEnumerablePropertyDependency>();
+
+            // Assert
+            actual
+                .Should()
+                .NotBeNull();
+            actual.Dependency
+                .Should()
+                .NotBeNullOrEmpty();
+        }
+    }
+
+    public class WhenRegisteringClassWithAnUnsupportedGenericPropertyDependency
+    {
+        private readonly RegistrationSetup _setup;
+
+        public WhenRegisteringClassWithAnUnsupportedGenericPropertyDependency()
+        {
+            _setup =
+                new RegistrationSetup()
+                    .Register<ConcreteDependency1>()
+                    .Register<ClassWithUnsupportedGenericPropertyDependency>(
+                        composer => composer.InjectAllProperties());
+        }
+
+        [Fact]
+        public void ItShouldThrowACompositionException()
+        {
+            // Arrange
+            string expectedMessage =
+                $"Failed to get the composition for the property '{typeof(IUnsupportedGenericInterface<>).Name} " +
+                $"Dependency' of the instance '{typeof(ClassWithUnsupportedGenericPropertyDependency)}'. " +
+                "Is there a missing registration mapping?";
+
+            // Act
+            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+
+            // Assert
+            action
+                .ShouldThrow<CompositionException>()
+                .WithMessage(expectedMessage);
         }
     }
 }

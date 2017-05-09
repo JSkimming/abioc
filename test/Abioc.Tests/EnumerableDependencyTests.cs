@@ -169,11 +169,11 @@ namespace Abioc
         protected override TService GetService<TService>() => _container.GetService<TService>();
     }
 
-    public class WhenRegisteringClassWinAnUnsupportedGenericDependency
+    public class WhenRegisteringClassWithAnUnsupportedGenericDependency
     {
         private readonly RegistrationSetup _setup;
 
-        public WhenRegisteringClassWinAnUnsupportedGenericDependency()
+        public WhenRegisteringClassWithAnUnsupportedGenericDependency()
         {
             _setup =
                 new RegistrationSetup()

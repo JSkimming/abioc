@@ -15,8 +15,6 @@ namespace Abioc.Registration
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class PropertyDependencyRegistration : RegistrationBase
     {
-        private static readonly LambdaExpression[] EmptyPropertyExpressions = { };
-
         private readonly List<LambdaExpression> _propertyExpressions;
 
         /// <summary>
@@ -77,8 +75,7 @@ namespace Abioc.Registration
         /// Gets the list of expressions specifying the properties of the <see cref="ImplementationType"/> that need to
         /// be injected as a dependency.
         /// </summary>
-        public IReadOnlyList<LambdaExpression> PropertyExpressions
-            => (IReadOnlyList<LambdaExpression>)_propertyExpressions ?? EmptyPropertyExpressions;
+        public IReadOnlyList<LambdaExpression> PropertyExpressions => _propertyExpressions;
 
         private string DebuggerDisplay => $"{GetType().Name}: Type={ImplementationType.Name}";
 
