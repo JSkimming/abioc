@@ -331,7 +331,7 @@ namespace Abioc
         protected abstract TService GetService<TService>();
 
         [Fact]
-        public void ItShouldShowACompositionExceptionIfIsAMissingSpecifiedPropertyDependency()
+        public void ItShouldThowACompositionExceptionIfIsAMissingSpecifiedPropertyDependency()
         {
             // Arrange
             string expectedMessage =
@@ -347,7 +347,7 @@ namespace Abioc
         }
 
         [Fact]
-        public void ItShouldShowACompositionExceptionIfIsAMissingInjectAllPropertyDependency()
+        public void ItShouldThowACompositionExceptionIfIsAMissingInjectAllPropertyDependency()
         {
             // Arrange
             string expectedMessage =
@@ -417,5 +417,95 @@ namespace Abioc
         }
 
         protected override TService GetService<TService>() => _container.GetService<TService>();
+    }
+
+    public abstract class WhenAddingAnInjectAllPropertiesAfterHavingAddedAnInjectPropertyBase
+    {
+        protected Action Action;
+
+        [Fact]
+        public void ItShouldThowARegistrationException()
+        {
+            // Arrange
+            string expectedMessage =
+                $"Cannot inject all properties of '{typeof(ConcreteClassWith3InjectedProperties)}' if existing " +
+                "property injection dependencies have already been registered.";
+
+            // Act/Assert
+            Action
+                .ShouldThrow<RegistrationException>()
+                .WithMessage(expectedMessage);
+        }
+    }
+
+    public class WhenAddingAnInjectAllPropertiesAfterHavingAddedAnInjectPropertyWithAContext
+        : WhenAddingAnInjectAllPropertiesAfterHavingAddedAnInjectPropertyBase
+    {
+        public WhenAddingAnInjectAllPropertiesAfterHavingAddedAnInjectPropertyWithAContext()
+        {
+            Action = () => new RegistrationSetup<int>()
+                .Register<ConcreteClassWith3InjectedProperties>(
+                    composer => composer
+                        .InjectProperty(s => s.Dependency1)
+                        .InjectAllProperties());
+        }
+    }
+
+    public class WhenAddingAnInjectAllPropertiesAfterHavingAddedAnInjectPropertyWithoutAContext
+        : WhenAddingAnInjectAllPropertiesAfterHavingAddedAnInjectPropertyBase
+    {
+        public WhenAddingAnInjectAllPropertiesAfterHavingAddedAnInjectPropertyWithoutAContext()
+        {
+            Action = () => new RegistrationSetup()
+                .Register<ConcreteClassWith3InjectedProperties>(
+                    composer => composer
+                        .InjectProperty(s => s.Dependency1)
+                        .InjectAllProperties());
+        }
+    }
+
+    public abstract class WhenAddingAnInjectPropertyAfterHavingAddedAnInjectAllPropertiesBase
+    {
+        protected Action Action;
+
+        [Fact]
+        public void ItShouldThowARegistrationException()
+        {
+            // Arrange
+            string expectedMessage =
+                "Cannot add the property 's => s.Dependency1' as it has already been specified that all properties " +
+                $"of '{typeof(ConcreteClassWith3InjectedProperties)}' need to be injected as a dependency.";
+
+            // Act/Assert
+            Action
+                .ShouldThrow<RegistrationException>()
+                .WithMessage(expectedMessage);
+        }
+    }
+
+    public class WhenAddingAnInjectPropertyAfterHavingAddedAnInjectAllPropertiesWithAContext
+        : WhenAddingAnInjectPropertyAfterHavingAddedAnInjectAllPropertiesBase
+    {
+        public WhenAddingAnInjectPropertyAfterHavingAddedAnInjectAllPropertiesWithAContext()
+        {
+            Action = () => new RegistrationSetup<int>()
+                .Register<ConcreteClassWith3InjectedProperties>(
+                    composer => composer
+                        .InjectAllProperties()
+                        .InjectProperty(s => s.Dependency1));
+        }
+    }
+
+    public class WhenAddingAnInjectPropertyAfterHavingAddedAnInjectAllPropertiesWithoutAContext
+        : WhenAddingAnInjectPropertyAfterHavingAddedAnInjectAllPropertiesBase
+    {
+        public WhenAddingAnInjectPropertyAfterHavingAddedAnInjectAllPropertiesWithoutAContext()
+        {
+            Action = () => new RegistrationSetup()
+                .Register<ConcreteClassWith3InjectedProperties>(
+                    composer => composer
+                        .InjectAllProperties()
+                        .InjectProperty(s => s.Dependency1));
+        }
     }
 }

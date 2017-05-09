@@ -4,8 +4,6 @@
 namespace Abioc.Composition
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
 
     /// <summary>
     /// An exception caused during composition.

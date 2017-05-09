@@ -36,5 +36,7 @@ namespace Abioc.Registration
         /// Gets the <see cref="Inner"/> <see cref="IRegistration"/>.
         /// </summary>
         public IRegistration Inner { get; }
+
+        private string DebuggerDisplay => $"{GetType().Name}: Type={ImplementationType.Name}";
     }
 }

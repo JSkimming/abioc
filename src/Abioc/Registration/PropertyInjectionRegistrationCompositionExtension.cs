@@ -33,11 +33,20 @@ namespace Abioc.Registration
             if (property == null)
                 throw new ArgumentNullException(nameof(property));
 
-            throw new NotImplementedException();
+            if (composer.Registration is PropertyDependencyRegistration registration)
+            {
+                registration.AddInjectedProperty(property);
+            }
+            else
+            {
+                composer.Replace(new PropertyDependencyRegistration(composer.Registration, property));
+            }
+
+            return composer;
         }
 
         /// <summary>
-        /// Specifies that all the properties of a service needs to be injected as a dependency.
+        /// Specifies that all the properties of a service need to be injected as a dependency.
         /// </summary>
         /// <param name="composer">The registration composer.</param>
         /// <returns>This registration composer to be used in a fluent configuration.</returns>
@@ -46,7 +55,35 @@ namespace Abioc.Registration
             if (composer == null)
                 throw new ArgumentNullException(nameof(composer));
 
-            throw new NotImplementedException();
+            if (composer.Registration is PropertyDependencyRegistration)
+            {
+                string message =
+                    $"Cannot inject all properties of '{composer.Registration.ImplementationType}' if existing " +
+                    "property injection dependencies have already been registered.";
+                throw new RegistrationException(message);
+            }
+
+            composer.Replace(new PropertyDependencyRegistration(composer.Registration));
+            return composer;
+        }
+
+        /// <summary>
+        /// Specifies that all the properties of an <typeparamref name="TImplementation"/> need to be injected as a
+        /// dependency.
+        /// </summary>
+        /// <typeparam name="TImplementation">
+        /// The type of the implementation to receive the injected properties.
+        /// </typeparam>
+        /// <param name="composer">The registration composer.</param>
+        /// <returns>This registration composer to be used in a fluent configuration.</returns>
+        public static RegistrationComposer<TImplementation> InjectAllProperties<TImplementation>(
+            this RegistrationComposer<TImplementation> composer)
+        {
+            if (composer == null)
+                throw new ArgumentNullException(nameof(composer));
+
+            ((RegistrationComposer)composer).InjectAllProperties();
+            return composer;
         }
 
         /// <summary>
@@ -72,11 +109,20 @@ namespace Abioc.Registration
             if (property == null)
                 throw new ArgumentNullException(nameof(property));
 
-            throw new NotImplementedException();
+            if (composer.Registration is PropertyDependencyRegistration registration)
+            {
+                registration.AddInjectedProperty(property);
+            }
+            else
+            {
+                composer.Replace(new PropertyDependencyRegistration(composer.Registration, property));
+            }
+
+            return composer;
         }
 
         /// <summary>
-        /// Specifies that all the properties of a service needs to be injected as a dependency.
+        /// Specifies that all the properties of a service need to be injected as a dependency.
         /// </summary>
         /// <typeparam name="TExtra">
         /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
@@ -89,7 +135,38 @@ namespace Abioc.Registration
             if (composer == null)
                 throw new ArgumentNullException(nameof(composer));
 
-            throw new NotImplementedException();
+            if (composer.Registration is PropertyDependencyRegistration)
+            {
+                string message =
+                    $"Cannot inject all properties of '{composer.Registration.ImplementationType}' if existing " +
+                    "property injection dependencies have already been registered.";
+                throw new RegistrationException(message);
+            }
+
+            composer.Replace(new PropertyDependencyRegistration(composer.Registration));
+            return composer;
+        }
+
+        /// <summary>
+        /// Specifies that all the properties of an <typeparamref name="TImplementation"/> need to be injected as a
+        /// dependency.
+        /// </summary>
+        /// <typeparam name="TExtra">
+        /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
+        /// </typeparam>
+        /// <typeparam name="TImplementation">
+        /// The type of the implementation to receive the injected properties.
+        /// </typeparam>
+        /// <param name="composer">The registration composer.</param>
+        /// <returns>This registration composer to be used in a fluent configuration.</returns>
+        public static RegistrationComposerExtra<TExtra, TImplementation> InjectAllProperties<TExtra, TImplementation>(
+            this RegistrationComposerExtra<TExtra, TImplementation> composer)
+        {
+            if (composer == null)
+                throw new ArgumentNullException(nameof(composer));
+
+            ((RegistrationComposerExtra<TExtra>)composer).InjectAllProperties();
+            return composer;
         }
     }
 }
