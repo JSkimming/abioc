@@ -37,5 +37,10 @@ namespace Abioc.Composition
         /// Gets the type of the <see cref="ConstructionContext{T}"/>.
         /// </summary>
         public string ConstructionContext { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether
+        /// </summary>
+        public bool HasConstructionContext => !string.IsNullOrWhiteSpace(ConstructionContext);
     }
 }

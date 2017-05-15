@@ -50,7 +50,7 @@ namespace Abioc.Composition
             IReadOnlyList<IComposition> compositions =
                 context.Compositions.Values.DistinctBy(r => r.Type).OrderBy(r => r.Type.ToCompileName()).ToList();
 
-            var code = new CodeCompositions(registrations, context.ConstructionContext);
+            var code = new CodeCompositions(registrations);
 
             // First try with simple method names.
             foreach (IComposition composition in compositions)
@@ -106,7 +106,7 @@ namespace Abioc.Composition
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
-            string genericContainerParam = code.HasConstructionContext ? $"<{context.ExtraDataType}>" : string.Empty;
+            string genericContainerParam = context.HasConstructionContext ? $"<{context.ExtraDataType}>" : string.Empty;
 
             var builder = new StringBuilder(10240);
             builder.AppendFormat(
@@ -125,7 +125,7 @@ namespace Abioc.Composition
             builder.Append(fieldInitializationsMethod);
 
             builder.Append(NewLine);
-            string composeMapMethod = GenerateComposeMapMethod(code);
+            string composeMapMethod = GenerateComposeMapMethod(context, code);
             composeMapMethod = CodeGen.Indent(NewLine + composeMapMethod, 2);
             builder.Append(composeMapMethod);
 
@@ -186,13 +186,15 @@ namespace Abioc.Composition
             return builder.ToString();
         }
 
-        private static string GenerateComposeMapMethod(CodeCompositions code)
+        private static string GenerateComposeMapMethod(CompositionContext context, CodeCompositions code)
         {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
-            string composeMapType = code.HasConstructionContext
-                ? $"System.Collections.Generic.Dictionary<System.Type, System.Func<{code.ConstructionContext}, object>>"
+            string composeMapType = context.HasConstructionContext
+                ? $"System.Collections.Generic.Dictionary<System.Type, System.Func<{context.ConstructionContext}, object>>"
                 : "System.Collections.Generic.Dictionary<System.Type, System.Func<object>>";
 
             var builder = new StringBuilder(1024);
@@ -204,7 +206,7 @@ namespace Abioc.Composition
             string initializers =
                 string.Join(
                     NewLine,
-                    code.ComposeMethods.Select(c => GenerateComposeMapInitializer(code.HasConstructionContext, c)));
+                    code.ComposeMethods.Select(c => GenerateComposeMapInitializer(context.HasConstructionContext, c)));
             initializers = CodeGen.Indent(NewLine + initializers, 2);
             builder.Append(initializers);
 
@@ -219,11 +221,11 @@ namespace Abioc.Composition
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
-            string parameter = code.HasConstructionContext
+            string parameter = context.HasConstructionContext
                 ? $",{NewLine}    {context.ExtraDataType} extraData"
                 : string.Empty;
 
-            string contextVariable = code.HasConstructionContext
+            string contextVariable = context.HasConstructionContext
                 ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(extraData);"
                 : string.Empty;
 
@@ -269,11 +271,11 @@ namespace Abioc.Composition
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
-            string parameter = code.HasConstructionContext
+            string parameter = context.HasConstructionContext
                 ? $",{NewLine}    {context.ExtraDataType} extraData"
                 : string.Empty;
 
-            string contextVariable = code.HasConstructionContext
+            string contextVariable = context.HasConstructionContext
                 ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(extraData);"
                 : string.Empty;
 
@@ -335,22 +337,15 @@ namespace Abioc.Composition
 
         private class CodeCompositions
         {
-            public CodeCompositions(
-                IReadOnlyDictionary<Type, IRegistration[]> registrations,
-                string constructionContext = null)
+            public CodeCompositions(IReadOnlyDictionary<Type, IRegistration[]> registrations)
             {
                 if (registrations == null)
                     throw new ArgumentNullException(nameof(registrations));
 
                 Registrations = registrations;
-                ConstructionContext = constructionContext;
             }
 
             public IReadOnlyDictionary<Type, IRegistration[]> Registrations { get; }
-
-            public string ConstructionContext { get; }
-
-            public bool HasConstructionContext => !string.IsNullOrWhiteSpace(ConstructionContext);
 
             public List<(string name, Type type, bool requiresContext)> ComposeMethods { get; } =
                 new List<(string, Type, bool)>(32);
