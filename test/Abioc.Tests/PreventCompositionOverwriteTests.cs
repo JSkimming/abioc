@@ -256,12 +256,13 @@ namespace Abioc
                         () => new ConcreteClassImplementing2Interfaces());
         }
 
-        [Fact(Skip = "Work to be completed for Issue #14 https://github.com/JSkimming/abioc/issues/14")]
+        [Fact]
         public void ItShouldThrowACompositionException()
         {
             // Arrange
             string expectedMessage =
-                "TODO: This should be a nice descriptive error message.";
+                $"There is already a composition for '{typeof(ConcreteClassImplementing2Interfaces)}', are there " +
+                "multiple registrations.*";
 
             // Act
             Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
@@ -287,12 +288,13 @@ namespace Abioc
                         new ConcreteClassImplementing2Interfaces());
         }
 
-        [Fact(Skip = "Work to be completed for Issue #14 https://github.com/JSkimming/abioc/issues/14")]
+        [Fact]
         public void ItShouldThrowACompositionException()
         {
             // Arrange
             string expectedMessage =
-                "TODO: This should be a nice descriptive error message.";
+                $"There is already a composition for '{typeof(ConcreteClassImplementing2Interfaces)}', are there " +
+                "multiple registrations.*";
 
             // Act
             Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
@@ -317,15 +319,45 @@ namespace Abioc
                         new ConcreteClassImplementing2Interfaces());
         }
 
-        [Fact(Skip = "Work to be completed for Issue #14 https://github.com/JSkimming/abioc/issues/14")]
+        [Fact]
         public void ItShouldThrowACompositionException()
         {
             // Arrange
             string expectedMessage =
-                "TODO: This should be a nice descriptive error message.";
+                $"There is already a composition for '{typeof(ConcreteClassImplementing2Interfaces)}', are there " +
+                "multiple registrations.*";
 
             // Act
             Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+
+            // Assert
+            action
+                .ShouldThrow<CompositionException>()
+                .WithMessage(expectedMessage);
+        }
+    }
+
+    public class WhenRemovingAMissingComposition
+    {
+        private readonly CompositionContext _context;
+
+        public WhenRemovingAMissingComposition()
+        {
+            _context =
+                new RegistrationSetup()
+                    .Register<IInterface2, ConcreteClassImplementing2Interfaces>()
+                    .Compose();
+        }
+
+        [Fact]
+        public void ItShouldThrowACompositionException()
+        {
+            // Arrange
+            string expectedMessage =
+                $"There is no current composition for the type '{GetType()}'.";
+
+            // Act
+            Action action = () => _context.RemoveComposition(GetType());
 
             // Assert
             action

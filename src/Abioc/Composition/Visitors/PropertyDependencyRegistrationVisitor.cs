@@ -42,17 +42,18 @@ namespace Abioc.Composition.Visitors
             if (registration == null)
                 throw new ArgumentNullException(nameof(registration));
 
+            // Visit the inner registration which will add a composition.
+            _manager.Visit(registration.Inner);
+
+            // Get the original composition, removing it to allow it to be replaced.
+            IComposition inner = _context.RemoveComposition(registration.ImplementationType);
+
             (string property, Type type)[] propertiesToInject =
                 GetPropertiesToInject(registration).Select(p => (p.Name, p.PropertyType)).ToArray();
 
-            _manager.Visit(registration.Inner);
-
-            // Get the original composition.
-            IComposition inner = _context.Compositions[registration.ImplementationType];
-
             // Replace the inner composition.
             IComposition composition = new PropertyDependencyComposition(inner, propertiesToInject);
-            _context.Compositions[composition.Type] = composition;
+            _context.AddComposition(composition);
         }
 
         /// <inheritdoc />

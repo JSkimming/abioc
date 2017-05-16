@@ -67,9 +67,9 @@ namespace Abioc.Composition
                 select (kvp.Key, kvp.Value.Single());
 
             // Re-reference the compositions under the type mappings.
-            foreach ((Type type, IRegistration registration) in typeMappings)
+            foreach ((Type serviceType, IRegistration registration) in typeMappings)
             {
-                context.Compositions[type] = context.Compositions[registration.ImplementationType];
+                context.AddComposition(serviceType, context.Compositions[registration.ImplementationType]);
             }
 
             return context;

@@ -66,8 +66,8 @@ namespace Abioc.Composition.Visitors
             }
 
             ParameterInfo[] parameters = constructors[0].GetParameters();
-            IComposition composition = new ConstructorComposition(type, parameters);
-            _context.Compositions[composition.Type] = composition;
+            IComposition composition = new ConstructorComposition(type, parameters, isDefault: true);
+            _context.AddComposition(composition);
         }
     }
 }

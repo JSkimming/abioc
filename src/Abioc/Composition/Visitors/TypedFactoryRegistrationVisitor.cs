@@ -40,7 +40,7 @@ namespace Abioc.Composition.Visitors
                 throw new ArgumentNullException(nameof(registration));
 
             IComposition composition = new TypedFactoryComposition<TImplementation>(registration.Factory);
-            _context.Compositions[composition.Type] = composition;
+            _context.AddComposition(composition);
         }
     }
 }

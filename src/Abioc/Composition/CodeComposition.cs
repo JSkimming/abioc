@@ -252,7 +252,7 @@ namespace Abioc.Composition
             {
                 string keyComment = key.ToCompileName();
                 string instanceExpression = composition.GetInstanceExpression(context, code.UsingSimpleNames);
-                instanceExpression = CodeGen.Indent(instanceExpression, 1);
+                instanceExpression = CodeGen.Indent(instanceExpression);
 
                 string caseSnippet =
                     $"case {key.GetHashCode()}: // {keyComment}{NewLine}    return {instanceExpression};";

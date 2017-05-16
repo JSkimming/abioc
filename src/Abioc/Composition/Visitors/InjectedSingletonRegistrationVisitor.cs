@@ -42,7 +42,7 @@ namespace Abioc.Composition.Visitors
                 throw new ArgumentNullException(nameof(registration));
 
             IComposition composition = new InjectedSingletonComposition<TImplementation>(registration.Value);
-            _context.Compositions[composition.Type] = composition;
+            _context.AddComposition(composition);
         }
     }
 }

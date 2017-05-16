@@ -45,7 +45,7 @@ namespace Abioc.Composition.Visitors
             IComposition composition = new TypedFactoryComposition<TImplementation>(
                 registration.Factory,
                 typeof(ConstructionContext<TExtra>));
-            _context.Compositions[composition.Type] = composition;
+            _context.AddComposition(composition);
         }
     }
 }
