@@ -39,7 +39,7 @@ namespace Abioc.Composition.Visitors
 
             Type type = registration.ImplementationType;
             var composition = new FactoryComposition(type, registration.Factory);
-            _context.Compositions[type] = composition;
+            _context.AddComposition(composition);
         }
     }
 }

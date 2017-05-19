@@ -20,9 +20,14 @@ namespace Abioc.Composition.Compositions
         /// </summary>
         /// <param name="type">The <see cref="Type"/> created by the constructor.</param>
         /// <param name="parameters">The <see cref="Parameters"/> of the constructor.</param>
+        /// <param name="isDefault">
+        /// A value indicating whether this is the default composition, and therefore can be superseded by
+        /// another composition.
+        /// </param>
         public ConstructorComposition(
             Type type,
-            IReadOnlyList<ParameterInfo> parameters)
+            IReadOnlyList<ParameterInfo> parameters,
+            bool isDefault = false)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -31,6 +36,7 @@ namespace Abioc.Composition.Compositions
 
             Type = type;
             Parameters = parameters;
+            IsDefault = isDefault;
 
             _parameterExpressions = new List<IParameterExpression>(parameters.Count);
         }
@@ -44,6 +50,12 @@ namespace Abioc.Composition.Compositions
         /// Gets the parameters of the constructor.
         /// </summary>
         public IReadOnlyList<ParameterInfo> Parameters { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this is the default composition, and therefore can be superseded by
+        /// another composition.
+        /// </summary>
+        public bool IsDefault { get; }
 
         /// <inheritdoc/>
         public override string GetInstanceExpression(CompositionContext context, bool simpleName)
