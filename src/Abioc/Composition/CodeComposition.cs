@@ -7,6 +7,7 @@ namespace Abioc.Composition
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Abioc.Generation;
     using Abioc.Registration;
 
     /// <summary>
@@ -47,47 +48,21 @@ namespace Abioc.Composition
             if (registrations == null)
                 throw new ArgumentNullException(nameof(registrations));
 
-            IReadOnlyList<IComposition> compositions =
-                container.Compositions.Values.DistinctBy(r => r.Type).OrderBy(r => r.Type.ToCompileName()).ToList();
-
-            var code = new CodeCompositions(registrations);
-
             // First try with simple method names.
-            foreach (IComposition composition in compositions)
-            {
-                code.UsingSimpleNames = true;
-                Type type = composition.Type;
-                string composeMethodName = composition.GetComposeMethodName(container, code.UsingSimpleNames);
-                bool requiresConstructionContext = composition.RequiresConstructionContext(container);
-
-                code.ComposeMethodsNames.Add((composeMethodName, type, requiresConstructionContext));
-                code.Methods.AddRange(composition.GetMethods(container, code.UsingSimpleNames));
-                code.Fields.AddRange(composition.GetFields(container));
-                code.FieldInitializations.AddRange(composition.GetFieldInitializations(container));
-                code.AdditionalInitializations.AddRange(
-                    composition.GetAdditionalInitializations(container, code.UsingSimpleNames));
-            }
+            GenerationContext code = new GenerationContext(
+                registrations: registrations,
+                compositions: container.Compositions,
+                usingSimpleNames: true);
+            ProcessCompositions(code, container);
 
             // Check if there are any name conflicts.
             if (code.ComposeMethodsNames.Select(c => c.name).Distinct().Count() != code.ComposeMethodsNames.Count)
             {
-                code.ComposeMethodsNames.Clear();
-                code.Methods.Clear();
-                code.AdditionalInitializations.Clear();
-
-                // Now try with complex names, this should prevent conflicts.
-                foreach (IComposition composition in compositions)
-                {
-                    code.UsingSimpleNames = false;
-                    Type type = composition.Type;
-                    string composeMethodName = composition.GetComposeMethodName(container, code.UsingSimpleNames);
-                    bool requiresConstructionContext = composition.RequiresConstructionContext(container);
-
-                    code.ComposeMethodsNames.Add((composeMethodName, type, requiresConstructionContext));
-                    code.Methods.AddRange(composition.GetMethods(container, code.UsingSimpleNames));
-                    code.AdditionalInitializations.AddRange(
-                        composition.GetAdditionalInitializations(container, code.UsingSimpleNames));
-                }
+                code = new GenerationContext(
+                    registrations: registrations,
+                    compositions: container.Compositions,
+                    usingSimpleNames: false);
+                ProcessCompositions(code, container);
             }
 
             string generatedCode = GenerateCode(container, code);
@@ -99,7 +74,57 @@ namespace Abioc.Composition
             return (generatedCode, fieldValues);
         }
 
-        private static string GenerateCode(CompositionContainer container, CodeCompositions code)
+        private static void ProcessCompositions(GenerationContext context, CompositionContainer container)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
+
+            // Some compositions are keyed under different multiple types, e.g. an interface mapped to a class,
+            // therefore only process the distinct compositions.
+            IEnumerable<IComposition> compositions =
+                context.Compositions
+                    .Values
+                    .Distinct()
+                    .OrderBy(r => r.Type.ToCompileName());
+
+            foreach (IComposition composition in compositions)
+            {
+                Type type = composition.Type;
+                string composeMethodName = composition.GetComposeMethodName(container, context.UsingSimpleNames);
+                bool requiresConstructionContext = composition.RequiresConstructionContext(container);
+
+                context.AddComposeMethodsName(composeMethodName, type, requiresConstructionContext);
+                IEnumerable<string> methods = composition.GetMethods(container, context.UsingSimpleNames);
+                foreach (string method in methods)
+                {
+                    context.AddMethod(method);
+                }
+
+                IEnumerable<string> fields = composition.GetFields(container);
+                foreach (string field in fields)
+                {
+                    context.AddField(field);
+                }
+
+                IEnumerable<(string snippet, object value)> fieldInitializations =
+                    composition.GetFieldInitializations(container);
+                foreach ((string snippet, object value) in fieldInitializations)
+                {
+                    context.AddFieldInitialization(snippet, value);
+                }
+
+                IEnumerable<string> additionalInitializations =
+                    composition.GetAdditionalInitializations(container, context.UsingSimpleNames);
+                foreach (string additionalInitialization in additionalInitializations)
+                {
+                    context.AddAdditionalInitialization(additionalInitialization);
+                }
+            }
+        }
+
+        private static string GenerateCode(CompositionContainer container, GenerationContext code)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
@@ -145,7 +170,7 @@ namespace Abioc.Composition
             return generatedCode;
         }
 
-        private static string GenerateFieldsAndMethods(CodeCompositions code)
+        private static string GenerateFieldsAndMethods(GenerationContext code)
         {
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
@@ -160,7 +185,7 @@ namespace Abioc.Composition
             return fieldsAndMethods;
         }
 
-        private static string GenerateConstructor(CodeCompositions code)
+        private static string GenerateConstructor(GenerationContext code)
         {
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
@@ -186,7 +211,7 @@ namespace Abioc.Composition
             return builder.ToString();
         }
 
-        private static string GenerateComposeMapMethod(CompositionContainer container, CodeCompositions code)
+        private static string GenerateComposeMapMethod(CompositionContainer container, GenerationContext code)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
@@ -214,7 +239,7 @@ namespace Abioc.Composition
             return builder.ToString();
         }
 
-        private static string GenerateGetServiceMethod(CompositionContainer container, CodeCompositions code)
+        private static string GenerateGetServiceMethod(CompositionContainer container, GenerationContext code)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
@@ -264,7 +289,7 @@ namespace Abioc.Composition
             return builder.ToString();
         }
 
-        private static string GenerateGetServicesMethod(CompositionContainer container, CodeCompositions code)
+        private static string GenerateGetServicesMethod(CompositionContainer container, GenerationContext code)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
@@ -333,32 +358,6 @@ namespace Abioc.Composition
                     : data.name;
 
             return $"{{{key}, {value}}},";
-        }
-
-        private class CodeCompositions
-        {
-            public CodeCompositions(IReadOnlyDictionary<Type, IRegistration[]> registrations)
-            {
-                if (registrations == null)
-                    throw new ArgumentNullException(nameof(registrations));
-
-                Registrations = registrations;
-            }
-
-            public IReadOnlyDictionary<Type, IRegistration[]> Registrations { get; }
-
-            public List<(string name, Type type, bool requiresContext)> ComposeMethodsNames { get; } =
-                new List<(string, Type, bool)>(32);
-
-            public List<string> Methods { get; } = new List<string>(32);
-
-            public List<string> Fields { get; } = new List<string>(32);
-
-            public List<(string snippet, object value)> FieldInitializations { get; } = new List<(string, object)>(32);
-
-            public List<string> AdditionalInitializations { get; } = new List<string>(32);
-
-            public bool UsingSimpleNames { get; set; }
         }
     }
 }
