@@ -17,20 +17,20 @@ namespace Abioc.Composition.Visitors
     public class PropertyDependencyRegistrationVisitor
         : IRegistrationVisitor<PropertyDependencyRegistration>, IRegistrationVisitorEx
     {
-        private CompositionContext _context;
+        private CompositionContainer _container;
 
         private VisitorManager _manager;
 
         /// <summary>
         /// Initializes the <see cref="IRegistrationVisitor"/>.
         /// </summary>
-        /// <param name="context">The composition context.</param>
-        public void Initialize(CompositionContext context)
+        /// <param name="container">The composition context.</param>
+        public void Initialize(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            _context = context;
+            _container = container;
         }
 
         /// <summary>
@@ -46,14 +46,14 @@ namespace Abioc.Composition.Visitors
             _manager.Visit(registration.Inner);
 
             // Get the original composition, removing it to allow it to be replaced.
-            IComposition inner = _context.RemoveComposition(registration.ImplementationType);
+            IComposition inner = _container.RemoveComposition(registration.ImplementationType);
 
             (string property, Type type)[] propertiesToInject =
                 GetPropertiesToInject(registration).Select(p => (p.Name, p.PropertyType)).ToArray();
 
             // Replace the inner composition.
             IComposition composition = new PropertyDependencyComposition(inner, propertiesToInject);
-            _context.AddComposition(composition);
+            _container.AddComposition(composition);
         }
 
         /// <inheritdoc />

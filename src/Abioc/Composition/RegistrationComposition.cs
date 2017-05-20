@@ -10,20 +10,20 @@ namespace Abioc.Composition
 
     /// <summary>
     /// Composes a <see cref="RegistrationSetup"/> or <see cref="RegistrationSetup{T}"/> into a
-    /// <see cref="CompositionContext"/> for code generation.
+    /// <see cref="CompositionContainer"/> for code generation.
     /// </summary>
     public static class RegistrationComposition
     {
         /// <summary>
-        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContext"/> for code
+        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContainer"/> for code
         /// generation.
         /// </summary>
         /// <typeparam name="TExtra">
         /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
-        /// <returns>The <see cref="CompositionContext"/>.</returns>
-        public static CompositionContext Compose<TExtra>(this RegistrationSetup<TExtra> setup)
+        /// <returns>The <see cref="CompositionContainer"/>.</returns>
+        public static CompositionContainer Compose<TExtra>(this RegistrationSetup<TExtra> setup)
         {
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
@@ -34,12 +34,12 @@ namespace Abioc.Composition
         }
 
         /// <summary>
-        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContext"/> for code
+        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContainer"/> for code
         /// generation.
         /// </summary>
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
-        /// <returns>The <see cref="CompositionContext"/>.</returns>
-        public static CompositionContext Compose(this RegistrationSetup setup)
+        /// <returns>The <see cref="CompositionContainer"/>.</returns>
+        public static CompositionContainer Compose(this RegistrationSetup setup)
         {
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
@@ -47,7 +47,7 @@ namespace Abioc.Composition
             return setup.Registrations.Compose();
         }
 
-        private static CompositionContext Compose(
+        private static CompositionContainer Compose(
             this IReadOnlyDictionary<Type, List<IRegistration>> registrations,
             string extraDataType = null,
             string constructionContext = null)
@@ -55,7 +55,7 @@ namespace Abioc.Composition
             if (registrations == null)
                 throw new ArgumentNullException(nameof(registrations));
 
-            var context = new CompositionContext(extraDataType, constructionContext);
+            var context = new CompositionContainer(extraDataType, constructionContext);
 
             ProcessRegistrations(registrations, context);
 
@@ -77,14 +77,14 @@ namespace Abioc.Composition
 
         private static void ProcessRegistrations(
             IReadOnlyDictionary<Type, List<IRegistration>> registrations,
-            CompositionContext context)
+            CompositionContainer container)
         {
             if (registrations == null)
                 throw new ArgumentNullException(nameof(registrations));
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            var visitorManager = new VisitorManager(context);
+            var visitorManager = new VisitorManager(container);
 
             IEnumerable<IRegistration> distinctRegistrations =
                 registrations.Values.SelectMany(r => r);

@@ -49,55 +49,55 @@ namespace Abioc.Composition.Compositions
         public (string property, Type type)[] PropertiesToInject { get; }
 
         /// <inheritdoc />
-        public string GetInstanceExpression(CompositionContext context, bool simpleName)
+        public string GetInstanceExpression(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            string methodName = GetComposeMethodName(context, simpleName);
-            string parameter = RequiresConstructionContext(context) ? "context" : string.Empty;
+            string methodName = GetComposeMethodName(container, simpleName);
+            string parameter = RequiresConstructionContext(container) ? "context" : string.Empty;
 
             string expression = $"{methodName}({parameter})";
             return expression;
         }
 
         /// <inheritdoc />
-        public string GetComposeMethodName(CompositionContext context, bool simpleName)
+        public string GetComposeMethodName(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string methodName = "PropertyInjection" + Type.ToCompileMethodName(simpleName);
             return methodName;
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
+        public IEnumerable<string> GetMethods(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            IEnumerable<string> innerMethods = Inner.GetMethods(context, simpleName);
+            IEnumerable<string> innerMethods = Inner.GetMethods(container, simpleName);
             foreach (string innerMethod in innerMethods)
             {
                 yield return innerMethod;
             }
 
-            string parameter = RequiresConstructionContext(context)
-                ? $"{NewLine}    {context.ConstructionContext} context"
+            string parameter = RequiresConstructionContext(container)
+                ? $"{NewLine}    {container.ConstructionContext} context"
                 : string.Empty;
 
-            string methodName = GetComposeMethodName(context, simpleName);
+            string methodName = GetComposeMethodName(container, simpleName);
             string signature = $"private {Type.ToCompileName()} {methodName}({parameter})";
 
-            string instanceExpression = Inner.GetInstanceExpression(context, simpleName);
+            string instanceExpression = Inner.GetInstanceExpression(container, simpleName);
             instanceExpression = $"{NewLine}{Type.ToCompileName()} instance = {instanceExpression};";
             instanceExpression = CodeGen.Indent(instanceExpression);
 
             IEnumerable<string> propertyExpressions =
-                GetPropertyExpressions(context)
+                GetPropertyExpressions(container)
                     .Select(
-                        pe => $"instance.{pe.property} = {pe.expression.GetInstanceExpression(context, simpleName)};");
+                        pe => $"instance.{pe.property} = {pe.expression.GetInstanceExpression(container, simpleName)};");
 
             string propertySetters = NewLine + string.Join(NewLine, propertyExpressions);
             propertySetters = CodeGen.Indent(propertySetters);
@@ -112,50 +112,50 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetFields(CompositionContext context)
+        public IEnumerable<string> GetFields(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            return Inner.GetFields(context);
+            return Inner.GetFields(container);
         }
 
         /// <inheritdoc />
-        public IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context)
+        public IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            return Inner.GetFieldInitializations(context);
+            return Inner.GetFieldInitializations(container);
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetAdditionalInitializations(CompositionContext context, bool simpleName)
+        public IEnumerable<string> GetAdditionalInitializations(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            return Inner.GetAdditionalInitializations(context, simpleName);
+            return Inner.GetAdditionalInitializations(container, simpleName);
         }
 
         /// <inheritdoc />
-        public bool RequiresConstructionContext(CompositionContext context)
+        public bool RequiresConstructionContext(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            return Inner.RequiresConstructionContext(context);
+            return Inner.RequiresConstructionContext(container);
         }
 
         private IEnumerable<(string property, IParameterExpression expression)> GetPropertyExpressions(
-            CompositionContext context)
+            CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             foreach ((string property, Type type) in PropertiesToInject)
             {
-                if (context.Compositions.TryGetValue(type, out IComposition composition))
+                if (container.Compositions.TryGetValue(type, out IComposition composition))
                 {
                     IParameterExpression expression = new SimpleParameterExpression(composition);
                     yield return (property, expression);
@@ -170,7 +170,7 @@ namespace Abioc.Composition.Compositions
                     {
                         Type enumerableType = propertyTypeInfo.GenericTypeArguments.Single();
                         IParameterExpression expression =
-                            new EnumerableParameterExpression(enumerableType, context.ConstructionContext.Length > 0);
+                            new EnumerableParameterExpression(enumerableType, container.ConstructionContext.Length > 0);
                         yield return (property, expression);
                         continue;
                     }

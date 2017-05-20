@@ -58,15 +58,15 @@ namespace Abioc.Composition.Compositions
         public bool IsDefault { get; }
 
         /// <inheritdoc/>
-        public override string GetInstanceExpression(CompositionContext context, bool simpleName)
+        public override string GetInstanceExpression(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             // Get the expressions for the all the constructor parameters.
-            IEnumerable<IParameterExpression> compositions = GetParameterExpressions(context);
+            IEnumerable<IParameterExpression> compositions = GetParameterExpressions(container);
             IEnumerable<string> parameterExpressions =
-                compositions.Select(c => c.GetInstanceExpression(context, simpleName));
+                compositions.Select(c => c.GetInstanceExpression(container, simpleName));
 
             // Join the parameters expressions.
             string parameters =
@@ -82,29 +82,29 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override string GetComposeMethodName(CompositionContext context, bool simpleName)
+        public override string GetComposeMethodName(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string methodName = "Create" + Type.ToCompileMethodName(simpleName);
             return methodName;
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
+        public override IEnumerable<string> GetMethods(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            string parameter = RequiresConstructionContext(context)
-                ? $"{Environment.NewLine}    {context.ConstructionContext} context"
+            string parameter = RequiresConstructionContext(container)
+                ? $"{Environment.NewLine}    {container.ConstructionContext} context"
                 : string.Empty;
 
-            string methodName = GetComposeMethodName(context, simpleName);
+            string methodName = GetComposeMethodName(container, simpleName);
             string signature = $"private {Type.ToCompileName()} {methodName}({parameter})";
 
-            string instanceExpression = GetInstanceExpression(context, simpleName);
+            string instanceExpression = GetInstanceExpression(container, simpleName);
             instanceExpression = CodeGen.Indent(instanceExpression);
 
             string method =
@@ -113,22 +113,22 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresConstructionContext(CompositionContext context)
+        public override bool RequiresConstructionContext(CompositionContainer container)
         {
-            return GetParameterExpressions(context).Any(c => c.RequiresConstructionContext(context));
+            return GetParameterExpressions(container).Any(c => c.RequiresConstructionContext(container));
         }
 
-        private IEnumerable<IParameterExpression> GetParameterExpressions(CompositionContext context)
+        private IEnumerable<IParameterExpression> GetParameterExpressions(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             if (_parameterExpressions.Count == Parameters.Count)
                 return _parameterExpressions;
 
             foreach (ParameterInfo parameter in Parameters)
             {
-                if (context.Compositions.TryGetValue(parameter.ParameterType, out IComposition composition))
+                if (container.Compositions.TryGetValue(parameter.ParameterType, out IComposition composition))
                 {
                     IParameterExpression expression = new SimpleParameterExpression(composition);
                     _parameterExpressions.Add(expression);
@@ -143,7 +143,7 @@ namespace Abioc.Composition.Compositions
                     {
                         Type enumerableType = parameterTypeInfo.GenericTypeArguments.Single();
                         IParameterExpression expression =
-                            new EnumerableParameterExpression(enumerableType, context.ConstructionContext.Length > 0);
+                            new EnumerableParameterExpression(enumerableType, container.ConstructionContext.Length > 0);
                         _parameterExpressions.Add(expression);
                         continue;
                     }

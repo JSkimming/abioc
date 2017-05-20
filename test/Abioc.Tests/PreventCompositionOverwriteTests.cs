@@ -339,11 +339,11 @@ namespace Abioc
 
     public class WhenRemovingAMissingComposition
     {
-        private readonly CompositionContext _context;
+        private readonly CompositionContainer _container;
 
         public WhenRemovingAMissingComposition()
         {
-            _context =
+            _container =
                 new RegistrationSetup()
                     .Register<IInterface2, ConcreteClassImplementing2Interfaces>()
                     .Compose();
@@ -357,7 +357,7 @@ namespace Abioc
                 $"There is no current composition for the type '{GetType()}'.";
 
             // Act
-            Action action = () => _context.RemoveComposition(GetType());
+            Action action = () => _container.RemoveComposition(GetType());
 
             // Assert
             action

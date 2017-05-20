@@ -36,23 +36,23 @@ namespace Abioc.Composition.Compositions
         public TImplementation Value { get; }
 
         /// <inheritdoc/>
-        public override string GetComposeMethodName(CompositionContext context, bool simpleName)
+        public override string GetComposeMethodName(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string methodName = "Accessor" + Type.ToCompileMethodName(simpleName);
             return methodName;
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
+        public override IEnumerable<string> GetMethods(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            string methodName = GetComposeMethodName(context, simpleName);
-            string instanceExpression = GetInstanceExpression(context, simpleName);
+            string methodName = GetComposeMethodName(container, simpleName);
+            string instanceExpression = GetInstanceExpression(container, simpleName);
 
             string method =
                 Type.GetTypeInfo().IsValueType
@@ -72,20 +72,20 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override string GetInstanceExpression(CompositionContext context, bool simpleName)
+        public override string GetInstanceExpression(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string injectedFieldName = GetInjectedFieldName();
             return injectedFieldName;
         }
 
         /// <inheritdoc />
-        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context)
+        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string fieldName = GetInjectedFieldName();
             string fieldType = Type.ToCompileName();
@@ -95,10 +95,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> GetFields(CompositionContext context)
+        public override IEnumerable<string> GetFields(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string fieldName = GetInjectedFieldName();
             string fieldType = Type.ToCompileName();
@@ -108,10 +108,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresConstructionContext(CompositionContext context)
+        public override bool RequiresConstructionContext(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             return RequiresConstructionContext();
         }

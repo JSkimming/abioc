@@ -14,7 +14,7 @@ namespace Abioc.Composition.Compositions
         /// Gets the code for the expression (e.g. method call or instance field) to retrieve an instance of the
         /// <see cref="Type"/>.
         /// </summary>
-        /// <param name="context">The whole composition context.</param>
+        /// <param name="container">The whole composition context.</param>
         /// <param name="simpleName">
         /// <p>
         /// If <see langword="true"/> simple method names should be produced; otherwise produce complex method names.
@@ -27,17 +27,17 @@ namespace Abioc.Composition.Compositions
         /// The code for the expression (e.g. method call or instance field) to retrieve an instance of the
         /// <see cref="Type"/>.
         /// </returns>
-        string GetInstanceExpression(CompositionContext context, bool simpleName);
+        string GetInstanceExpression(CompositionContainer container, bool simpleName);
 
         /// <summary>
         /// Returns the value indicating whether the <see cref="IParameterExpression"/> requires a
         /// <see cref="ConstructionContext{T}"/>.
         /// </summary>
-        /// <param name="context">The whole composition context.</param>
+        /// <param name="container">The whole composition context.</param>
         /// <returns>
         /// The value indicating whether the <see cref="IParameterExpression"/> requires a
         /// <see cref="ConstructionContext{T}"/>.
         /// </returns>
-        bool RequiresConstructionContext(CompositionContext context);
+        bool RequiresConstructionContext(CompositionContainer container);
     }
 }

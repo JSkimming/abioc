@@ -28,21 +28,21 @@ namespace Abioc.Composition.Compositions
         public IComposition Composition { get; }
 
         /// <inheritdoc />
-        public string GetInstanceExpression(CompositionContext context, bool simpleName)
+        public string GetInstanceExpression(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            return Composition.GetInstanceExpression(context, simpleName);
+            return Composition.GetInstanceExpression(container, simpleName);
         }
 
         /// <inheritdoc />
-        public bool RequiresConstructionContext(CompositionContext context)
+        public bool RequiresConstructionContext(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            return Composition.RequiresConstructionContext(context);
+            return Composition.RequiresConstructionContext(container);
         }
     }
 }

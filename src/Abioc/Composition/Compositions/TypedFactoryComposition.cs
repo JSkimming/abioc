@@ -51,20 +51,20 @@ namespace Abioc.Composition.Compositions
         public Type ConstructionContextType { get; }
 
         /// <inheritdoc/>
-        public override string GetComposeMethodName(CompositionContext context, bool simpleName)
+        public override string GetComposeMethodName(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string methodName = GetFactoryFieldName();
             return methodName;
         }
 
         /// <inheritdoc />
-        public override string GetInstanceExpression(CompositionContext context, bool simpleName)
+        public override string GetInstanceExpression(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string factoryFieldName = GetFactoryFieldName();
 
@@ -77,10 +77,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context)
+        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string fieldName = GetFactoryFieldName();
             string returnType = Type.ToCompileName();
@@ -94,10 +94,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> GetFields(CompositionContext context)
+        public override IEnumerable<string> GetFields(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string fieldName = GetFactoryFieldName();
             string returnType = Type.ToCompileName();
@@ -111,10 +111,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresConstructionContext(CompositionContext context)
+        public override bool RequiresConstructionContext(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             return RequiresConstructionContext();
         }

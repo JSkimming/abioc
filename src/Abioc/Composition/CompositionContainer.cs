@@ -9,25 +9,25 @@ namespace Abioc.Composition
     using Abioc.Composition.Compositions;
 
     /// <summary>
-    /// The composition context.
+    /// The composition container.
     /// </summary>
-    public class CompositionContext
+    public class CompositionContainer
     {
         private readonly Dictionary<Type, IComposition> _compositions = new Dictionary<Type, IComposition>(32);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CompositionContext"/> class.
+        /// Initializes a new instance of the <see cref="CompositionContainer"/> class.
         /// </summary>
         /// <param name="extraDataType">The type of the <see cref="ConstructionContext{T}.Extra"/> data.</param>
         /// <param name="constructionContext">The type of the <see cref="ConstructionContext{T}"/>.</param>
-        public CompositionContext(string extraDataType = null, string constructionContext = null)
+        public CompositionContainer(string extraDataType = null, string constructionContext = null)
         {
             ExtraDataType = extraDataType;
             ConstructionContext = constructionContext ?? string.Empty;
         }
 
         /// <summary>
-        /// Gets the context.
+        /// Gets the compositions for code generation.
         /// </summary>
         public IReadOnlyDictionary<Type, IComposition> Compositions => _compositions;
 

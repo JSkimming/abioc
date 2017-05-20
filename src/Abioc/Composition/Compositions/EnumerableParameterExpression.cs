@@ -37,10 +37,10 @@ namespace Abioc.Composition.Compositions
         public Type EnumerableType { get; }
 
         /// <inheritdoc />
-        public string GetInstanceExpression(CompositionContext context, bool simpleName)
+        public string GetInstanceExpression(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             string enumerableTypeName = EnumerableType.ToCompileName();
             string serviceTypeparameter = $"typeof({enumerableTypeName})";
@@ -51,10 +51,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public bool RequiresConstructionContext(CompositionContext context)
+        public bool RequiresConstructionContext(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             return _requiresConstructionContext;
         }

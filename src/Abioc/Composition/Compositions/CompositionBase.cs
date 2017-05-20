@@ -16,48 +16,48 @@ namespace Abioc.Composition.Compositions
         public abstract Type Type { get; }
 
         /// <inheritdoc />
-        public abstract string GetInstanceExpression(CompositionContext context, bool simpleName);
+        public abstract string GetInstanceExpression(CompositionContainer container, bool simpleName);
 
         /// <inheritdoc />
-        public abstract string GetComposeMethodName(CompositionContext context, bool simpleName);
+        public abstract string GetComposeMethodName(CompositionContainer container, bool simpleName);
 
         /// <inheritdoc />
-        public virtual IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
+        public virtual IEnumerable<string> GetMethods(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             return Enumerable.Empty<string>();
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context)
+        public virtual IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             return Enumerable.Empty<(string, object)>();
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetAdditionalInitializations(CompositionContext context, bool simpleName)
+        public IEnumerable<string> GetAdditionalInitializations(CompositionContainer container, bool simpleName)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             return Enumerable.Empty<string>();
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<string> GetFields(CompositionContext context)
+        public virtual IEnumerable<string> GetFields(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
             return Enumerable.Empty<string>();
         }
 
         /// <inheritdoc />
-        public abstract bool RequiresConstructionContext(CompositionContext context);
+        public abstract bool RequiresConstructionContext(CompositionContainer container);
     }
 }
