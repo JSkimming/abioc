@@ -6,6 +6,7 @@ namespace Abioc.Composition.Compositions
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Abioc.Generation;
 
     /// <summary>
     /// A base class that provides a default implementation of a <see cref="IComposition"/>.
@@ -16,13 +17,13 @@ namespace Abioc.Composition.Compositions
         public abstract Type Type { get; }
 
         /// <inheritdoc />
-        public abstract string GetInstanceExpression(CompositionContext context, bool simpleName);
+        public abstract string GetInstanceExpression(GenerationContext context);
 
         /// <inheritdoc />
-        public abstract string GetComposeMethodName(CompositionContext context, bool simpleName);
+        public abstract string GetComposeMethodName(GenerationContext context);
 
         /// <inheritdoc />
-        public virtual IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
+        public virtual IEnumerable<string> GetMethods(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -31,7 +32,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context)
+        public virtual IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -40,7 +41,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetAdditionalInitializations(CompositionContext context, bool simpleName)
+        public IEnumerable<string> GetAdditionalInitializations(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -49,7 +50,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<string> GetFields(CompositionContext context)
+        public virtual IEnumerable<string> GetFields(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -58,6 +59,6 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public abstract bool RequiresConstructionContext(CompositionContext context);
+        public abstract bool RequiresConstructionContext(GenerationContext context);
     }
 }

@@ -265,7 +265,7 @@ namespace Abioc
                 "multiple registrations.*";
 
             // Act
-            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+            Action action = () => _setup.Compose();
 
             // Assert
             action
@@ -297,7 +297,7 @@ namespace Abioc
                 "multiple registrations.*";
 
             // Act
-            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+            Action action = () => _setup.Compose();
 
             // Assert
             action
@@ -328,7 +328,7 @@ namespace Abioc
                 "multiple registrations.*";
 
             // Act
-            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+            Action action = () => _setup.Compose();
 
             // Assert
             action
@@ -339,11 +339,11 @@ namespace Abioc
 
     public class WhenRemovingAMissingComposition
     {
-        private readonly CompositionContext _context;
+        private readonly CompositionContainer _composition;
 
         public WhenRemovingAMissingComposition()
         {
-            _context =
+            _composition =
                 new RegistrationSetup()
                     .Register<IInterface2, ConcreteClassImplementing2Interfaces>()
                     .Compose();
@@ -357,7 +357,7 @@ namespace Abioc
                 $"There is no current composition for the type '{GetType()}'.";
 
             // Act
-            Action action = () => _context.RemoveComposition(GetType());
+            Action action = () => _composition.RemoveComposition(GetType());
 
             // Assert
             action

@@ -35,7 +35,7 @@ namespace Abioc.Compilation
         /// <param name="code">The source code to compile.</param>
         /// <param name="fieldValues">The values of the fields to be initialized.</param>
         /// <param name="srcAssembly">The source assembly for the types top create.</param>
-        /// <returns>The <see cref="CompositionContext"/>.</returns>
+        /// <returns>The <see cref="CompositionContainer"/>.</returns>
         public static AbiocContainer<TExtra> Compile<TExtra>(
             RegistrationSetup<TExtra> setup,
             string code,
@@ -82,7 +82,7 @@ namespace Abioc.Compilation
         /// <param name="code">The source code to compile.</param>
         /// <param name="fieldValues">The values of the fields to be initialized.</param>
         /// <param name="srcAssembly">The source assembly for the types top create.</param>
-        /// <returns>The <see cref="CompositionContext"/>.</returns>
+        /// <returns>The <see cref="CompositionContainer"/>.</returns>
         public static AbiocContainer Compile(
             RegistrationSetup setup,
             string code,

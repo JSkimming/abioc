@@ -16,18 +16,18 @@ namespace Abioc.Composition.Visitors
     public class InjectedSingletonRegistrationVisitor<TImplementation>
         : IRegistrationVisitor<InjectedSingletonRegistration<TImplementation>>
     {
-        private CompositionContext _context;
+        private CompositionContainer _container;
 
         /// <summary>
         /// Initializes the <see cref="IRegistrationVisitor"/>.
         /// </summary>
-        /// <param name="context">The composition context.</param>
-        public void Initialize(CompositionContext context)
+        /// <param name="container">The composition context.</param>
+        public void Initialize(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            _context = context;
+            _container = container;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Abioc.Composition.Visitors
                 throw new ArgumentNullException(nameof(registration));
 
             IComposition composition = new InjectedSingletonComposition<TImplementation>(registration.Value);
-            _context.AddComposition(composition);
+            _container.AddComposition(composition);
         }
     }
 }

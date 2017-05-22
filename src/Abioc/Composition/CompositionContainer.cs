@@ -7,44 +7,60 @@ namespace Abioc.Composition
     using System.Collections.Generic;
     using System.Linq;
     using Abioc.Composition.Compositions;
+    using Abioc.Registration;
 
     /// <summary>
-    /// The composition context.
+    /// The composition container.
     /// </summary>
-    public class CompositionContext
+    public class CompositionContainer
     {
         private readonly Dictionary<Type, IComposition> _compositions = new Dictionary<Type, IComposition>(32);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CompositionContext"/> class.
+        /// Initializes a new instance of the <see cref="CompositionContainer"/> class.
         /// </summary>
-        /// <param name="extraDataType">The type of the <see cref="ConstructionContext{T}.Extra"/> data.</param>
-        /// <param name="constructionContext">The type of the <see cref="ConstructionContext{T}"/>.</param>
-        public CompositionContext(string extraDataType = null, string constructionContext = null)
+        /// <param name="registrations">The setup <see cref="Registrations"/>.</param>
+        /// <param name="extraDataType">
+        /// The <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}.Extra"/> data.
+        /// </param>
+        /// <param name="constructionContextType">
+        /// The <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}"/>.
+        /// </param>
+        public CompositionContainer(
+            IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations,
+            Type extraDataType = null,
+            Type constructionContextType = null)
         {
+            if (registrations == null)
+                throw new ArgumentNullException(nameof(registrations));
+
+            Registrations = registrations;
             ExtraDataType = extraDataType;
-            ConstructionContext = constructionContext ?? string.Empty;
+            ConstructionContextType = constructionContextType;
         }
 
         /// <summary>
-        /// Gets the context.
+        /// Gets the setup <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
+        /// </summary>
+        public IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> Registrations { get; }
+
+        /// <summary>
+        /// Gets the compositions for code generation.
         /// </summary>
         public IReadOnlyDictionary<Type, IComposition> Compositions => _compositions;
 
         /// <summary>
-        /// Gets the type of the <see cref="ConstructionContext{T}.Extra"/> data.
+        /// Gets the <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}.Extra"/> data of the
+        /// <see cref="ConstructionContext{TExtra}"/>; otherwise <see langword="null"/> if there is no
+        /// <see cref="ConstructionContext{TExtra}"/>.
         /// </summary>
-        public string ExtraDataType { get; }
+        public Type ExtraDataType { get; }
 
         /// <summary>
-        /// Gets the type of the <see cref="ConstructionContext{T}"/>.
+        /// Gets the <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}"/>; otherwise
+        /// <see langword="null"/> if there is no <see cref="ConstructionContext{TExtra}"/>.
         /// </summary>
-        public string ConstructionContext { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether
-        /// </summary>
-        public bool HasConstructionContext => !string.IsNullOrWhiteSpace(ConstructionContext);
+        public Type ConstructionContextType { get; }
 
         /// <summary>
         /// Removes the <see cref="IComposition"/> from the <see cref="Compositions"/> for the specified

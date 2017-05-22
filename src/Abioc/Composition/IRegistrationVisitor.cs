@@ -16,7 +16,7 @@ namespace Abioc.Composition
         /// <summary>
         /// Initializes the <see cref="IRegistrationVisitor"/>.
         /// </summary>
-        /// <param name="context">The composition context.</param>
-        void Initialize(CompositionContext context);
+        /// <param name="container">The composition context.</param>
+        void Initialize(CompositionContainer container);
     }
 }

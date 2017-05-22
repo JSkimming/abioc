@@ -6,7 +6,7 @@ namespace Abioc.Composition.Compositions
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Abioc.Composition;
+    using Abioc.Generation;
 
     /// <summary>
     /// A composition to produce code to create a factory field.
@@ -55,23 +55,23 @@ namespace Abioc.Composition.Compositions
         public Type ConstructionContextType { get; }
 
         /// <inheritdoc/>
-        public override string GetComposeMethodName(CompositionContext context, bool simpleName)
+        public override string GetComposeMethodName(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            string methodName = "CallFactor" + Type.ToCompileMethodName(simpleName);
+            string methodName = "CallFactor" + Type.ToCompileMethodName(context.UsingSimpleNames);
             return methodName;
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
+        public override IEnumerable<string> GetMethods(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
             string factoredType = Type.ToCompileName();
-            string composeMethodName = GetComposeMethodName(context, simpleName);
+            string composeMethodName = GetComposeMethodName(context);
             bool requiresConstructionContext = RequiresConstructionContext();
 
             string methodSignature =
@@ -115,12 +115,12 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override string GetInstanceExpression(CompositionContext context, bool simpleName)
+        public override string GetInstanceExpression(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            string factoryFieldName = GetComposeMethodName(context, simpleName);
+            string factoryFieldName = GetComposeMethodName(context);
 
             string instanceExpression =
                 RequiresConstructionContext()
@@ -131,7 +131,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context)
+        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -147,7 +147,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> GetFields(CompositionContext context)
+        public override IEnumerable<string> GetFields(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -163,7 +163,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresConstructionContext(CompositionContext context)
+        public override bool RequiresConstructionContext(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));

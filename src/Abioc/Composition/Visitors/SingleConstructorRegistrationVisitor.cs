@@ -15,18 +15,18 @@ namespace Abioc.Composition.Visitors
     /// </summary>
     public class SingleConstructorRegistrationVisitor : IRegistrationVisitor<SingleConstructorRegistration>
     {
-        private CompositionContext _context;
+        private CompositionContainer _container;
 
         /// <summary>
         /// Initializes the <see cref="IRegistrationVisitor"/>.
         /// </summary>
-        /// <param name="context">The composition context.</param>
-        public void Initialize(CompositionContext context)
+        /// <param name="container">The composition context.</param>
+        public void Initialize(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            _context = context;
+            _container = container;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Abioc.Composition.Visitors
 
             // Since this is default registrations it can be superseded by other registrations. Therefore if there is
             // already a registration for this type, don't replace it.
-            if (_context.Compositions.ContainsKey(type))
+            if (_container.Compositions.ContainsKey(type))
             {
                 return;
             }
@@ -67,7 +67,7 @@ namespace Abioc.Composition.Visitors
 
             ParameterInfo[] parameters = constructors[0].GetParameters();
             IComposition composition = new ConstructorComposition(type, parameters, isDefault: true);
-            _context.AddComposition(composition);
+            _container.AddComposition(composition);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace Abioc.Composition.Compositions
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Abioc.Generation;
 
     /// <summary>
     /// A composition to produce code to create a class via a constructor.
@@ -58,7 +59,7 @@ namespace Abioc.Composition.Compositions
         public bool IsDefault { get; }
 
         /// <inheritdoc/>
-        public override string GetInstanceExpression(CompositionContext context, bool simpleName)
+        public override string GetInstanceExpression(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -66,7 +67,7 @@ namespace Abioc.Composition.Compositions
             // Get the expressions for the all the constructor parameters.
             IEnumerable<IParameterExpression> compositions = GetParameterExpressions(context);
             IEnumerable<string> parameterExpressions =
-                compositions.Select(c => c.GetInstanceExpression(context, simpleName));
+                compositions.Select(c => c.GetInstanceExpression(context));
 
             // Join the parameters expressions.
             string parameters =
@@ -82,17 +83,17 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override string GetComposeMethodName(CompositionContext context, bool simpleName)
+        public override string GetComposeMethodName(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            string methodName = "Create" + Type.ToCompileMethodName(simpleName);
+            string methodName = "Create" + Type.ToCompileMethodName(context.UsingSimpleNames);
             return methodName;
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
+        public override IEnumerable<string> GetMethods(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -101,10 +102,10 @@ namespace Abioc.Composition.Compositions
                 ? $"{Environment.NewLine}    {context.ConstructionContext} context"
                 : string.Empty;
 
-            string methodName = GetComposeMethodName(context, simpleName);
+            string methodName = GetComposeMethodName(context);
             string signature = $"private {Type.ToCompileName()} {methodName}({parameter})";
 
-            string instanceExpression = GetInstanceExpression(context, simpleName);
+            string instanceExpression = GetInstanceExpression(context);
             instanceExpression = CodeGen.Indent(instanceExpression);
 
             string method =
@@ -113,12 +114,12 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresConstructionContext(CompositionContext context)
+        public override bool RequiresConstructionContext(GenerationContext context)
         {
             return GetParameterExpressions(context).Any(c => c.RequiresConstructionContext(context));
         }
 
-        private IEnumerable<IParameterExpression> GetParameterExpressions(CompositionContext context)
+        private IEnumerable<IParameterExpression> GetParameterExpressions(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -143,7 +144,7 @@ namespace Abioc.Composition.Compositions
                     {
                         Type enumerableType = parameterTypeInfo.GenericTypeArguments.Single();
                         IParameterExpression expression =
-                            new EnumerableParameterExpression(enumerableType, context.ConstructionContext.Length > 0);
+                            new EnumerableParameterExpression(enumerableType, context.HasConstructionContext);
                         _parameterExpressions.Add(expression);
                         continue;
                     }

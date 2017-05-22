@@ -10,54 +10,60 @@ namespace Abioc.Composition
 
     /// <summary>
     /// Composes a <see cref="RegistrationSetup"/> or <see cref="RegistrationSetup{T}"/> into a
-    /// <see cref="CompositionContext"/> for code generation.
+    /// <see cref="CompositionContainer"/> for code generation.
     /// </summary>
     public static class RegistrationComposition
     {
         /// <summary>
-        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContext"/> for code
+        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContainer"/> for code
         /// generation.
         /// </summary>
         /// <typeparam name="TExtra">
         /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
-        /// <returns>The <see cref="CompositionContext"/>.</returns>
-        public static CompositionContext Compose<TExtra>(this RegistrationSetup<TExtra> setup)
+        /// <returns>The <see cref="CompositionContainer"/>.</returns>
+        public static CompositionContainer Compose<TExtra>(this RegistrationSetup<TExtra> setup)
         {
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
 
-            return setup.Registrations.Compose(
-                typeof(TExtra).ToCompileName(),
-                typeof(ConstructionContext<TExtra>).ToCompileName());
+            IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations =
+                setup.Registrations.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => (IReadOnlyList<IRegistration>)kvp.Value.ToArray());
+            return registrations.Compose(typeof(TExtra), typeof(ConstructionContext<TExtra>));
         }
 
         /// <summary>
-        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContext"/> for code
+        /// Composes the registration <paramref name="setup"/> into a <see cref="CompositionContainer"/> for code
         /// generation.
         /// </summary>
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
-        /// <returns>The <see cref="CompositionContext"/>.</returns>
-        public static CompositionContext Compose(this RegistrationSetup setup)
+        /// <returns>The <see cref="CompositionContainer"/>.</returns>
+        public static CompositionContainer Compose(this RegistrationSetup setup)
         {
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
 
-            return setup.Registrations.Compose();
+            IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations =
+                setup.Registrations.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => (IReadOnlyList<IRegistration>)kvp.Value.ToArray());
+            return registrations.Compose();
         }
 
-        private static CompositionContext Compose(
-            this IReadOnlyDictionary<Type, List<IRegistration>> registrations,
-            string extraDataType = null,
-            string constructionContext = null)
+        private static CompositionContainer Compose(
+            this IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations,
+            Type extraDataType = null,
+            Type constructionContextType = null)
         {
             if (registrations == null)
                 throw new ArgumentNullException(nameof(registrations));
 
-            var context = new CompositionContext(extraDataType, constructionContext);
+            var context = new CompositionContainer(registrations, extraDataType, constructionContextType);
 
-            ProcessRegistrations(registrations, context);
+            ProcessRegistrations(context);
 
             // Get any registrations that have not been composed, e.g. an interface mapped to a class.
             // Only use single mappings (Count == 1), multiple mappings cannot be composed.
@@ -75,20 +81,15 @@ namespace Abioc.Composition
             return context;
         }
 
-        private static void ProcessRegistrations(
-            IReadOnlyDictionary<Type, List<IRegistration>> registrations,
-            CompositionContext context)
+        private static void ProcessRegistrations(CompositionContainer container)
         {
-            if (registrations == null)
-                throw new ArgumentNullException(nameof(registrations));
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            var visitorManager = new VisitorManager(context);
+            var visitorManager = new VisitorManager(container);
 
-            IEnumerable<IRegistration> distinctRegistrations =
-                registrations.Values.SelectMany(r => r);
-            foreach (IRegistration registration in distinctRegistrations)
+            IEnumerable<IRegistration> registrations = container.Registrations.Values.SelectMany(r => r);
+            foreach (IRegistration registration in registrations)
             {
                 visitorManager.Visit(registration);
             }

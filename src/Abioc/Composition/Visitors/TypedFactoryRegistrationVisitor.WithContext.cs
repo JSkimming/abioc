@@ -19,18 +19,18 @@ namespace Abioc.Composition.Visitors
     public class TypedFactoryRegistrationVisitor<TExtra, TImplementation>
         : IRegistrationVisitor<TypedFactoryRegistration<TExtra, TImplementation>>
     {
-        private CompositionContext _context;
+        private CompositionContainer _container;
 
         /// <summary>
         /// Initializes the <see cref="IRegistrationVisitor"/>.
         /// </summary>
-        /// <param name="context">The composition context.</param>
-        public void Initialize(CompositionContext context)
+        /// <param name="container">The composition context.</param>
+        public void Initialize(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            _context = context;
+            _container = container;
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Abioc.Composition.Visitors
             IComposition composition = new TypedFactoryComposition<TImplementation>(
                 registration.Factory,
                 typeof(ConstructionContext<TExtra>));
-            _context.AddComposition(composition);
+            _container.AddComposition(composition);
         }
     }
 }

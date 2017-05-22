@@ -9,6 +9,7 @@ namespace Abioc.Compilation
     using System.Reflection;
     using Abioc.Compilation.CompilationErrorTests;
     using Abioc.Composition;
+    using Abioc.Generation;
     using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
@@ -39,7 +40,7 @@ namespace Abioc.Compilation
         public void ItShouldThrowAnInvalidOperationsException()
         {
             // Arrange
-            (string code, object[] fieldValues) = _setup.Compose().GenerateCode(_setup.Registrations);
+            (string code, object[] fieldValues) = _setup.Compose().GenerateCode();
             code = code.Replace("CompilationErrorTestClass1", "CompilationErrorTestClass");
             _output.WriteLine(code);
 

@@ -9,6 +9,7 @@ namespace Abioc
     using System.Reflection;
     using Abioc.Composition;
     using Abioc.EnumerableDependencyTests;
+    using Abioc.Generation;
     using Abioc.Registration;
     using FluentAssertions;
     using Xunit;
@@ -171,14 +172,15 @@ namespace Abioc
 
     public class WhenRegisteringClassWithAnUnsupportedGenericDependency
     {
-        private readonly RegistrationSetup _setup;
+        private readonly CompositionContainer _composition;
 
         public WhenRegisteringClassWithAnUnsupportedGenericDependency()
         {
-            _setup =
+            _composition =
                 new RegistrationSetup()
                     .Register<SingleDependency>()
-                    .Register<ClassWithUnsupportedGenericDependency>();
+                    .Register<ClassWithUnsupportedGenericDependency>()
+                    .Compose();
         }
 
         [Fact]
@@ -186,12 +188,12 @@ namespace Abioc
         {
             // Arrange
             string expectedMessage =
-                $"Failed to get the compositions for the parameter " +
+                "Failed to get the compositions for the parameter " +
                 $"'{typeof(IUnsupportedGenericInterface<SingleDependency>)} dependency' to the constructor of " +
                 $"'{typeof(ClassWithUnsupportedGenericDependency)}'. Is there a missing registration mapping?";
 
             // Act
-            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+            Action action = () => _composition.GenerateCode();
 
             // Assert
             action

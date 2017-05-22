@@ -23,7 +23,7 @@ namespace Abioc.Composition
         private static readonly ConcurrentDictionary<Type, VisitRegistrationDelegate> VisitRegistrationDelegates =
             new ConcurrentDictionary<Type, VisitRegistrationDelegate>();
 
-        private readonly CompositionContext _context;
+        private readonly CompositionContainer _container;
 
         private readonly Dictionary<Type, IRegistrationVisitor[]> _visitors =
             new Dictionary<Type, IRegistrationVisitor[]>();
@@ -31,13 +31,13 @@ namespace Abioc.Composition
         /// <summary>
         /// Initializes a new instance of the <see cref="VisitorManager"/> class.
         /// </summary>
-        /// <param name="context">The <see cref="CompositionContext"/>.</param>
-        public VisitorManager(CompositionContext context)
+        /// <param name="container">The <see cref="CompositionContainer"/>.</param>
+        public VisitorManager(CompositionContainer container)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            _context = context;
+            _container = container;
         }
 
         private delegate void VisitRegistrationDelegate(VisitorManager manager, IRegistration registration);
@@ -95,7 +95,7 @@ namespace Abioc.Composition
 
                 foreach (IRegistrationVisitor visitor in visitors)
                 {
-                    visitor.Initialize(manager._context);
+                    visitor.Initialize(manager._container);
                     (visitor as IRegistrationVisitorEx)?.InitializeEx(manager);
                 }
 

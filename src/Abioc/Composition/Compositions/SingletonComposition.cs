@@ -6,6 +6,7 @@ namespace Abioc.Composition.Compositions
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Abioc.Generation;
 
     /// <summary>
     /// A composition to produce code for a singleton value.
@@ -37,7 +38,7 @@ namespace Abioc.Composition.Compositions
         public Type Type => Inner.Type;
 
         /// <inheritdoc />
-        public string GetInstanceExpression(CompositionContext context, bool simpleName)
+        public string GetInstanceExpression(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -48,31 +49,31 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public string GetComposeMethodName(CompositionContext context, bool simpleName)
+        public string GetComposeMethodName(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            string methodName = "Singleton" + Type.ToCompileMethodName(simpleName);
+            string methodName = "Singleton" + Type.ToCompileMethodName(context.UsingSimpleNames);
             return methodName;
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetMethods(CompositionContext context, bool simpleName)
+        public IEnumerable<string> GetMethods(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            IEnumerable<string> innerMethods = Inner.GetMethods(context, simpleName);
+            IEnumerable<string> innerMethods = Inner.GetMethods(context);
             foreach (string innerMethod in innerMethods)
             {
                 yield return innerMethod;
             }
 
-            string methodName = GetComposeMethodName(context, simpleName);
+            string methodName = GetComposeMethodName(context);
             string signature = $"private {Type.ToCompileName()} {methodName}()";
 
-            string instanceExpression = GetInstanceExpression(context, simpleName);
+            string instanceExpression = GetInstanceExpression(context);
             instanceExpression = CodeGen.Indent(instanceExpression);
 
             string method =
@@ -81,7 +82,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetFields(CompositionContext context)
+        public IEnumerable<string> GetFields(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -97,7 +98,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContext context)
+        public IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -106,12 +107,12 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetAdditionalInitializations(CompositionContext context, bool simpleName)
+        public IEnumerable<string> GetAdditionalInitializations(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            IEnumerable<string> innerInitializations = Inner.GetAdditionalInitializations(context, simpleName);
+            IEnumerable<string> innerInitializations = Inner.GetAdditionalInitializations(context);
             foreach (string innerInitialization in innerInitializations)
             {
                 yield return innerInitialization;
@@ -123,7 +124,7 @@ namespace Abioc.Composition.Compositions
             if (Inner.RequiresConstructionContext(context))
             {
                 string contextVar = $"var context = {context.ConstructionContext}.Default;";
-                string value = $"return {Inner.GetInstanceExpression(context, simpleName)};";
+                string value = $"return {Inner.GetInstanceExpression(context)};";
                 string valueFactory = $"() =>{NewLine}{{{NewLine}	{contextVar}{NewLine}	{value}{NewLine}}});";
                 valueFactory = CodeGen.Indent(valueFactory);
                 string snippet = $"{fieldName} = new {lazyType}({NewLine}    {valueFactory}";
@@ -131,14 +132,14 @@ namespace Abioc.Composition.Compositions
             }
             else
             {
-                string valueFactory = $"() => {Inner.GetInstanceExpression(context, simpleName)}";
+                string valueFactory = $"() => {Inner.GetInstanceExpression(context)}";
                 string snippet = $"{fieldName} = new {lazyType}({NewLine}    {valueFactory});";
                 yield return snippet;
             }
         }
 
         /// <inheritdoc />
-        public bool RequiresConstructionContext(CompositionContext context)
+        public bool RequiresConstructionContext(GenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
