@@ -4,6 +4,7 @@
 namespace Abioc.Composition.Compositions
 {
     using System;
+    using Abioc.Generation;
 
     /// <summary>
     /// Defines the interface a parameter expression must implement.
@@ -14,30 +15,22 @@ namespace Abioc.Composition.Compositions
         /// Gets the code for the expression (e.g. method call or instance field) to retrieve an instance of the
         /// <see cref="Type"/>.
         /// </summary>
-        /// <param name="container">The whole composition context.</param>
-        /// <param name="simpleName">
-        /// <p>
-        /// If <see langword="true"/> simple method names should be produced; otherwise produce complex method names.
-        /// </p>
-        /// <p>
-        /// A simple method may potentially produce conflicts; though it will produce more readable code.
-        /// </p>
-        /// </param>
+        /// <param name="context">The context for code generation.</param>
         /// <returns>
         /// The code for the expression (e.g. method call or instance field) to retrieve an instance of the
         /// <see cref="Type"/>.
         /// </returns>
-        string GetInstanceExpression(CompositionContainer container, bool simpleName);
+        string GetInstanceExpression(GenerationContext context);
 
         /// <summary>
         /// Returns the value indicating whether the <see cref="IParameterExpression"/> requires a
         /// <see cref="ConstructionContext{T}"/>.
         /// </summary>
-        /// <param name="container">The whole composition context.</param>
+        /// <param name="context">The context for code generation.</param>
         /// <returns>
         /// The value indicating whether the <see cref="IParameterExpression"/> requires a
         /// <see cref="ConstructionContext{T}"/>.
         /// </returns>
-        bool RequiresConstructionContext(CompositionContainer container);
+        bool RequiresConstructionContext(GenerationContext context);
     }
 }

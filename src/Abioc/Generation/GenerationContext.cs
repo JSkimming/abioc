@@ -33,10 +33,14 @@ namespace Abioc.Generation
         /// <param name="usingSimpleNames">
         /// A value indicating whether simple names should be generated for compose methods.
         /// </param>
+        /// <param name="extraDataType">The type of the <see cref="ConstructionContext{T}.Extra"/> data.</param>
+        /// <param name="constructionContext">The type of the <see cref="ConstructionContext{T}"/>.</param>
         public GenerationContext(
             IReadOnlyDictionary<Type, IRegistration[]> registrations,
             IReadOnlyDictionary<Type, IComposition> compositions,
-            bool usingSimpleNames)
+            bool usingSimpleNames,
+            string extraDataType = null,
+            string constructionContext = null)
         {
             if (registrations == null)
                 throw new ArgumentNullException(nameof(registrations));
@@ -46,6 +50,8 @@ namespace Abioc.Generation
             Registrations = registrations;
             Compositions = compositions;
             UsingSimpleNames = usingSimpleNames;
+            ExtraDataType = extraDataType;
+            ConstructionContext = constructionContext;
         }
 
         /// <summary>
@@ -57,6 +63,25 @@ namespace Abioc.Generation
         /// Gets the compositions for code generation.
         /// </summary>
         public IReadOnlyDictionary<Type, IComposition> Compositions { get; }
+
+        /// <summary>
+        /// Gets the type of the <see cref="ConstructionContext{TExtra}.Extra"/> data of the
+        /// <see cref="ConstructionContext{TExtra}"/>; otherwise <see langword="null"/> if there is no
+        /// <see cref="ConstructionContext{TExtra}"/>.
+        /// </summary>
+        public string ExtraDataType { get; }
+
+        /// <summary>
+        /// Gets the type of the <see cref="ConstructionContext{TExtra}"/>; otherwise <see langword="null"/> if there
+        /// is no <see cref="ConstructionContext{TExtra}"/>.
+        /// </summary>
+        public string ConstructionContext { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether a <see cref="ConstructionContext{TExtra}"/> is required for service
+        /// resolution.
+        /// </summary>
+        public bool HasConstructionContext => !string.IsNullOrWhiteSpace(ConstructionContext);
 
         /// <summary>
         /// Gets the list of generated compose method names. These are the methods returned by the generated

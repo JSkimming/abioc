@@ -4,6 +4,7 @@
 namespace Abioc.Composition.Compositions
 {
     using System;
+    using Abioc.Generation;
 
     /// <summary>
     /// The default parameter expression that defaults to the expression of a <see cref="IComposition"/>.
@@ -28,21 +29,21 @@ namespace Abioc.Composition.Compositions
         public IComposition Composition { get; }
 
         /// <inheritdoc />
-        public string GetInstanceExpression(CompositionContainer container, bool simpleName)
+        public string GetInstanceExpression(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            return Composition.GetInstanceExpression(container, simpleName);
+            return Composition.GetInstanceExpression(context);
         }
 
         /// <inheritdoc />
-        public bool RequiresConstructionContext(CompositionContainer container)
+        public bool RequiresConstructionContext(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            return Composition.RequiresConstructionContext(container);
+            return Composition.RequiresConstructionContext(context);
         }
     }
 }

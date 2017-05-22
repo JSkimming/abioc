@@ -6,6 +6,7 @@ namespace Abioc.Composition
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Abioc.Generation;
 
     /// <summary>
     /// The interface defined for a composition.
@@ -21,97 +22,65 @@ namespace Abioc.Composition
         /// Gets the code for the expression (e.g. method call or instance field) to retrieve an instance of the
         /// <see cref="Type"/>.
         /// </summary>
-        /// <param name="container">The whole composition context.</param>
-        /// <param name="simpleName">
-        /// <p>
-        /// If <see langword="true"/> simple method names should be produced; otherwise produce complex method names.
-        /// </p>
-        /// <p>
-        /// A simple method may potentially produce conflicts; though it will produce more readable code.
-        /// </p>
-        /// </param>
+        /// <param name="context">The context for code generation.</param>
         /// <returns>
         /// The code for the expression (e.g. method call or instance field) to retrieve an instance of the
         /// <see cref="Type"/>.
         /// </returns>
-        string GetInstanceExpression(CompositionContainer container, bool simpleName);
+        string GetInstanceExpression(GenerationContext context);
 
         /// <summary>
         /// Gets the name for the composition method, this is the method that will be called by an external service
         /// request.
         /// </summary>
-        /// <param name="container">The whole composition context.</param>
-        /// <param name="simpleName">
-        /// <p>
-        /// If <see langword="true"/> simple method names should be produced; otherwise produce complex method names.
-        /// </p>
-        /// <p>
-        /// A simple method may potentially produce conflicts; though it will produce more readable code.
-        /// </p>
-        /// </param>
+        /// <param name="context">The context for code generation.</param>
         /// <returns>
         /// The name for the composition method, this is the method that will be called by an external service request.
         /// </returns>
-        string GetComposeMethodName(CompositionContainer container, bool simpleName);
+        string GetComposeMethodName(GenerationContext context);
 
         /// <summary>
         /// Returns the code of the methods required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </summary>
-        /// <param name="container">The whole composition context.</param>
-        /// <param name="simpleName">
-        /// <p>
-        /// If <see langword="true"/> simple method names should be produced; otherwise produce complex method names.
-        /// </p>
-        /// <p>
-        /// A simple method may potentially produce conflicts; though it will produce more readable code.
-        /// </p>
-        /// </param>
+        /// <param name="context">The context for code generation.</param>
         /// <returns>
         /// The code of the methods required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </returns>
-        IEnumerable<string> GetMethods(CompositionContainer container, bool simpleName);
+        IEnumerable<string> GetMethods(GenerationContext context);
 
         /// <summary>
         /// Returns the code of the fields required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </summary>
-        /// <param name="container">The whole composition context.</param>
+        /// <param name="context">The context for code generation.</param>
         /// <returns>
         /// The code of the fields required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </returns>
-        IEnumerable<string> GetFields(CompositionContainer container);
+        IEnumerable<string> GetFields(GenerationContext context);
 
         /// <summary>
         /// Returns the code of the fields required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </summary>
-        /// <param name="container">The whole composition context.</param>
+        /// <param name="context">The context for code generation.</param>
         /// <returns>
         /// The code of the fields required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </returns>
-        IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContainer container);
+        IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context);
 
         /// <summary>
         /// Returns the code of additional initializations to the executes after the field initializations.
         /// </summary>
-        /// <param name="container">The whole composition context.</param>
-        /// <param name="simpleName">
-        /// <p>
-        /// If <see langword="true"/> simple method names should be produced; otherwise produce complex method names.
-        /// </p>
-        /// <p>
-        /// A simple method may potentially produce conflicts; though it will produce more readable code.
-        /// </p>
-        /// </param>
+        /// <param name="context">The context for code generation.</param>
         /// <returns>The code of additional initializations to the executes after the field initializations.</returns>
-        IEnumerable<string> GetAdditionalInitializations(CompositionContainer container, bool simpleName);
+        IEnumerable<string> GetAdditionalInitializations(GenerationContext context);
 
         /// <summary>
         /// Returns the value indicating whether the <see cref="IComposition"/> requires a
         /// <see cref="ConstructionContext{T}"/>.
         /// </summary>
-        /// <param name="container">The whole composition context.</param>
+        /// <param name="context">The context for code generation.</param>
         /// <returns>
         /// The value indicating whether the <see cref="IComposition"/> requires a <see cref="ConstructionContext{T}"/>.
         /// </returns>
-        bool RequiresConstructionContext(CompositionContainer container);
+        bool RequiresConstructionContext(GenerationContext context);
     }
 }

@@ -28,9 +28,7 @@ namespace Abioc.Composition
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
 
-            return setup.Registrations.Compose(
-                typeof(TExtra).ToCompileName(),
-                typeof(ConstructionContext<TExtra>).ToCompileName());
+            return setup.Registrations.Compose(typeof(TExtra), typeof(ConstructionContext<TExtra>));
         }
 
         /// <summary>
@@ -49,13 +47,13 @@ namespace Abioc.Composition
 
         private static CompositionContainer Compose(
             this IReadOnlyDictionary<Type, List<IRegistration>> registrations,
-            string extraDataType = null,
-            string constructionContext = null)
+            Type extraDataType = null,
+            Type constructionContextType = null)
         {
             if (registrations == null)
                 throw new ArgumentNullException(nameof(registrations));
 
-            var context = new CompositionContainer(extraDataType, constructionContext);
+            var context = new CompositionContainer(extraDataType, constructionContextType);
 
             ProcessRegistrations(registrations, context);
 

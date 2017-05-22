@@ -18,12 +18,16 @@ namespace Abioc.Composition
         /// <summary>
         /// Initializes a new instance of the <see cref="CompositionContainer"/> class.
         /// </summary>
-        /// <param name="extraDataType">The type of the <see cref="ConstructionContext{T}.Extra"/> data.</param>
-        /// <param name="constructionContext">The type of the <see cref="ConstructionContext{T}"/>.</param>
-        public CompositionContainer(string extraDataType = null, string constructionContext = null)
+        /// <param name="extraDataType">
+        /// The <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}.Extra"/> data.
+        /// </param>
+        /// <param name="constructionContextType">
+        /// The <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}"/>.
+        /// </param>
+        public CompositionContainer(Type extraDataType = null, Type constructionContextType = null)
         {
             ExtraDataType = extraDataType;
-            ConstructionContext = constructionContext ?? string.Empty;
+            ConstructionContextType = constructionContextType;
         }
 
         /// <summary>
@@ -32,19 +36,17 @@ namespace Abioc.Composition
         public IReadOnlyDictionary<Type, IComposition> Compositions => _compositions;
 
         /// <summary>
-        /// Gets the type of the <see cref="ConstructionContext{T}.Extra"/> data.
+        /// Gets the <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}.Extra"/> data of the
+        /// <see cref="ConstructionContext{TExtra}"/>; otherwise <see langword="null"/> if there is no
+        /// <see cref="ConstructionContext{TExtra}"/>.
         /// </summary>
-        public string ExtraDataType { get; }
+        public Type ExtraDataType { get; }
 
         /// <summary>
-        /// Gets the type of the <see cref="ConstructionContext{T}"/>.
+        /// Gets the <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}"/>; otherwise
+        /// <see langword="null"/> if there is no <see cref="ConstructionContext{TExtra}"/>.
         /// </summary>
-        public string ConstructionContext { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether
-        /// </summary>
-        public bool HasConstructionContext => !string.IsNullOrWhiteSpace(ConstructionContext);
+        public Type ConstructionContextType { get; }
 
         /// <summary>
         /// Removes the <see cref="IComposition"/> from the <see cref="Compositions"/> for the specified

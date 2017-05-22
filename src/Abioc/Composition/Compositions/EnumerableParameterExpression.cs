@@ -6,6 +6,7 @@ namespace Abioc.Composition.Compositions
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Abioc.Generation;
 
     /// <summary>
     /// The parameter expression that uses <see cref="IContainer.GetServices"/> to resolve a parameter.
@@ -37,10 +38,10 @@ namespace Abioc.Composition.Compositions
         public Type EnumerableType { get; }
 
         /// <inheritdoc />
-        public string GetInstanceExpression(CompositionContainer container, bool simpleName)
+        public string GetInstanceExpression(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             string enumerableTypeName = EnumerableType.ToCompileName();
             string serviceTypeparameter = $"typeof({enumerableTypeName})";
@@ -51,10 +52,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public bool RequiresConstructionContext(CompositionContainer container)
+        public bool RequiresConstructionContext(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             return _requiresConstructionContext;
         }

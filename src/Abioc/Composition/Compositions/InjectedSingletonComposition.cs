@@ -7,6 +7,7 @@ namespace Abioc.Composition.Compositions
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Abioc.Generation;
 
     /// <summary>
     /// A composition to produce code for a injected value.
@@ -36,23 +37,23 @@ namespace Abioc.Composition.Compositions
         public TImplementation Value { get; }
 
         /// <inheritdoc/>
-        public override string GetComposeMethodName(CompositionContainer container, bool simpleName)
+        public override string GetComposeMethodName(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            string methodName = "Accessor" + Type.ToCompileMethodName(simpleName);
+            string methodName = "Accessor" + Type.ToCompileMethodName(context.UsingSimpleNames);
             return methodName;
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> GetMethods(CompositionContainer container, bool simpleName)
+        public override IEnumerable<string> GetMethods(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            string methodName = GetComposeMethodName(container, simpleName);
-            string instanceExpression = GetInstanceExpression(container, simpleName);
+            string methodName = GetComposeMethodName(context);
+            string instanceExpression = GetInstanceExpression(context);
 
             string method =
                 Type.GetTypeInfo().IsValueType
@@ -72,20 +73,20 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override string GetInstanceExpression(CompositionContainer container, bool simpleName)
+        public override string GetInstanceExpression(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             string injectedFieldName = GetInjectedFieldName();
             return injectedFieldName;
         }
 
         /// <inheritdoc />
-        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContainer container)
+        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             string fieldName = GetInjectedFieldName();
             string fieldType = Type.ToCompileName();
@@ -95,10 +96,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> GetFields(CompositionContainer container)
+        public override IEnumerable<string> GetFields(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             string fieldName = GetInjectedFieldName();
             string fieldType = Type.ToCompileName();
@@ -108,15 +109,13 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresConstructionContext(CompositionContainer container)
+        public override bool RequiresConstructionContext(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            return RequiresConstructionContext();
+            return false;
         }
-
-        private bool RequiresConstructionContext() => false;
 
         private string GetInjectedFieldName() => "Injected_" + Type.ToCompileMethodName(simpleName: false);
     }

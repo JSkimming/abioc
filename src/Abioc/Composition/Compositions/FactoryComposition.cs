@@ -6,7 +6,7 @@ namespace Abioc.Composition.Compositions
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Abioc.Composition;
+    using Abioc.Generation;
 
     /// <summary>
     /// A composition to produce code to create a factory field.
@@ -55,23 +55,23 @@ namespace Abioc.Composition.Compositions
         public Type ConstructionContextType { get; }
 
         /// <inheritdoc/>
-        public override string GetComposeMethodName(CompositionContainer container, bool simpleName)
+        public override string GetComposeMethodName(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            string methodName = "CallFactor" + Type.ToCompileMethodName(simpleName);
+            string methodName = "CallFactor" + Type.ToCompileMethodName(context.UsingSimpleNames);
             return methodName;
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> GetMethods(CompositionContainer container, bool simpleName)
+        public override IEnumerable<string> GetMethods(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             string factoredType = Type.ToCompileName();
-            string composeMethodName = GetComposeMethodName(container, simpleName);
+            string composeMethodName = GetComposeMethodName(context);
             bool requiresConstructionContext = RequiresConstructionContext();
 
             string methodSignature =
@@ -115,12 +115,12 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override string GetInstanceExpression(CompositionContainer container, bool simpleName)
+        public override string GetInstanceExpression(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            string factoryFieldName = GetComposeMethodName(container, simpleName);
+            string factoryFieldName = GetComposeMethodName(context);
 
             string instanceExpression =
                 RequiresConstructionContext()
@@ -131,10 +131,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(CompositionContainer container)
+        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             string fieldName = GetFactoryFieldName();
             string fieldType =
@@ -147,10 +147,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> GetFields(CompositionContainer container)
+        public override IEnumerable<string> GetFields(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             string fieldName = GetFactoryFieldName();
             string fieldType =
@@ -163,10 +163,10 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresConstructionContext(CompositionContainer container)
+        public override bool RequiresConstructionContext(GenerationContext context)
         {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             return RequiresConstructionContext();
         }
