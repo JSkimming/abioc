@@ -7,6 +7,7 @@ namespace Abioc.Composition
     using System.Collections.Generic;
     using System.Linq;
     using Abioc.Composition.Compositions;
+    using Abioc.Registration;
 
     /// <summary>
     /// The composition container.
@@ -18,17 +19,30 @@ namespace Abioc.Composition
         /// <summary>
         /// Initializes a new instance of the <see cref="CompositionContainer"/> class.
         /// </summary>
+        /// <param name="registrations">The setup <see cref="Registrations"/>.</param>
         /// <param name="extraDataType">
         /// The <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}.Extra"/> data.
         /// </param>
         /// <param name="constructionContextType">
         /// The <see cref="Type"/> of the <see cref="ConstructionContext{TExtra}"/>.
         /// </param>
-        public CompositionContainer(Type extraDataType = null, Type constructionContextType = null)
+        public CompositionContainer(
+            IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations,
+            Type extraDataType = null,
+            Type constructionContextType = null)
         {
+            if (registrations == null)
+                throw new ArgumentNullException(nameof(registrations));
+
+            Registrations = registrations;
             ExtraDataType = extraDataType;
             ConstructionContextType = constructionContextType;
         }
+
+        /// <summary>
+        /// Gets the setup <see cref="RegistrationSetupBase{TDerived}.Registrations"/>.
+        /// </summary>
+        public IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> Registrations { get; }
 
         /// <summary>
         /// Gets the compositions for code generation.

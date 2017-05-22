@@ -28,7 +28,11 @@ namespace Abioc.Composition
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
 
-            return setup.Registrations.Compose(typeof(TExtra), typeof(ConstructionContext<TExtra>));
+            IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations =
+                setup.Registrations.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => (IReadOnlyList<IRegistration>)kvp.Value.ToArray());
+            return registrations.Compose(typeof(TExtra), typeof(ConstructionContext<TExtra>));
         }
 
         /// <summary>
@@ -42,20 +46,24 @@ namespace Abioc.Composition
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
 
-            return setup.Registrations.Compose();
+            IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations =
+                setup.Registrations.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => (IReadOnlyList<IRegistration>)kvp.Value.ToArray());
+            return registrations.Compose();
         }
 
         private static CompositionContainer Compose(
-            this IReadOnlyDictionary<Type, List<IRegistration>> registrations,
+            this IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations,
             Type extraDataType = null,
             Type constructionContextType = null)
         {
             if (registrations == null)
                 throw new ArgumentNullException(nameof(registrations));
 
-            var context = new CompositionContainer(extraDataType, constructionContextType);
+            var context = new CompositionContainer(registrations, extraDataType, constructionContextType);
 
-            ProcessRegistrations(registrations, context);
+            ProcessRegistrations(context);
 
             // Get any registrations that have not been composed, e.g. an interface mapped to a class.
             // Only use single mappings (Count == 1), multiple mappings cannot be composed.
@@ -73,20 +81,15 @@ namespace Abioc.Composition
             return context;
         }
 
-        private static void ProcessRegistrations(
-            IReadOnlyDictionary<Type, List<IRegistration>> registrations,
-            CompositionContainer container)
+        private static void ProcessRegistrations(CompositionContainer container)
         {
-            if (registrations == null)
-                throw new ArgumentNullException(nameof(registrations));
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
 
             var visitorManager = new VisitorManager(container);
 
-            IEnumerable<IRegistration> distinctRegistrations =
-                registrations.Values.SelectMany(r => r);
-            foreach (IRegistration registration in distinctRegistrations)
+            IEnumerable<IRegistration> registrations = container.Registrations.Values.SelectMany(r => r);
+            foreach (IRegistration registration in registrations)
             {
                 visitorManager.Visit(registration);
             }

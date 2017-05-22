@@ -32,14 +32,15 @@ namespace Abioc
 
     public class WhenRegisteringAClassWithAMissingDependency
     {
-        private readonly RegistrationSetup _setup;
+        private readonly CompositionContainer _composition;
 
         public WhenRegisteringAClassWithAMissingDependency()
         {
-            _setup =
+            _composition =
                 new RegistrationSetup()
                     .Register<DependencyClass1>()
-                    .Register<DependantClass>();
+                    .Register<DependantClass>()
+                    .Compose();
         }
 
         [Fact]
@@ -51,7 +52,7 @@ namespace Abioc
                 $"constructor of '{typeof(DependantClass)}'. Is there a missing registration mapping?";
 
             // Act
-            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+            Action action = () => _composition.GenerateCode();
 
             // Assert
             action

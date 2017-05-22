@@ -8,7 +8,6 @@ namespace Abioc.Composition
     using System.Linq;
     using System.Text;
     using Abioc.Generation;
-    using Abioc.Registration;
 
     /// <summary>
     /// Generates the code from a <see cref="CompositionContainer"/>.
@@ -25,32 +24,15 @@ namespace Abioc.Composition
         /// Generates the code from the composition <paramref name="container"/>.
         /// </summary>
         /// <param name="container">The <see cref="CompositionContainer"/>.</param>
-        /// <param name="registrations">The setup <see cref="RegistrationSetupBase{T}.Registrations"/>.</param>
         /// <returns>The generated code from the composition <paramref name="container"/>.</returns>
-        public static (string generatedCode, object[] fieldValues) GenerateCode(
-            this CompositionContainer container,
-            IReadOnlyDictionary<Type, List<IRegistration>> registrations)
+        public static (string generatedCode, object[] fieldValues) GenerateCode(this CompositionContainer container)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
-            if (registrations == null)
-                throw new ArgumentNullException(nameof(registrations));
-
-            return container.GenerateCode(registrations.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray()));
-        }
-
-        private static (string generatedCode, object[] fieldValues) GenerateCode(
-            this CompositionContainer container,
-            IReadOnlyDictionary<Type, IRegistration[]> registrations)
-        {
-            if (container == null)
-                throw new ArgumentNullException(nameof(container));
-            if (registrations == null)
-                throw new ArgumentNullException(nameof(registrations));
 
             // First try with simple method names.
             GenerationContext context = new GenerationContext(
-                registrations: registrations,
+                registrations: container.Registrations,
                 compositions: container.Compositions,
                 usingSimpleNames: true,
                 extraDataType: container.ExtraDataType?.ToCompileName(),
@@ -61,7 +43,7 @@ namespace Abioc.Composition
             if (context.ComposeMethodsNames.Select(c => c.name).Distinct().Count() != context.ComposeMethodsNames.Count)
             {
                 context = new GenerationContext(
-                    registrations: registrations,
+                    registrations: container.Registrations,
                     compositions: container.Compositions,
                     usingSimpleNames: false,
                     extraDataType: container.ExtraDataType?.ToCompileName(),

@@ -36,7 +36,7 @@ namespace Abioc.Generation
         /// <param name="extraDataType">The type of the <see cref="ConstructionContext{T}.Extra"/> data.</param>
         /// <param name="constructionContext">The type of the <see cref="ConstructionContext{T}"/>.</param>
         public GenerationContext(
-            IReadOnlyDictionary<Type, IRegistration[]> registrations,
+            IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations,
             IReadOnlyDictionary<Type, IComposition> compositions,
             bool usingSimpleNames,
             string extraDataType = null,
@@ -57,7 +57,7 @@ namespace Abioc.Generation
         /// <summary>
         /// Gets the setup <see cref="RegistrationSetupBase{T}.Registrations"/>.
         /// </summary>
-        public IReadOnlyDictionary<Type, IRegistration[]> Registrations { get; }
+        public IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> Registrations { get; }
 
         /// <summary>
         /// Gets the compositions for code generation.

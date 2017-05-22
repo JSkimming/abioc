@@ -342,18 +342,19 @@ namespace Abioc
 
     public class WhenRegistrationIsMissingPropertyInjectedDependencies
     {
-        private readonly RegistrationSetup _setup;
+        private readonly CompositionContainer _composition;
 
         public WhenRegistrationIsMissingPropertyInjectedDependencies()
         {
-            _setup =
+            _composition =
                 new RegistrationSetup()
                     // Dependencies
                     .Register<IInterfaceDependency1, ConcreteDependency1>()
                     .Register<IInterfaceDependency3, ConcreteDependency3>()
                     // Concrete classes
                     .Register<ConcreteClassWithSetOnlyProperty>(
-                        composer => composer.InjectAllProperties());
+                        composer => composer.InjectAllProperties())
+                    .Compose();
         }
 
         [Fact]
@@ -365,7 +366,7 @@ namespace Abioc
                 $"'{typeof(ConcreteClassWithSetOnlyProperty)}'. Is there a missing registration mapping?";
 
             // Act
-            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+            Action action = () => _composition.GenerateCode();
 
             // Assert
             action
@@ -499,15 +500,16 @@ namespace Abioc
 
     public class WhenRegisteringClassWithAnUnsupportedGenericPropertyDependency
     {
-        private readonly RegistrationSetup _setup;
+        private readonly CompositionContainer _composition;
 
         public WhenRegisteringClassWithAnUnsupportedGenericPropertyDependency()
         {
-            _setup =
+            _composition =
                 new RegistrationSetup()
                     .Register<ConcreteDependency1>()
                     .Register<ClassWithUnsupportedGenericPropertyDependency>(
-                        composer => composer.InjectAllProperties());
+                        composer => composer.InjectAllProperties())
+                    .Compose();
         }
 
         [Fact]
@@ -520,7 +522,7 @@ namespace Abioc
                 "Is there a missing registration mapping?";
 
             // Act
-            Action action = () => _setup.Compose().GenerateCode(_setup.Registrations);
+            Action action = () => _composition.GenerateCode();
 
             // Assert
             action
