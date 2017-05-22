@@ -307,9 +307,10 @@ namespace Abioc.Generation
                 string keyComment = key.ToCompileName();
 
                 IEnumerable<string> instanceExpressions =
-                    compositions
-                        .Select(c => $"{NewLine}yield return {c.GetInstanceExpression(context)};")
-                        .Select(instanceExpression => CodeGen.Indent(instanceExpression));
+                    from composition in compositions
+                    let snippet = composition.GetInstanceExpression(context)
+                    let instanceExpression = $"{NewLine}yield return {snippet};"
+                    select CodeGen.Indent(instanceExpression);
 
                 string yieldStatements = string.Join(string.Empty, instanceExpressions);
 
