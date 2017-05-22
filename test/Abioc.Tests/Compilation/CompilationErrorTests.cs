@@ -9,6 +9,7 @@ namespace Abioc.Compilation
     using System.Reflection;
     using Abioc.Compilation.CompilationErrorTests;
     using Abioc.Composition;
+    using Abioc.Generation;
     using Abioc.Registration;
     using FluentAssertions;
     using Xunit;

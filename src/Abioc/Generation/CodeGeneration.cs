@@ -1,18 +1,18 @@
 ﻿// Copyright (c) 2017 James Skimming. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-namespace Abioc.Composition
+namespace Abioc.Generation
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Abioc.Generation;
+    using Abioc.Composition;
 
     /// <summary>
     /// Generates the code from a <see cref="CompositionContainer"/>.
     /// </summary>
-    public static class CodeComposition
+    public static class CodeGeneration
     {
         private static readonly object[] EmptyFieldValues = { };
 

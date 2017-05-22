@@ -9,6 +9,7 @@ namespace Abioc
     using System.Reflection;
     using Abioc.Composition;
     using Abioc.EnumerableDependencyTests;
+    using Abioc.Generation;
     using Abioc.Registration;
     using FluentAssertions;
     using Xunit;

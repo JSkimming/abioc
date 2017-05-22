@@ -8,6 +8,7 @@ namespace Abioc
     using System.Linq;
     using System.Reflection;
     using Abioc.Composition;
+    using Abioc.Generation;
     using Abioc.PropertyInjectionTests;
     using Abioc.Registration;
     using FluentAssertions;

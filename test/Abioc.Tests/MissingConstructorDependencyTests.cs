@@ -7,6 +7,7 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using Abioc.Composition;
+    using Abioc.Generation;
     using Abioc.MissingConstructorDependencyTests;
     using Abioc.Registration;
     using FluentAssertions;

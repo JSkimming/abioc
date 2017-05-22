@@ -9,6 +9,7 @@ namespace Abioc
     using System.Reflection;
     using Abioc.Compilation;
     using Abioc.Composition;
+    using Abioc.Generation;
     using Abioc.Registration;
 
     /// <summary>
