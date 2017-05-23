@@ -20,7 +20,7 @@ namespace Abioc.Composition.Compositions
         /// The code for the expression (e.g. method call or instance field) to retrieve an instance of the
         /// <see cref="Type"/>.
         /// </returns>
-        string GetInstanceExpression(GenerationContext context);
+        string GetInstanceExpression(IGenerationContext context);
 
         /// <summary>
         /// Returns the value indicating whether the <see cref="IParameterExpression"/> requires a
@@ -31,6 +31,6 @@ namespace Abioc.Composition.Compositions
         /// The value indicating whether the <see cref="IParameterExpression"/> requires a
         /// <see cref="ConstructionContext{T}"/>.
         /// </returns>
-        bool RequiresConstructionContext(GenerationContext context);
+        bool RequiresConstructionContext(IGenerationContext context);
     }
 }

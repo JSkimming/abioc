@@ -55,7 +55,7 @@ namespace Abioc.Composition.Compositions
         public Type ConstructionContextType { get; }
 
         /// <inheritdoc/>
-        public override string GetComposeMethodName(GenerationContext context)
+        public override string GetComposeMethodName(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -65,7 +65,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> GetMethods(GenerationContext context)
+        public override IEnumerable<string> GetMethods(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -115,7 +115,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override string GetInstanceExpression(GenerationContext context)
+        public override string GetInstanceExpression(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -131,7 +131,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context)
+        public override IEnumerable<(string snippet, object value)> GetFieldInitializations(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -147,7 +147,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> GetFields(GenerationContext context)
+        public override IEnumerable<string> GetFields(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -163,7 +163,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresConstructionContext(GenerationContext context)
+        public override bool RequiresConstructionContext(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));

@@ -27,7 +27,7 @@ namespace Abioc.Composition
         /// The code for the expression (e.g. method call or instance field) to retrieve an instance of the
         /// <see cref="Type"/>.
         /// </returns>
-        string GetInstanceExpression(GenerationContext context);
+        string GetInstanceExpression(IGenerationContext context);
 
         /// <summary>
         /// Gets the name for the composition method, this is the method that will be called by an external service
@@ -37,7 +37,7 @@ namespace Abioc.Composition
         /// <returns>
         /// The name for the composition method, this is the method that will be called by an external service request.
         /// </returns>
-        string GetComposeMethodName(GenerationContext context);
+        string GetComposeMethodName(IGenerationContext context);
 
         /// <summary>
         /// Returns the code of the methods required for the <see cref="IComposition"/> of the <see cref="Type"/>.
@@ -46,7 +46,7 @@ namespace Abioc.Composition
         /// <returns>
         /// The code of the methods required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </returns>
-        IEnumerable<string> GetMethods(GenerationContext context);
+        IEnumerable<string> GetMethods(IGenerationContext context);
 
         /// <summary>
         /// Returns the code of the fields required for the <see cref="IComposition"/> of the <see cref="Type"/>.
@@ -55,7 +55,7 @@ namespace Abioc.Composition
         /// <returns>
         /// The code of the fields required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </returns>
-        IEnumerable<string> GetFields(GenerationContext context);
+        IEnumerable<string> GetFields(IGenerationContext context);
 
         /// <summary>
         /// Returns the code of the fields required for the <see cref="IComposition"/> of the <see cref="Type"/>.
@@ -64,14 +64,14 @@ namespace Abioc.Composition
         /// <returns>
         /// The code of the fields required for the <see cref="IComposition"/> of the <see cref="Type"/>.
         /// </returns>
-        IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context);
+        IEnumerable<(string snippet, object value)> GetFieldInitializations(IGenerationContext context);
 
         /// <summary>
         /// Returns the code of additional initializations to the executes after the field initializations.
         /// </summary>
         /// <param name="context">The context for code generation.</param>
         /// <returns>The code of additional initializations to the executes after the field initializations.</returns>
-        IEnumerable<string> GetAdditionalInitializations(GenerationContext context);
+        IEnumerable<string> GetAdditionalInitializations(IGenerationContext context);
 
         /// <summary>
         /// Returns the value indicating whether the <see cref="IComposition"/> requires a
@@ -81,6 +81,6 @@ namespace Abioc.Composition
         /// <returns>
         /// The value indicating whether the <see cref="IComposition"/> requires a <see cref="ConstructionContext{T}"/>.
         /// </returns>
-        bool RequiresConstructionContext(GenerationContext context);
+        bool RequiresConstructionContext(IGenerationContext context);
     }
 }

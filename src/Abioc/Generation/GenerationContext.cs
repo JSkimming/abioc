@@ -12,7 +12,7 @@ namespace Abioc.Generation
     /// <summary>
     /// The context for generated code snippets.
     /// </summary>
-    public class GenerationContext
+    internal class GenerationContext : IGenerationContext
     {
         private readonly List<(string name, Type type, bool requiresContext)> _composeMethodsNames =
             new List<(string, Type, bool)>(32);
