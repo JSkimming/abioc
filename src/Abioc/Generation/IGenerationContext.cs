@@ -34,5 +34,23 @@ namespace Abioc.Generation
         /// be unique, and if not, complex names will be generated.
         /// </summary>
         bool UsingSimpleNames { get; }
+
+        /// <summary>
+        /// Gets the definition for the requirements of a <see cref="ConstructionContext{T}"/>.
+        /// </summary>
+        ConstructionContextDefinition ConstructionContextDefinition { get; }
+
+        /// <summary>
+        /// Creates a customized <see cref="IGenerationContext"/> with the specific
+        /// <paramref name="constructionContextDefinition"/>.
+        /// </summary>
+        /// <param name="constructionContextDefinition">
+        /// The specific <see cref="ConstructionContextDefinition"/>.
+        /// </param>
+        /// <returns>
+        /// A customized <see cref="IGenerationContext"/> with the specific
+        /// <paramref name="constructionContextDefinition"/>.
+        /// </returns>
+        IGenerationContext Customize(ConstructionContextDefinition constructionContextDefinition);
     }
 }

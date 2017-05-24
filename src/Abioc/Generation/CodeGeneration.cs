@@ -31,7 +31,7 @@ namespace Abioc.Generation
                 throw new ArgumentNullException(nameof(container));
 
             // First try with simple method names.
-            GenerationContext context = new GenerationContext(
+            GenerationContext context = new GenerationContextWrapper(
                 registrations: container.Registrations,
                 compositions: container.Compositions,
                 usingSimpleNames: true,
@@ -42,7 +42,7 @@ namespace Abioc.Generation
             // Check if there are any name conflicts.
             if (context.ComposeMethodsNames.Select(c => c.name).Distinct().Count() != context.ComposeMethodsNames.Count)
             {
-                context = new GenerationContext(
+                context = new GenerationContextWrapper(
                     registrations: container.Registrations,
                     compositions: container.Compositions,
                     usingSimpleNames: false,
@@ -253,8 +253,9 @@ namespace Abioc.Generation
 
             string GetCaseSnippet(Type key, IComposition composition)
             {
+                var definition = new ConstructionContextDefinition(composition.Type, key, typeof(void));
                 string keyComment = key.ToCompileName();
-                string instanceExpression = composition.GetInstanceExpression(context);
+                string instanceExpression = composition.GetInstanceExpression(context.Customize(definition));
                 instanceExpression = CodeGen.Indent(instanceExpression);
 
                 string caseSnippet =
@@ -308,7 +309,8 @@ namespace Abioc.Generation
 
                 IEnumerable<string> instanceExpressions =
                     from composition in compositions
-                    let snippet = composition.GetInstanceExpression(context)
+                    let definition = new ConstructionContextDefinition(composition.Type, key, typeof(void))
+                    let snippet = composition.GetInstanceExpression(context.Customize(definition))
                     let instanceExpression = $"{NewLine}yield return {snippet};"
                     select CodeGen.Indent(instanceExpression);
 

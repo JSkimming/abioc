@@ -9,6 +9,7 @@ namespace Abioc
     using System.Threading.Tasks;
     using Abioc.Composition.Compositions;
     using Abioc.Composition.Visitors;
+    using Abioc.Generation;
     using Abioc.Registration;
     using AutoTest.ArgNullEx;
     using AutoTest.ArgNullEx.Xunit;
@@ -36,6 +37,10 @@ namespace Abioc
         [Exclude(
             Type = typeof(ConstructionContextExtensions),
             Parameter = "extra")]
+        [Exclude(
+            Type = typeof(GenerationContextWrapper),
+            Method = ".ctor",
+            Parameter = "inner")]
         [Substitute(typeof(AbiocContainer<>), typeof(AbiocContainer<int>))]
         [Substitute(typeof(ConstructionContext<>), typeof(ConstructionContext<int>))]
         [Substitute(typeof(FactoryRegistration<>), typeof(FactoryRegistration<object>))]
