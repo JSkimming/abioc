@@ -28,7 +28,7 @@
 
 @SET results_path=%~dp0test\TestResults
 @SET test_assemblies=%~dp0test\Abioc.Tests\bin\%config%\Abioc.Tests.dll
-::@SET test_assemblies=%test_assemblies% <path to additional assembly>
+@SET test_assemblies=%test_assemblies% %~dp0test\Abioc.Tests.Internal\bin\%config%\Abioc.Tests.Internal.dll
 @SET xunit_results=%results_path%\Xunit.Tests.html
 @SET coverage_filter=+[abioc*]* -[*.Tests]*
 @SET coverage_results=%results_path%\Test.Coverage.xml

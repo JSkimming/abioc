@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{64CA9BA9-374A-4BFF-B7E0-80B5629A101E}</ProjectGuid>
+    <ProjectGuid>{A74E1815-0141-4377-9455-E5521ED8BFA8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Abioc</RootNamespace>
-    <AssemblyName>Abioc.Tests</AssemblyName>
+    <AssemblyName>Abioc.Tests.Internal</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -93,26 +93,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractDependencies.cs" />
-    <Compile Include="CommonInterfaceTests.cs" />
-    <Compile Include="Compilation\CompilationErrorTests.cs" />
-    <Compile Include="ConstructorErrorTests.cs" />
-    <Compile Include="CreateObjectGraphTests.cs" />
-    <Compile Include="EnumerableDependencyTests.cs" />
-    <Compile Include="ExampleServices.cs" />
-    <Compile Include="FactoryServicesTests.cs" />
-    <Compile Include="InjectedSingletonTests.cs" />
-    <Compile Include="MissingConstructorDependencyTests.cs" />
-    <Compile Include="MissingRegistrationVisitorTests.cs" />
-    <Compile Include="NestedClassTests.cs" />
-    <Compile Include="PreventCompositionOverwriteTests.cs" />
+    <Compile Include="AbiocCustomization.cs" />
+    <Compile Include="DebuggerDisplayTests.cs" />
+    <Compile Include="Filter\NotDelegate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyInjectionTests.cs" />
-    <Compile Include="RegisterInternalTests.cs" />
-    <Compile Include="RegistrationPrecedenceTests.cs" />
-    <Compile Include="RequireConstructionContextTests.cs" />
-    <Compile Include="SingleClassTests.cs" />
-    <Compile Include="SingletonTests.cs" />
+    <Compile Include="RequiresArgNullEx.cs" />
+    <Compile Include="RequiresArgNullExAutoMoqAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
