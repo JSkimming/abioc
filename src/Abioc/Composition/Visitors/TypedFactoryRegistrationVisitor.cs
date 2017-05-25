@@ -13,7 +13,7 @@ namespace Abioc.Composition.Visitors
     /// A composition registration visitor for a <see cref="TypedFactoryRegistration{TImplementation}"/>.
     /// </summary>
     /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
-    public class TypedFactoryRegistrationVisitor<TImplementation>
+    internal class TypedFactoryRegistrationVisitor<TImplementation>
         : IRegistrationVisitor<TypedFactoryRegistration<TImplementation>>
     {
         private CompositionContainer _container;

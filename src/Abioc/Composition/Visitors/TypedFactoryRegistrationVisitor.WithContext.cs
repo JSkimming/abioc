@@ -16,7 +16,7 @@ namespace Abioc.Composition.Visitors
     /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
     /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
-    public class TypedFactoryRegistrationVisitor<TExtra, TImplementation>
+    internal class TypedFactoryRegistrationVisitor<TExtra, TImplementation>
         : IRegistrationVisitor<TypedFactoryRegistration<TExtra, TImplementation>>
     {
         private CompositionContainer _container;
