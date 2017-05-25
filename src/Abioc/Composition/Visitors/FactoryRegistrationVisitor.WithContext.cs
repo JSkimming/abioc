@@ -15,7 +15,7 @@ namespace Abioc.Composition.Visitors
     /// <typeparam name="TExtra">
     /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
     /// </typeparam>
-    public class FactoryRegistrationVisitor<TExtra> : IRegistrationVisitor<FactoryRegistration<TExtra>>
+    internal class FactoryRegistrationVisitor<TExtra> : IRegistrationVisitor<FactoryRegistration<TExtra>>
     {
         private CompositionContainer _container;
 

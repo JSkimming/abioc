@@ -14,7 +14,7 @@ namespace Abioc.Composition.Visitors
     /// <summary>
     /// A composition registration visitor for a <see cref="PropertyDependencyRegistration"/>.
     /// </summary>
-    public class PropertyDependencyRegistrationVisitor
+    internal class PropertyDependencyRegistrationVisitor
         : IRegistrationVisitor<PropertyDependencyRegistration>, IRegistrationVisitorEx
     {
         private CompositionContainer _container;

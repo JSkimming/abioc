@@ -12,7 +12,7 @@ namespace Abioc.Composition.Visitors
     /// <summary>
     /// A composition registration visitor for a <see cref="FactoryRegistration"/>.
     /// </summary>
-    public class FactoryRegistrationVisitor : IRegistrationVisitor<FactoryRegistration>
+    internal class FactoryRegistrationVisitor : IRegistrationVisitor<FactoryRegistration>
     {
         private CompositionContainer _container;
 

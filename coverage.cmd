@@ -28,7 +28,7 @@
 
 @SET results_path=%~dp0test\TestResults
 @SET test_assemblies=%~dp0test\Abioc.Tests\bin\%config%\Abioc.Tests.dll
-::@SET test_assemblies=%test_assemblies% <path to additional assembly>
+@SET test_assemblies=%test_assemblies% %~dp0test\Abioc.Tests.Internal\bin\%config%\Abioc.Tests.Internal.dll
 @SET xunit_results=%results_path%\Xunit.Tests.html
 @SET coverage_filter=+[abioc*]* -[*.Tests]*
 @SET coverage_results=%results_path%\Test.Coverage.xml
@@ -44,8 +44,8 @@
    EXIT /B 2
 )
 
-@echo "%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%" -reporttypes:XmlSummary
-@"%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%" -reporttypes:XmlSummary
+@echo "%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%" -reporttypes:HtmlSummary
+@"%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%" -reporttypes:HtmlSummary
 
-@echo "%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%\Report" -reporttypes:Html
-@"%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%\Report" -reporttypes:Html
+@echo "%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%\Report" -reporttypes:HtmlInline
+@"%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%\Report" -reporttypes:HtmlInline
