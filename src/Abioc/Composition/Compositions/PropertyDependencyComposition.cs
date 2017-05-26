@@ -145,7 +145,8 @@ namespace Abioc.Composition.Compositions
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            return Inner.RequiresConstructionContext(context);
+            return Inner.RequiresConstructionContext(context) ||
+                   GetPropertyExpressions(context).Any(p => p.expression.RequiresConstructionContext(context));
         }
 
         private IEnumerable<(string property, IParameterExpression expression)> GetPropertyExpressions(
