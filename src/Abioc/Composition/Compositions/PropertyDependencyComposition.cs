@@ -96,9 +96,9 @@ namespace Abioc.Composition.Compositions
             instanceExpression = CodeGen.Indent(instanceExpression);
 
             IEnumerable<string> propertyExpressions =
-                GetPropertyExpressions(context)
-                    .Select(
-                        pe => $"instance.{pe.property} = {pe.expression.GetInstanceExpression(context)};");
+                from pe in GetPropertyExpressions(context)
+                let ctx = context.Customize(recipientType: Type, serviceType: pe.expression.Type)
+                select $"instance.{pe.property} = {pe.expression.GetInstanceExpression(ctx)};";
 
             string propertySetters = NewLine + string.Join(NewLine, propertyExpressions);
             propertySetters = CodeGen.Indent(propertySetters);

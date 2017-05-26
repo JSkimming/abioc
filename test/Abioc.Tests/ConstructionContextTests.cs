@@ -56,6 +56,12 @@ namespace Abioc
             public ClassCreatedWithAContext ConcreteDependency { get; }
             public IClassCreatedWithAContext AbstractDependency { get; }
         }
+
+        public class PropertyDependentClass
+        {
+            public ClassCreatedWithAContext ConcreteDependency { get; set; }
+            public IClassCreatedWithAContext AbstractDependency { get; set; }
+        }
     }
 
     public abstract class FactoringClassWithAContextBase
@@ -225,6 +231,82 @@ namespace Abioc
                         typeof(ClassCreatedWithAContext),
                         ClassCreatedWithAContext.WeakCreate, compose => compose.Internal())
                     .Register<ConstructorDependentClass>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+    }
+
+    public abstract class FactoringClassWithAContextAsAPropertyDependencyBase
+    {
+        protected AbiocContainer<Guid> Container;
+
+        [Fact]
+        public void ItShouldSpecifyRecipientTypeAsTheDependentClassForTheConcreteDependency()
+        {
+            // Arrange
+            Guid data = Guid.NewGuid();
+
+            // Act
+            PropertyDependentClass actual = Container.GetService<PropertyDependentClass>(data);
+
+            // Assert
+            actual.Should().NotBeNull();
+            actual.ConcreteDependency.Should().NotBeNull();
+            actual.ConcreteDependency.Context.Extra.Should().Be(data);
+            actual.ConcreteDependency.Context.RecipientType.Should().Be(typeof(PropertyDependentClass));
+            actual.ConcreteDependency.Context.ImplementationType.Should().Be(typeof(ClassCreatedWithAContext));
+            actual.ConcreteDependency.Context.ServiceType.Should().Be(typeof(ClassCreatedWithAContext));
+        }
+
+        [Fact]
+        public void ItShouldSpecifyRecipientTypeAsTheDependentClassForTheAbstractDependency()
+        {
+            // Arrange
+            Guid data = Guid.NewGuid();
+
+            // Act
+            PropertyDependentClass actual = Container.GetService<PropertyDependentClass>(data);
+
+            // Assert
+            actual.Should().NotBeNull();
+            actual.AbstractDependency.Should().NotBeNull();
+            actual.AbstractDependency.Context.Extra.Should().Be(data);
+            actual.AbstractDependency.Context.RecipientType.Should().Be(typeof(PropertyDependentClass));
+            actual.AbstractDependency.Context.ImplementationType.Should().Be(typeof(ClassCreatedWithAContext));
+            actual.AbstractDependency.Context.ServiceType.Should().Be(typeof(ClassCreatedWithAContext));
+        }
+    }
+
+    public class WhenFactoringAStronglyTypedClassWithAContextAsAPropertyDependency
+        : FactoringClassWithAContextAsAPropertyDependencyBase
+    {
+        public WhenFactoringAStronglyTypedClassWithAContextAsAPropertyDependency(ITestOutputHelper output)
+        {
+            Container =
+                new RegistrationSetup<Guid>()
+                    .RegisterFactory<IClassCreatedWithAContext, ClassCreatedWithAContext>(
+                        ClassCreatedWithAContext.StrongCreate,
+                        compose => compose.Internal())
+                    .Register<PropertyDependentClass>(composer => composer.InjectAllProperties())
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+    }
+
+    public class WhenFactoringAWeaklyTypedClassWithAContextAsAPropertyDependency
+        : FactoringClassWithAContextAsAPropertyDependencyBase
+    {
+        public WhenFactoringAWeaklyTypedClassWithAContextAsAPropertyDependency(ITestOutputHelper output)
+        {
+            Container =
+                new RegistrationSetup<Guid>()
+                    .RegisterFactory(
+                        typeof(IClassCreatedWithAContext),
+                        typeof(ClassCreatedWithAContext),
+                        ClassCreatedWithAContext.WeakCreate, compose => compose.Internal())
+                    .Register<PropertyDependentClass>(composer => composer.InjectAllProperties())
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
             output.WriteLine(code);
