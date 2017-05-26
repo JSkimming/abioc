@@ -75,6 +75,7 @@
     <Compile Include="AbstractDependencies.cs" />
     <Compile Include="CommonInterfaceTests.cs" />
     <Compile Include="Compilation\CompilationErrorTests.cs" />
+    <Compile Include="ConstructionContextTests.cs" />
     <Compile Include="ConstructorErrorTests.cs" />
     <Compile Include="CreateObjectGraphTests.cs" />
     <Compile Include="EnumerableDependencyTests.cs" />
