@@ -29,6 +29,9 @@ namespace Abioc.Composition.Compositions
         public IComposition Composition { get; }
 
         /// <inheritdoc />
+        public Type Type => Composition.Type;
+
+        /// <inheritdoc />
         public string GetInstanceExpression(IGenerationContext context)
         {
             if (context == null)

@@ -38,6 +38,9 @@ namespace Abioc.Composition.Compositions
         public Type EnumerableType { get; }
 
         /// <inheritdoc />
+        public Type Type => EnumerableType;
+
+        /// <inheritdoc />
         public string GetInstanceExpression(IGenerationContext context)
         {
             if (context == null)

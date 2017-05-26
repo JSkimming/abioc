@@ -12,6 +12,11 @@ namespace Abioc.Composition.Compositions
     internal interface IParameterExpression
     {
         /// <summary>
+        /// Gets the type of the <see cref="IParameterExpression"/>.
+        /// </summary>
+        Type Type { get; }
+
+        /// <summary>
         /// Gets the code for the expression (e.g. method call or instance field) to retrieve an instance of the
         /// <see cref="Type"/>.
         /// </summary>
