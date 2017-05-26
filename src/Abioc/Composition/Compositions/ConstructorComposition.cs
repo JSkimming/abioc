@@ -69,7 +69,7 @@ namespace Abioc.Composition.Compositions
             IEnumerable<string> parameterExpressions =
                 from e in expressions
                 let ctx = context.Customize(recipientType: Type, serviceType: e.Type)
-                select e.GetInstanceExpression(context);
+                select e.GetInstanceExpression(ctx);
 
             // Join the parameters expressions.
             string parameters =

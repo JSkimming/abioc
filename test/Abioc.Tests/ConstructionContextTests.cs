@@ -40,6 +40,22 @@ namespace Abioc
                 return StrongCreate(context);
             }
         }
+
+        public class ConstructorDependentClass
+        {
+            public ConstructorDependentClass(
+                ClassCreatedWithAContext concreteDependency,
+                IClassCreatedWithAContext abstractDependency)
+            {
+                ConcreteDependency =
+                    concreteDependency ?? throw new ArgumentNullException(nameof(concreteDependency));
+                AbstractDependency =
+                    abstractDependency ?? throw new ArgumentNullException(nameof(abstractDependency));
+            }
+
+            public ClassCreatedWithAContext ConcreteDependency { get; }
+            public IClassCreatedWithAContext AbstractDependency { get; }
+        }
     }
 
     public abstract class FactoringClassWithAContextBase
@@ -133,6 +149,82 @@ namespace Abioc
                 new RegistrationSetup<Guid>()
                     .RegisterFactory(typeof(ClassCreatedWithAContext), ClassCreatedWithAContext.WeakCreate)
                     .Register<IClassCreatedWithAContext, ClassCreatedWithAContext>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+    }
+
+    public abstract class FactoringClassWithAContextAsAConstructorDependencyBase
+    {
+        protected AbiocContainer<Guid> Container;
+
+        [Fact]
+        public void ItShouldSpecifyRecipientTypeAsTheDependentClassForTheConcreteDependency()
+        {
+            // Arrange
+            Guid data = Guid.NewGuid();
+
+            // Act
+            ConstructorDependentClass actual = Container.GetService<ConstructorDependentClass>(data);
+
+            // Assert
+            actual.Should().NotBeNull();
+            actual.ConcreteDependency.Should().NotBeNull();
+            actual.ConcreteDependency.Context.Extra.Should().Be(data);
+            actual.ConcreteDependency.Context.RecipientType.Should().Be(typeof(ConstructorDependentClass));
+            actual.ConcreteDependency.Context.ImplementationType.Should().Be(typeof(ClassCreatedWithAContext));
+            actual.ConcreteDependency.Context.ServiceType.Should().Be(typeof(ClassCreatedWithAContext));
+        }
+
+        [Fact]
+        public void ItShouldSpecifyRecipientTypeAsTheDependentClassForTheAbstractDependency()
+        {
+            // Arrange
+            Guid data = Guid.NewGuid();
+
+            // Act
+            ConstructorDependentClass actual = Container.GetService<ConstructorDependentClass>(data);
+
+            // Assert
+            actual.Should().NotBeNull();
+            actual.AbstractDependency.Should().NotBeNull();
+            actual.AbstractDependency.Context.Extra.Should().Be(data);
+            actual.AbstractDependency.Context.RecipientType.Should().Be(typeof(ConstructorDependentClass));
+            actual.AbstractDependency.Context.ImplementationType.Should().Be(typeof(ClassCreatedWithAContext));
+            actual.AbstractDependency.Context.ServiceType.Should().Be(typeof(ClassCreatedWithAContext));
+        }
+    }
+
+    public class WhenFactoringAStronglyTypedClassWithAContextAsAConstructorDependency
+        : FactoringClassWithAContextAsAConstructorDependencyBase
+    {
+        public WhenFactoringAStronglyTypedClassWithAContextAsAConstructorDependency(ITestOutputHelper output)
+        {
+            Container =
+                new RegistrationSetup<Guid>()
+                    .RegisterFactory<IClassCreatedWithAContext, ClassCreatedWithAContext>(
+                        ClassCreatedWithAContext.StrongCreate,
+                        compose => compose.Internal())
+                    .Register<ConstructorDependentClass>()
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+    }
+
+    public class WhenFactoringAWeaklyTypedClassWithAContextAsAConstructorDependency
+        : FactoringClassWithAContextAsAConstructorDependencyBase
+    {
+        public WhenFactoringAWeaklyTypedClassWithAContextAsAConstructorDependency(ITestOutputHelper output)
+        {
+            Container =
+                new RegistrationSetup<Guid>()
+                    .RegisterFactory(
+                        typeof(IClassCreatedWithAContext),
+                        typeof(ClassCreatedWithAContext),
+                        ClassCreatedWithAContext.WeakCreate, compose => compose.Internal())
+                    .Register<ConstructorDependentClass>()
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
             output.WriteLine(code);
