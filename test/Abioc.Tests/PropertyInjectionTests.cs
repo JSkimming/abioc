@@ -531,4 +531,90 @@ namespace Abioc
                 .WithMessage(expectedMessage);
         }
     }
+
+    public abstract class InjectingAFactoryGeneratedPropertyBase
+    {
+        protected abstract TService GetService<TService>();
+
+        [Fact]
+        public void ItShouldCreateAClassWith3InjectedProperties()
+        {
+            // Act
+            ConcreteClassWith3InjectedProperties actual = GetService<ConcreteClassWith3InjectedProperties>();
+
+            // Assert
+            actual
+                .Should()
+                .NotBeNull();
+            actual.Dependency1
+                .Should()
+                .NotBeNull()
+                .And.BeOfType<ConcreteDependency1>();
+            actual.Dependency2
+                .Should()
+                .NotBeNull()
+                .And.BeOfType<ConcreteDependency2>();
+            actual.Dependency3
+                .Should()
+                .NotBeNull()
+                .And.BeOfType<ConcreteDependency3>();
+        }
+    }
+
+    public class WhenInjectingAFactoryGeneratedPropertyWithAContext : InjectingAFactoryGeneratedPropertyBase
+    {
+        private readonly AbiocContainer<int> _container;
+
+        public WhenInjectingAFactoryGeneratedPropertyWithAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup<int>()
+                    // Dependencies
+                    .RegisterFactory<IInterfaceDependency1>(
+                        c => new ConcreteDependency1(),
+                        compose => compose.Internal())
+                    .RegisterFactory(typeof(IInterfaceDependency2),
+                        c => new ConcreteDependency2(),
+                        compose => compose.Internal())
+                    .RegisterFactory<IInterfaceDependency3, ConcreteDependency3>(
+                        c => new ConcreteDependency3(),
+                        compose => compose.Internal())
+                    // Concrete classes
+                    .Register<ConcreteClassWith3InjectedProperties>(composer => composer.InjectAllProperties())
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>(1);
+    }
+
+    public class WhenInjectingAFactoryGeneratedPropertyWithoutAContext : InjectingAFactoryGeneratedPropertyBase
+    {
+        private readonly AbiocContainer _container;
+
+        public WhenInjectingAFactoryGeneratedPropertyWithoutAContext(ITestOutputHelper output)
+        {
+            _container =
+                new RegistrationSetup()
+                    // Dependencies
+                    .RegisterFactory<IInterfaceDependency1>(
+                        () => new ConcreteDependency1(),
+                        compose => compose.Internal())
+                    .RegisterFactory(
+                        typeof(IInterfaceDependency2),
+                        () => new ConcreteDependency2(),
+                        compose => compose.Internal())
+                    .RegisterFactory<IInterfaceDependency3, ConcreteDependency3>(
+                        () => new ConcreteDependency3(),
+                        compose => compose.Internal())
+                    // Concrete classes
+                    .Register<ConcreteClassWith3InjectedProperties>(composer => composer.InjectAllProperties())
+                    .Construct(GetType().GetTypeInfo().Assembly, out string code);
+
+            output.WriteLine(code);
+        }
+
+        protected override TService GetService<TService>() => _container.GetService<TService>();
+    }
 }
