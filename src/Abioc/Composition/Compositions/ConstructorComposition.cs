@@ -65,9 +65,11 @@ namespace Abioc.Composition.Compositions
                 throw new ArgumentNullException(nameof(context));
 
             // Get the expressions for the all the constructor parameters.
-            IEnumerable<IParameterExpression> compositions = GetParameterExpressions(context);
+            IEnumerable<IParameterExpression> expressions = GetParameterExpressions(context);
             IEnumerable<string> parameterExpressions =
-                compositions.Select(c => c.GetInstanceExpression(context));
+                from e in expressions
+                let ctx = context.Customize(recipientType: Type, serviceType: e.Type)
+                select e.GetInstanceExpression(context);
 
             // Join the parameters expressions.
             string parameters =

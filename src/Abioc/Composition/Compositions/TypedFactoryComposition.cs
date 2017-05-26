@@ -68,9 +68,12 @@ namespace Abioc.Composition.Compositions
 
             string factoryFieldName = GetFactoryFieldName();
 
+            IEnumerable<string> expressions = context.GetUpdateParameterExpressions(implementationType: Type);
+            string updateParameters = string.Join(", ", expressions);
+
             string instanceExpression =
                 RequiresConstructionContext()
-                    ? factoryFieldName + "(context)"
+                    ? factoryFieldName + $"(context.Update({updateParameters}))"
                     : factoryFieldName + "()";
 
             return instanceExpression;
