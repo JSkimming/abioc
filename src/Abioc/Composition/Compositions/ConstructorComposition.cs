@@ -59,15 +59,17 @@ namespace Abioc.Composition.Compositions
         public bool IsDefault { get; }
 
         /// <inheritdoc/>
-        public override string GetInstanceExpression(GenerationContext context)
+        public override string GetInstanceExpression(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
             // Get the expressions for the all the constructor parameters.
-            IEnumerable<IParameterExpression> compositions = GetParameterExpressions(context);
+            IEnumerable<IParameterExpression> expressions = GetParameterExpressions(context);
             IEnumerable<string> parameterExpressions =
-                compositions.Select(c => c.GetInstanceExpression(context));
+                from e in expressions
+                let ctx = context.Customize(recipientType: Type, serviceType: e.Type)
+                select e.GetInstanceExpression(ctx);
 
             // Join the parameters expressions.
             string parameters =
@@ -83,7 +85,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override string GetComposeMethodName(GenerationContext context)
+        public override string GetComposeMethodName(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -93,7 +95,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> GetMethods(GenerationContext context)
+        public override IEnumerable<string> GetMethods(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -114,12 +116,12 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc/>
-        public override bool RequiresConstructionContext(GenerationContext context)
+        public override bool RequiresConstructionContext(IGenerationContext context)
         {
             return GetParameterExpressions(context).Any(c => c.RequiresConstructionContext(context));
         }
 
-        private IEnumerable<IParameterExpression> GetParameterExpressions(GenerationContext context)
+        private IEnumerable<IParameterExpression> GetParameterExpressions(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));

@@ -38,7 +38,7 @@ namespace Abioc.Composition.Compositions
         public Type Type => Inner.Type;
 
         /// <inheritdoc />
-        public string GetInstanceExpression(GenerationContext context)
+        public string GetInstanceExpression(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -49,7 +49,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public string GetComposeMethodName(GenerationContext context)
+        public string GetComposeMethodName(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -59,7 +59,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetMethods(GenerationContext context)
+        public IEnumerable<string> GetMethods(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -82,7 +82,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetFields(GenerationContext context)
+        public IEnumerable<string> GetFields(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -98,7 +98,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context)
+        public IEnumerable<(string snippet, object value)> GetFieldInitializations(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -107,7 +107,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetAdditionalInitializations(GenerationContext context)
+        public IEnumerable<string> GetAdditionalInitializations(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -139,7 +139,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public bool RequiresConstructionContext(GenerationContext context)
+        public bool RequiresConstructionContext(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));

@@ -30,7 +30,7 @@
 @SET test_assemblies=%~dp0test\Abioc.Tests\bin\%config%\Abioc.Tests.dll
 @SET test_assemblies=%test_assemblies% %~dp0test\Abioc.Tests.Internal\bin\%config%\Abioc.Tests.Internal.dll
 @SET xunit_results=%results_path%\Xunit.Tests.html
-@SET coverage_filter=+[abioc*]* -[*.Tests]*
+@SET coverage_filter=+[abioc*]* -[*.Tests]* -[Abioc.Tests.Internal]*
 @SET coverage_results=%results_path%\Test.Coverage.xml
 
 @IF NOT EXIST "%results_path%" MD "%results_path%"

@@ -17,13 +17,13 @@ namespace Abioc.Composition.Compositions
         public abstract Type Type { get; }
 
         /// <inheritdoc />
-        public abstract string GetInstanceExpression(GenerationContext context);
+        public abstract string GetInstanceExpression(IGenerationContext context);
 
         /// <inheritdoc />
-        public abstract string GetComposeMethodName(GenerationContext context);
+        public abstract string GetComposeMethodName(IGenerationContext context);
 
         /// <inheritdoc />
-        public virtual IEnumerable<string> GetMethods(GenerationContext context)
+        public virtual IEnumerable<string> GetMethods(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -32,7 +32,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<(string snippet, object value)> GetFieldInitializations(GenerationContext context)
+        public virtual IEnumerable<(string snippet, object value)> GetFieldInitializations(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -41,7 +41,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> GetAdditionalInitializations(GenerationContext context)
+        public IEnumerable<string> GetAdditionalInitializations(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -50,7 +50,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<string> GetFields(GenerationContext context)
+        public virtual IEnumerable<string> GetFields(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -59,6 +59,6 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public abstract bool RequiresConstructionContext(GenerationContext context);
+        public abstract bool RequiresConstructionContext(IGenerationContext context);
     }
 }

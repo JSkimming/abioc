@@ -12,7 +12,7 @@ namespace Abioc.Generation
     /// <summary>
     /// The context for generated code snippets.
     /// </summary>
-    public class GenerationContext
+    internal abstract class GenerationContext : IGenerationContext
     {
         private readonly List<(string name, Type type, bool requiresContext)> _composeMethodsNames =
             new List<(string, Type, bool)>(32);
@@ -35,7 +35,7 @@ namespace Abioc.Generation
         /// </param>
         /// <param name="extraDataType">The type of the <see cref="ConstructionContext{T}.Extra"/> data.</param>
         /// <param name="constructionContext">The type of the <see cref="ConstructionContext{T}"/>.</param>
-        public GenerationContext(
+        protected GenerationContext(
             IReadOnlyDictionary<Type, IReadOnlyList<IRegistration>> registrations,
             IReadOnlyDictionary<Type, IComposition> compositions,
             bool usingSimpleNames,
@@ -117,6 +117,12 @@ namespace Abioc.Generation
         /// be unique, and if not, complex names will be generated.
         /// </summary>
         public bool UsingSimpleNames { get; }
+
+        /// <inheritdoc/>
+        public abstract ConstructionContextDefinition ConstructionContextDefinition { get; }
+
+        /// <inheritdoc/>
+        public abstract IGenerationContext Customize(ConstructionContextDefinition constructionContextDefinition);
 
         /// <summary>
         /// Adds a <paramref name="name"/> to the <see cref="ComposeMethodsNames"/> collection.

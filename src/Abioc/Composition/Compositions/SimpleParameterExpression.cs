@@ -29,7 +29,10 @@ namespace Abioc.Composition.Compositions
         public IComposition Composition { get; }
 
         /// <inheritdoc />
-        public string GetInstanceExpression(GenerationContext context)
+        public Type Type => Composition.Type;
+
+        /// <inheritdoc />
+        public string GetInstanceExpression(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -38,7 +41,7 @@ namespace Abioc.Composition.Compositions
         }
 
         /// <inheritdoc />
-        public bool RequiresConstructionContext(GenerationContext context)
+        public bool RequiresConstructionContext(IGenerationContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
