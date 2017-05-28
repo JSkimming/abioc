@@ -75,12 +75,14 @@
     <Compile Include="AbstractDependencies.cs" />
     <Compile Include="CommonInterfaceTests.cs" />
     <Compile Include="Compilation\CompilationErrorTests.cs" />
+    <Compile Include="ConstructionContextExtensionsTests.cs" />
     <Compile Include="ConstructionContextTests.cs" />
     <Compile Include="ConstructorErrorTests.cs" />
     <Compile Include="CreateObjectGraphTests.cs" />
     <Compile Include="EnumerableDependencyTests.cs" />
     <Compile Include="ExampleServices.cs" />
     <Compile Include="FactoryServicesTests.cs" />
+    <Compile Include="GenerationContextExtensionsTests.cs" />
     <Compile Include="InjectedSingletonTests.cs" />
     <Compile Include="MissingConstructorDependencyTests.cs" />
     <Compile Include="MissingRegistrationVisitorTests.cs" />
