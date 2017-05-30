@@ -44,6 +44,11 @@ namespace Abioc
         public readonly Type RecipientType;
 
         /// <summary>
+        /// Gets the abioc <see cref="IContainer{TExtra}"/> used for this construction request.
+        /// </summary>
+        public readonly IContainer<TExtra> Container;
+
+        /// <summary>
         /// Gets the <see cref="Extra"/> construction context information to be propitiated through all construction.
         /// </summary>
         public readonly TExtra Extra;
@@ -54,11 +59,13 @@ namespace Abioc
         /// <param name="implementationType">The <see cref="ImplementationType"/>.</param>
         /// <param name="serviceType">The <see cref="ServiceType"/>.</param>
         /// <param name="recipientType">The <see cref="RecipientType"/>.</param>
+        /// <param name="container">The abioc <see cref="Container"/> used for this construction request.</param>
         /// <param name="extra">The <see cref="Extra"/> construction context information.</param>
         public ConstructionContext(
             Type implementationType,
             Type serviceType,
             Type recipientType,
+            IContainer<TExtra> container = null,
             TExtra extra = default(TExtra))
         {
             if (implementationType == null)
@@ -71,6 +78,7 @@ namespace Abioc
             ImplementationType = implementationType;
             ServiceType = serviceType;
             RecipientType = recipientType;
+            Container = container;
             Extra = extra;
         }
     }

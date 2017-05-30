@@ -58,7 +58,7 @@ namespace Abioc
 
     public class WhenCreatingAnObjectGraphOfClassesWithAContext : WhenCreatingAnObjectGraphOfClassesBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenCreatingAnObjectGraphOfClassesWithAContext(ITestOutputHelper output)
         {
@@ -79,7 +79,7 @@ namespace Abioc
 
     public class WhenCreatingAnObjectGraphOfClassesWithoutAContext : WhenCreatingAnObjectGraphOfClassesBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenCreatingAnObjectGraphOfClassesWithoutAContext(ITestOutputHelper output)
         {

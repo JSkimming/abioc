@@ -35,7 +35,7 @@ namespace Abioc
 
     public class WhenAMappingFrom2InterfacesToAnImplementationIsRegisteredAsWellAsAFactory
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenAMappingFrom2InterfacesToAnImplementationIsRegisteredAsWellAsAFactory(ITestOutputHelper output)
         {
@@ -106,7 +106,7 @@ namespace Abioc
 
     public class WhenAMappingFromAnInterfaceToAnImplementationIsRegisteredAsWellAsASingleton
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenAMappingFromAnInterfaceToAnImplementationIsRegisteredAsWellAsASingleton(ITestOutputHelper output)
         {
@@ -175,7 +175,7 @@ namespace Abioc
 
     public class WhenAMappingFromAnInterfaceToAnImplementationIsRegisteredAsWellAsAnInjectedSingleton
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenAMappingFromAnInterfaceToAnImplementationIsRegisteredAsWellAsAnInjectedSingleton(
             ITestOutputHelper output)

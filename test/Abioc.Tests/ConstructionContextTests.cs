@@ -66,7 +66,7 @@ namespace Abioc
 
     public abstract class FactoringClassWithAContextBase
     {
-        protected AbiocContainer<Guid> Container;
+        protected IContainer<Guid> Container;
 
         [Fact]
         public void ItShouldSpecifyTheImplementationTypeAsTheConcreteClassIfRequestingTheConcreteClass()
@@ -163,7 +163,7 @@ namespace Abioc
 
     public abstract class FactoringClassWithAContextAsAConstructorDependencyBase
     {
-        protected AbiocContainer<Guid> Container;
+        protected IContainer<Guid> Container;
 
         [Fact]
         public void ItShouldSpecifyRecipientTypeAsTheDependentClassForTheConcreteDependency()
@@ -239,7 +239,7 @@ namespace Abioc
 
     public abstract class FactoringClassWithAContextAsAPropertyDependencyBase
     {
-        protected AbiocContainer<Guid> Container;
+        protected IContainer<Guid> Container;
 
         [Fact]
         public void ItShouldSpecifyRecipientTypeAsTheDependentClassForTheConcreteDependency()

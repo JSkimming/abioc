@@ -229,7 +229,7 @@ namespace Abioc.Generation
                 : string.Empty;
 
             string contextVariable = context.HasConstructionContext
-                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(extraData);"
+                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(this, extraData);"
                 : string.Empty;
 
             var builder = new StringBuilder(1024);
@@ -265,6 +265,23 @@ namespace Abioc.Generation
 
             builder.AppendFormat("{0}    }}{0}{0}    return null;{0}}}", NewLine);
 
+            // Add the genetic GetService method.
+            if (context.HasConstructionContext)
+            {
+                builder.AppendFormat(
+                    "{0}{0}public TService GetService<TService>({0}    {1} extraData){0}{{{0}    " +
+                    "return (TService)GetService(typeof(TService), extraData);{0}}}",
+                    NewLine,
+                    context.ExtraDataType);
+            }
+            else
+            {
+                builder.AppendFormat(
+                    "{0}{0}public TService GetService<TService>(){0}{{{0}    " +
+                    "return (TService)GetService(typeof(TService));{0}}}",
+                    NewLine);
+            }
+
             return builder.ToString();
         }
 
@@ -278,7 +295,7 @@ namespace Abioc.Generation
                 : string.Empty;
 
             string contextVariable = context.HasConstructionContext
-                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(extraData);"
+                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(this, extraData);"
                 : string.Empty;
 
             var builder = new StringBuilder(1024);
@@ -322,6 +339,23 @@ namespace Abioc.Generation
             }
 
             builder.AppendFormat("{0}    }}{0}}}", NewLine);
+
+            // Add the genetic GetServices method.
+            if (context.HasConstructionContext)
+            {
+                builder.AppendFormat(
+                    "{0}{0}public System.Collections.Generic.IEnumerable<TService> GetServices<TService>({0}    {1}" +
+                    " extraData){0}{{{0}    return GetServices(typeof(TService), extraData).Cast<TService>();{0}}}",
+                    NewLine,
+                    context.ExtraDataType);
+            }
+            else
+            {
+                builder.AppendFormat(
+                    "{0}{0}public System.Collections.Generic.IEnumerable<TService> GetServices<TService>(){0}{{{0}    " +
+                    "return GetServices(typeof(TService)).Cast<TService>();{0}}}",
+                    NewLine);
+            }
 
             return builder.ToString();
         }

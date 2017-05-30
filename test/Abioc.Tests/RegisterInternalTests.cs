@@ -207,7 +207,7 @@ namespace Abioc
 
     public class WhenRegisteringInternalDependenciesWithAContext : RegisterInternalTestsBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenRegisteringInternalDependenciesWithAContext(ITestOutputHelper output)
         {
@@ -234,7 +234,7 @@ namespace Abioc
 
     public class WhenRegisteringInternalDependenciesWithoutAContext : RegisterInternalTestsBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenRegisteringInternalDependenciesWithoutAContext(ITestOutputHelper output)
         {

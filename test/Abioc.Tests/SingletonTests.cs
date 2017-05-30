@@ -147,7 +147,7 @@ namespace Abioc
 
     public class WhenRegisteringSingletonDependenciesWithAContext : SingletonTestsBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenRegisteringSingletonDependenciesWithAContext(ITestOutputHelper output)
         {
@@ -169,7 +169,7 @@ namespace Abioc
 
     public class WhenRegisteringSingletonDependenciesWithoutAContext : SingletonTestsBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenRegisteringSingletonDependenciesWithoutAContext(ITestOutputHelper output)
         {

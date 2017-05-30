@@ -104,7 +104,7 @@ namespace Abioc
     public class WhenFactoringClassesWithInvalidConstructorsWithAContext
         : WhenFactoringClassesWithInvalidConstructorsBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenFactoringClassesWithInvalidConstructorsWithAContext(ITestOutputHelper output)
         {
@@ -126,7 +126,7 @@ namespace Abioc
     public class WhenFactoringClassesWithInvalidConstructorsWithoutAContext
         : WhenFactoringClassesWithInvalidConstructorsBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenFactoringClassesWithInvalidConstructorsWithoutAContext(ITestOutputHelper output)
         {
@@ -175,7 +175,7 @@ namespace Abioc
     public class WhenCreatingClassesWithASinglePublicConstructorWithAContext
         : WhenCreatingClassesWithASinglePublicConstructorBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenCreatingClassesWithASinglePublicConstructorWithAContext(ITestOutputHelper output)
         {
@@ -195,7 +195,7 @@ namespace Abioc
     public class WhenCreatingClassesWithASinglePublicConstructorWithoutAContext
         : WhenCreatingClassesWithASinglePublicConstructorBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenCreatingClassesWithASinglePublicConstructorWithoutAContext(ITestOutputHelper output)
         {

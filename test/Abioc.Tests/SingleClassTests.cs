@@ -73,7 +73,7 @@ namespace Abioc
     public class WhenCreatingASimpleClassWithoutDependenciesWithAContext
         : WhenCreatingASimpleClassWithoutDependenciesBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenCreatingASimpleClassWithoutDependenciesWithAContext()
         {
@@ -91,7 +91,7 @@ namespace Abioc
     public class WhenCreatingASimpleClassWithoutDependenciesWithoutAContext
         : WhenCreatingASimpleClassWithoutDependenciesBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenCreatingASimpleClassWithoutDependenciesWithoutAContext()
         {
@@ -171,7 +171,7 @@ namespace Abioc
     public class WhenFactoringASimpleClassWithoutDependenciesWithAContext
         : WhenFactoringASimpleClassWithoutDependenciesBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenFactoringASimpleClassWithoutDependenciesWithAContext(ITestOutputHelper output)
         {
@@ -194,7 +194,7 @@ namespace Abioc
     public class WhenFactoringASimpleClassWithoutDependenciesWithoutAContext
         : WhenFactoringASimpleClassWithoutDependenciesBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenFactoringASimpleClassWithoutDependenciesWithoutAContext(ITestOutputHelper output)
         {
