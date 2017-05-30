@@ -87,6 +87,7 @@
     <Compile Include="CreateObjectGraphTests.cs" />
     <Compile Include="EnumerableDependencyTests.cs" />
     <Compile Include="ExampleServices.cs" />
+    <Compile Include="FactoriesUsingTheContainerTests.cs" />
     <Compile Include="FactoryServicesTests.cs" />
     <Compile Include="GenerationContextExtensionsTests.cs" />
     <Compile Include="InjectedSingletonTests.cs" />

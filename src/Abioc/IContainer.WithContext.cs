@@ -23,11 +23,27 @@ namespace Abioc
         object GetService(Type serviceType, TExtra extraData);
 
         /// <summary>
-        /// Gets any services of the <paramref name="serviceType"/>.
+        /// Gets the service of type <typeparamref name="TService"/>.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to get.</typeparam>
+        /// <param name="extraData">The custom extra data used during construction.</param>
+        /// <returns>The service of type <typeparamref name="TService"/>.</returns>
+        TService GetService<TService>(TExtra extraData);
+
+        /// <summary>
+        /// Gets any services of the type <paramref name="serviceType"/>.
         /// </summary>
         /// <param name="serviceType">The type of the services to get.</param>
         /// <param name="extraData">The custom extra data used during construction.</param>
         /// <returns>Any services of the <paramref name="serviceType"/>.</returns>
         IEnumerable<object> GetServices(Type serviceType, TExtra extraData);
+
+        /// <summary>
+        /// Gets any services of the type <typeparamref name="TService"/>.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to get.</typeparam>
+        /// <param name="extraData">The custom extra data used during construction.</param>
+        /// <returns>Any services of the type .</returns>
+        IEnumerable<TService> GetServices<TService>(TExtra extraData);
     }
 }
