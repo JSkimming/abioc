@@ -51,7 +51,7 @@ namespace Abioc
     public class WhenRegisteringTwoClassThatImplementTheSameInterfaceWithAContext
         : WhenRegisteringTwoClassThatImplementTheSameInterfaceBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenRegisteringTwoClassThatImplementTheSameInterfaceWithAContext(ITestOutputHelper output)
         {
@@ -72,7 +72,7 @@ namespace Abioc
     public class WhenRegisteringTwoClassThatImplementTheSameInterfaceWithoutAContext
         : WhenRegisteringTwoClassThatImplementTheSameInterfaceBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenRegisteringTwoClassThatImplementTheSameInterfaceWithoutAContext(ITestOutputHelper output)
         {
@@ -133,7 +133,7 @@ namespace Abioc
     public class WhenFactoringTwoClassThatImplementTheSameInterfaceWithAContext
         : WhenFactoringTwoClassThatImplementTheSameInterfaceBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenFactoringTwoClassThatImplementTheSameInterfaceWithAContext(ITestOutputHelper output)
         {
@@ -157,7 +157,7 @@ namespace Abioc
     public class WhenFactoringTwoClassThatImplementTheSameInterfaceWithoutAContext
         : WhenFactoringTwoClassThatImplementTheSameInterfaceBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenFactoringTwoClassThatImplementTheSameInterfaceWithoutAContext(ITestOutputHelper output)
         {

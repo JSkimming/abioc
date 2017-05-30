@@ -26,7 +26,7 @@ namespace Abioc
 
     public class WhenRegisteringAFactoryAfterAnInterfaceMapping
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         private readonly PrecedenceClass1 _expetcedClass1;
 
@@ -66,7 +66,7 @@ namespace Abioc
 
     public class WhenRegisteringAnInterfaceMappingAfterAFactory
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         private readonly PrecedenceClass1 _expetcedClass1;
 

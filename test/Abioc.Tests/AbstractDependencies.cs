@@ -149,7 +149,7 @@ namespace Abioc
 
     public class WhenRegisteringAbstractDependenciesWithAContext : WhenRegisteringAbstractDependenciesBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenRegisteringAbstractDependenciesWithAContext(ITestOutputHelper output)
         {
@@ -170,7 +170,7 @@ namespace Abioc
 
     public class WhenRegisteringAbstractDependenciesWithoutAContext : WhenRegisteringAbstractDependenciesBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenRegisteringAbstractDependenciesWithoutAContext(ITestOutputHelper output)
         {
@@ -255,7 +255,7 @@ namespace Abioc
     public class WhenRegisteringAClassThatImplementsMultipleAbstractionsWithAContext
         : WhenRegisteringAClassThatImplementsMultipleAbstractionsBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenRegisteringAClassThatImplementsMultipleAbstractionsWithAContext(ITestOutputHelper output)
         {
@@ -279,7 +279,7 @@ namespace Abioc
     public class WhenRegisteringAClassThatImplementsMultipleAbstractionsWithoutAContext
         : WhenRegisteringAClassThatImplementsMultipleAbstractionsBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenRegisteringAClassThatImplementsMultipleAbstractionsWithoutAContext(ITestOutputHelper output)
         {

@@ -268,7 +268,7 @@ namespace Abioc
     public class WhenRegisteringClassesWithInjectedPropertiesWithAContext
         : WhenRegisteringClassesWithInjectedPropertiesBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenRegisteringClassesWithInjectedPropertiesWithAContext(ITestOutputHelper output)
         {
@@ -306,7 +306,7 @@ namespace Abioc
     public class WhenRegisteringClassesWithInjectedPropertiesWithoutAContext
         : WhenRegisteringClassesWithInjectedPropertiesBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenRegisteringClassesWithInjectedPropertiesWithoutAContext(ITestOutputHelper output)
         {
@@ -468,7 +468,7 @@ namespace Abioc
 
     public class WhenRegisteringClassWithAnEnumerablePropertyDependency
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenRegisteringClassWithAnEnumerablePropertyDependency(ITestOutputHelper output)
         {
@@ -563,7 +563,7 @@ namespace Abioc
 
     public class WhenInjectingAFactoryGeneratedPropertyWithAContext : InjectingAFactoryGeneratedPropertyBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenInjectingAFactoryGeneratedPropertyWithAContext(ITestOutputHelper output)
         {
@@ -591,7 +591,7 @@ namespace Abioc
 
     public class WhenInjectingAFactoryGeneratedPropertyWithoutAContext : InjectingAFactoryGeneratedPropertyBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenInjectingAFactoryGeneratedPropertyWithoutAContext(ITestOutputHelper output)
         {

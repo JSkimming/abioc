@@ -130,7 +130,7 @@ namespace Abioc
 
     public class WhenRegisteringAClassWithEnumerableDependenciesWithAContext : EnumerableDependencyTestsBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenRegisteringAClassWithEnumerableDependenciesWithAContext(ITestOutputHelper output)
         {
@@ -151,7 +151,7 @@ namespace Abioc
 
     public class WhenRegisteringAClassWithEnumerableDependenciesWithourAContext : EnumerableDependencyTestsBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenRegisteringAClassWithEnumerableDependenciesWithourAContext(ITestOutputHelper output)
         {

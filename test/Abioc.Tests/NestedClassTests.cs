@@ -64,7 +64,7 @@ namespace Abioc
 
     public class WhenCreatingNestedClassesWithAContext : WhenCreatingNestedClassesBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenCreatingNestedClassesWithAContext(ITestOutputHelper output)
         {
@@ -83,7 +83,7 @@ namespace Abioc
 
     public class WhenCreatingNestedClassesWithoutAContext : WhenCreatingNestedClassesBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenCreatingNestedClassesWithoutAContext(ITestOutputHelper output)
         {
@@ -121,7 +121,7 @@ namespace Abioc
 
     public class WhenFactoringNestedClassesWithAContext : WhenFactoringNestedClassesBase
     {
-        private readonly AbiocContainer<int> _container;
+        private readonly IContainer<int> _container;
 
         public WhenFactoringNestedClassesWithAContext(ITestOutputHelper output)
         {
@@ -142,7 +142,7 @@ namespace Abioc
 
     public class WhenFactoringNestedClassesWithoutAContext : WhenFactoringNestedClassesBase
     {
-        private readonly AbiocContainer _container;
+        private readonly IContainer _container;
 
         public WhenFactoringNestedClassesWithoutAContext(ITestOutputHelper output)
         {
