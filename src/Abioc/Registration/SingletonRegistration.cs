@@ -13,7 +13,7 @@ namespace Abioc.Registration
     /// <see cref="IRegistration.ImplementationType"/> through a factory function.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class SingletonRegistration : RegistrationBase
+    internal class SingletonRegistration : RegistrationBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SingletonRegistration"/> class.

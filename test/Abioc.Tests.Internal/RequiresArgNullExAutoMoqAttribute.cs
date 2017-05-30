@@ -8,6 +8,7 @@ namespace Abioc
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Abioc.Composition.Compositions;
     using Abioc.Generation;
     using AutoTest.ArgNullEx;
     using AutoTest.ArgNullEx.Xunit;
@@ -39,11 +40,31 @@ namespace Abioc
 
             fixture.Register<LambdaExpression>(fixture.Create<Expression<Action>>);
             fixture.Register<GenerationContext>(fixture.Create<GenerationContextWrapper>);
+            fixture.Register<CompositionBase>(fixture.Create<TestComposition>);
 
             var argNullFixture = new ArgumentNullExceptionFixture(assemblyUnderTest, fixture);
 
             return argNullFixture;
         }
-    }
 
+        private class TestComposition : CompositionBase
+        {
+            public override Type Type { get; }
+
+            public override string GetInstanceExpression(IGenerationContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override string GetComposeMethodName(IGenerationContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool RequiresConstructionContext(IGenerationContext context)
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
 }

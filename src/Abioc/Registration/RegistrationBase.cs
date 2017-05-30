@@ -10,7 +10,7 @@ namespace Abioc.Registration
     /// <summary>
     /// A base class that provides a default implementation of a <see cref="IRegistration"/>.
     /// </summary>
-    public abstract class RegistrationBase : IRegistration
+    internal abstract class RegistrationBase : IRegistration
     {
         /// <inheritdoc />
         public abstract Type ImplementationType { get; }

@@ -12,7 +12,7 @@ namespace Abioc.Composition.Compositions
     /// <summary>
     /// A composition to produce code for property dependency injection.
     /// </summary>
-    public class PropertyDependencyComposition : IComposition
+    internal class PropertyDependencyComposition : IComposition
     {
         private static readonly string NewLine = Environment.NewLine;
 

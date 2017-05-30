@@ -13,7 +13,7 @@ namespace Abioc.Composition.Compositions
     /// A composition to produce code for a injected value.
     /// </summary>
     /// <typeparam name="TImplementation">The type of the injected <see cref="Value"/>.</typeparam>
-    public class InjectedSingletonComposition<TImplementation> : CompositionBase
+    internal class InjectedSingletonComposition<TImplementation> : CompositionBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="InjectedSingletonComposition{TImplementation}"/> class.

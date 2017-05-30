@@ -12,7 +12,7 @@ namespace Abioc.Composition.Compositions
     /// <summary>
     /// A composition to produce code to create a class via a constructor.
     /// </summary>
-    public class ConstructorComposition : CompositionBase
+    internal class ConstructorComposition : CompositionBase
     {
         private readonly List<IParameterExpression> _parameterExpressions;
 
