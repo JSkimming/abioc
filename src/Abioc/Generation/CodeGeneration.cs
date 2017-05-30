@@ -229,7 +229,7 @@ namespace Abioc.Generation
                 : string.Empty;
 
             string contextVariable = context.HasConstructionContext
-                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(extraData);"
+                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(this, extraData);"
                 : string.Empty;
 
             var builder = new StringBuilder(1024);
@@ -278,7 +278,7 @@ namespace Abioc.Generation
                 : string.Empty;
 
             string contextVariable = context.HasConstructionContext
-                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(extraData);"
+                ? $"{NewLine}    var context = {context.ConstructionContext}.Default.Initialize(this, extraData);"
                 : string.Empty;
 
             var builder = new StringBuilder(1024);

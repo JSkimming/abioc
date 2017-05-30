@@ -19,18 +19,26 @@ namespace Abioc
         /// The type of the <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </typeparam>
         /// <param name="context">The source <see cref="ConstructionContext{TExtra}"/>.</param>
+        /// <param name="container">
+        /// The abioc <see cref="IContainer{TExtra}"/> used for this construction request.
+        /// </param>
         /// <param name="extra">
         /// The <see cref="ConstructionContext{TExtra}.Extra"/> construction context information.
         /// </param>
         /// <returns>An updated <see cref="ConstructionContext{TExtra}"/>.</returns>
         public static ConstructionContext<TExtra> Initialize<TExtra>(
             this ConstructionContext<TExtra> context,
+            IContainer<TExtra> container,
             TExtra extra)
         {
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
+
             return new ConstructionContext<TExtra>(
                 context.ImplementationType,
                 context.ServiceType,
                 context.RecipientType,
+                container,
                 extra);
         }
 
@@ -55,7 +63,12 @@ namespace Abioc
             serviceType = serviceType ?? context.ServiceType;
             recipientType = recipientType ?? context.RecipientType;
 
-            return new ConstructionContext<TExtra>(implementationType, serviceType, recipientType, context.Extra);
+            return new ConstructionContext<TExtra>(
+                implementationType,
+                serviceType,
+                recipientType,
+                context.Container,
+                context.Extra);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace Abioc
     using System.Collections.Generic;
     using System.Linq;
     using FluentAssertions;
+    using Moq;
     using Xunit;
 
     public class WhenUpdatingAConstructionContext
@@ -16,7 +17,8 @@ namespace Abioc
         public WhenUpdatingAConstructionContext()
         {
             string extra = Guid.NewGuid().ToString("D").ToUpperInvariant();
-            _initialValue = ConstructionContext<string>.Default.Initialize(extra);
+            IContainer<string> container = new Mock<IContainer<string>>().Object;
+            _initialValue = ConstructionContext<string>.Default.Initialize(container, extra);
         }
 
         [Fact]
@@ -29,6 +31,7 @@ namespace Abioc
             context.ImplementationType.Should().Be(GetType());
             context.ServiceType.Should().Be(typeof(void));
             context.RecipientType.Should().Be(typeof(void));
+            context.Container.Should().Be(_initialValue.Container);
             context.Extra.Should().Be(_initialValue.Extra);
         }
 
@@ -42,6 +45,7 @@ namespace Abioc
             context.ImplementationType.Should().Be(typeof(void));
             context.ServiceType.Should().Be(GetType());
             context.RecipientType.Should().Be(typeof(void));
+            context.Container.Should().Be(_initialValue.Container);
             context.Extra.Should().Be(_initialValue.Extra);
         }
 
@@ -55,6 +59,7 @@ namespace Abioc
             context.ImplementationType.Should().Be(typeof(void));
             context.ServiceType.Should().Be(typeof(void));
             context.RecipientType.Should().Be(GetType());
+            context.Container.Should().Be(_initialValue.Container);
             context.Extra.Should().Be(_initialValue.Extra);
         }
     }
