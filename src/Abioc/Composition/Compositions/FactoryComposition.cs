@@ -11,7 +11,7 @@ namespace Abioc.Composition.Compositions
     /// <summary>
     /// A composition to produce code to create a factory field.
     /// </summary>
-    public class FactoryComposition : CompositionBase
+    internal class FactoryComposition : CompositionBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FactoryComposition"/> class.

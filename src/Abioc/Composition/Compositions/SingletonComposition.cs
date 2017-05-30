@@ -11,7 +11,7 @@ namespace Abioc.Composition.Compositions
     /// <summary>
     /// A composition to produce code for a singleton value.
     /// </summary>
-    public class SingletonComposition : IComposition
+    internal class SingletonComposition : IComposition
     {
         private static readonly string NewLine = Environment.NewLine;
 

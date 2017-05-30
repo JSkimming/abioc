@@ -12,7 +12,7 @@ namespace Abioc.Composition.Compositions
     /// A composition to produce code to create a factory field.
     /// </summary>
     /// <typeparam name="TImplementation">The type of instance produced by the <see cref="Factory"/>.</typeparam>
-    public class TypedFactoryComposition<TImplementation> : CompositionBase
+    internal class TypedFactoryComposition<TImplementation> : CompositionBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TypedFactoryComposition{TImplementation}"/> class.

@@ -11,7 +11,7 @@ namespace Abioc.Composition.Compositions
     /// <summary>
     /// A base class that provides a default implementation of a <see cref="IComposition"/>.
     /// </summary>
-    public abstract class CompositionBase : IComposition
+    internal abstract class CompositionBase : IComposition
     {
         /// <inheritdoc />
         public abstract Type Type { get; }
