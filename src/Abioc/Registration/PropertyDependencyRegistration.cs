@@ -13,7 +13,7 @@ namespace Abioc.Registration
     /// A <see cref="IRegistration"/> entry that produces the code to use a injected constant value.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class PropertyDependencyRegistration : RegistrationBase
+    internal class PropertyDependencyRegistration : RegistrationBase
     {
         private readonly List<LambdaExpression> _propertyExpressions;
 

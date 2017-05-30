@@ -13,7 +13,7 @@ namespace Abioc.Registration
     /// </summary>
     /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class InjectedSingletonRegistration<TImplementation> : RegistrationBase
+    internal class InjectedSingletonRegistration<TImplementation> : RegistrationBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="InjectedSingletonRegistration{TImplementation}"/> class.

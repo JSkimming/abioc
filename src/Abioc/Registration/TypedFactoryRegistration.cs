@@ -14,7 +14,7 @@ namespace Abioc.Registration
     /// </summary>
     /// <typeparam name="TImplementation">The <see cref="IRegistration.ImplementationType"/>.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class TypedFactoryRegistration<TImplementation> : RegistrationBase
+    internal class TypedFactoryRegistration<TImplementation> : RegistrationBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TypedFactoryRegistration{TImplementation}"/> class.
