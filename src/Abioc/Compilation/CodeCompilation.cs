@@ -34,13 +34,13 @@ namespace Abioc.Compilation
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
         /// <param name="code">The source code to compile.</param>
         /// <param name="fieldValues">The values of the fields to be initialized.</param>
-        /// <param name="srcAssembly">The source assembly for the types top create.</param>
+        /// <param name="srcAssemblies">The source assemblies for the types top create.</param>
         /// <returns>The <see cref="CompositionContainer"/>.</returns>
         public static AbiocContainer<TExtra> Compile<TExtra>(
             RegistrationSetup<TExtra> setup,
             string code,
             object[] fieldValues,
-            Assembly srcAssembly)
+            params Assembly[] srcAssemblies)
         {
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
@@ -48,14 +48,14 @@ namespace Abioc.Compilation
                 throw new ArgumentNullException(nameof(code));
             if (fieldValues == null)
                 throw new ArgumentNullException(nameof(fieldValues));
-            if (srcAssembly == null)
-                throw new ArgumentNullException(nameof(srcAssembly));
+            if (srcAssemblies == null)
+                throw new ArgumentNullException(nameof(srcAssemblies));
 
             Compilation compilation = Compilations.GetOrAdd(code, GetOrAdd);
 
             Compilation GetOrAdd(string c)
             {
-                Assembly assembly = CompileCode(c, srcAssembly);
+                Assembly assembly = CompileCode(c, srcAssemblies);
                 Type containerType = assembly.GetType("Abioc.Generated.Container");
                 Func<object[], IContainer<TExtra>> containerFactory = CreateContainerFactory<TExtra>(containerType);
                 return new Compilation(assembly, containerType, containerFactory);
@@ -81,13 +81,13 @@ namespace Abioc.Compilation
         /// <param name="setup">The registration <paramref name="setup"/>.</param>
         /// <param name="code">The source code to compile.</param>
         /// <param name="fieldValues">The values of the fields to be initialized.</param>
-        /// <param name="srcAssembly">The source assembly for the types top create.</param>
+        /// <param name="srcAssemblies">The source assemblies for the types top create.</param>
         /// <returns>The <see cref="CompositionContainer"/>.</returns>
         public static AbiocContainer Compile(
             RegistrationSetup setup,
             string code,
             object[] fieldValues,
-            Assembly srcAssembly)
+            params Assembly[] srcAssemblies)
         {
             if (setup == null)
                 throw new ArgumentNullException(nameof(setup));
@@ -95,14 +95,14 @@ namespace Abioc.Compilation
                 throw new ArgumentNullException(nameof(code));
             if (fieldValues == null)
                 throw new ArgumentNullException(nameof(fieldValues));
-            if (srcAssembly == null)
-                throw new ArgumentNullException(nameof(srcAssembly));
+            if (srcAssemblies == null)
+                throw new ArgumentNullException(nameof(srcAssemblies));
 
             Compilation compilation = Compilations.GetOrAdd(code, GetOrAdd);
 
             Compilation GetOrAdd(string c)
             {
-                Assembly assembly = CompileCode(c, srcAssembly);
+                Assembly assembly = CompileCode(c, srcAssemblies);
                 Type containerType = assembly.GetType("Abioc.Generated.Container");
                 Func<object[], IContainer> containerFactory = CreateContainerFactory(containerType);
                 return new Compilation(assembly, containerType, containerFactory);
@@ -152,12 +152,12 @@ namespace Abioc.Compilation
             return factory;
         }
 
-        private static Assembly CompileCode(string code, Assembly srcAssembly)
+        private static Assembly CompileCode(string code, Assembly[] srcAssemblies)
         {
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
-            if (srcAssembly == null)
-                throw new ArgumentNullException(nameof(srcAssembly));
+            if (srcAssemblies == null)
+                throw new ArgumentNullException(nameof(srcAssemblies));
 
             // Need to review the code gen and file saving later.
             ////string tempFileName = Path.GetTempFileName();
@@ -178,11 +178,10 @@ namespace Abioc.Compilation
                 GetSystemAssemblyPathByName("System.Runtime.dll"),
                 GetSystemAssemblyPathByName("mscorlib.dll"),
                 typeof(CodeCompilation).GetTypeInfo().Assembly.Location,
-                srcAssembly.Location,
             };
 
             IEnumerable<PortableExecutableReference> references =
-                assemblyReferences
+                assemblyReferences.Concat(srcAssemblies.Select(a => a.Location))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(s => s)
                     .Select(s => MetadataReference.CreateFromFile(s));
