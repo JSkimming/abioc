@@ -34,7 +34,7 @@ namespace Abioc.Composition
                 throw new ArgumentNullException(nameof(type));
 
             string typeName = simpleName && !type.GetTypeInfo().IsGenericType ? type.Name : type.ToCompileName();
-            string name = Regex.Replace(typeName, @"[\.\+<>`]", "_");
+            string name = Regex.Replace(typeName, @"[\.\+<>`\s,]", "_");
             return name;
         }
 
