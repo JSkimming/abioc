@@ -16,28 +16,28 @@ namespace Abioc
     // These tests demonstrate issue #44 https://github.com/JSkimming/abioc/issues/44
     namespace GenericFactoryReturnTests
     {
-        public interface IGenericInterface<out T>
+        public interface IGenericInterface<out TResult, in TInput>
         {
-            T GetValue();
+            TResult GetValue(TInput input);
         }
 
         public class TestObject
         {
         }
 
-        public class GetString : IGenericInterface<string>
+        public class GetString : IGenericInterface<string, int>
         {
-            public string GetValue() => Guid.NewGuid().ToString();
+            public string GetValue(int input) => Guid.NewGuid().ToString();
         }
 
-        public class GetObject : IGenericInterface<TestObject>
+        public class GetObject : IGenericInterface<IList<TestObject>, IEnumerable<IList<object>>>
         {
-            public TestObject GetValue() => new TestObject();
+            public IList<TestObject> GetValue(IEnumerable<IList<object>> input) => new[] { new TestObject() };
         }
 
-        public class GetGuid : IGenericInterface<Guid>
+        public class GetGuid : IGenericInterface<Guid, TestObject>
         {
-            public Guid GetValue() => Guid.NewGuid();
+            public Guid GetValue(TestObject input) => Guid.NewGuid();
         }
     }
 
@@ -49,9 +49,9 @@ namespace Abioc
         public void ItShouldResolveAllTheServices()
         {
             // Act
-            IGenericInterface<string> stringGetter = GetService<IGenericInterface<string>>();
-            IGenericInterface<TestObject> objectGetter = GetService<IGenericInterface<TestObject>>();
-            IGenericInterface<Guid> guidGetter = GetService<IGenericInterface<Guid>>();
+            var stringGetter = GetService<IGenericInterface<string, int>>();
+            var objectGetter = GetService<IGenericInterface<IList<TestObject>, IEnumerable<IList<object>>>>();
+            var guidGetter = GetService<IGenericInterface<Guid, TestObject>>();
 
             // Assert
             stringGetter.Should().NotBeNull().And.BeOfType<GetString>();
@@ -68,10 +68,12 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup<int>()
-                    .RegisterFactory<IGenericInterface<string>>(c => new GetString())
-                    .RegisterFactory(typeof(IGenericInterface<TestObject>), c => new GetObject())
+                    .RegisterFactory<IGenericInterface<string, int>>(c => new GetString())
                     .RegisterFactory(
-                        typeof(IGenericInterface<Guid>),
+                        typeof(IGenericInterface<IList<TestObject>, IEnumerable<IList<object>>>),
+                        c => new GetObject())
+                    .RegisterFactory(
+                        typeof(IGenericInterface<Guid, TestObject>),
                         () => new GetGuid(),
                         compose => compose.ToSingleton())
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
@@ -90,10 +92,12 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup()
-                    .RegisterFactory<IGenericInterface<string>>(() => new GetString())
-                    .RegisterFactory(typeof(IGenericInterface<TestObject>), () => new GetObject())
+                    .RegisterFactory<IGenericInterface<string, int>>(() => new GetString())
                     .RegisterFactory(
-                        typeof(IGenericInterface<Guid>),
+                        typeof(IGenericInterface<IList<TestObject>, IEnumerable<IList<object>>>),
+                        () => new GetObject())
+                    .RegisterFactory(
+                        typeof(IGenericInterface<Guid, TestObject>),
                         () => new GetGuid(),
                         compose => compose.ToSingleton())
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
