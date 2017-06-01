@@ -33,8 +33,8 @@ namespace Abioc.Composition
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            string typeName = simpleName ? type.Name : type.FullName;
-            string name = Regex.Replace(typeName, @"[\.\+]", "_");
+            string typeName = simpleName && !type.GetTypeInfo().IsGenericType ? type.Name : type.ToCompileName();
+            string name = Regex.Replace(typeName, @"[\.\+<>`]", "_");
             return name;
         }
 
