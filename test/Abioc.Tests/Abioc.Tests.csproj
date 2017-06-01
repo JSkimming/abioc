@@ -90,6 +90,7 @@
     <Compile Include="FactoriesUsingTheContainerTests.cs" />
     <Compile Include="FactoryServicesTests.cs" />
     <Compile Include="GenerationContextExtensionsTests.cs" />
+    <Compile Include="GenericFactoryReturnTests.cs" />
     <Compile Include="InjectedSingletonTests.cs" />
     <Compile Include="MissingConstructorDependencyTests.cs" />
     <Compile Include="MissingRegistrationVisitorTests.cs" />
