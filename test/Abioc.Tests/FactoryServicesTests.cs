@@ -121,6 +121,11 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup<int>()
+                    // Add the simple registration, these should be superseded by the factory mappings.
+                    .Register<Service1>()
+                    .Register<Service2>()
+                    .Register<IService3, Service3>()
+                    // Register the factories
                     .RegisterFactory(c => new InternalService1(), c => c.Internal())
                     .RegisterFactory(Service1.CreateService1WithContext)
                     .RegisterFactory(Service2.CreateService2WithContext)
@@ -167,6 +172,11 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup()
+                    // Add the simple registration, these should be superseded by the factory mappings.
+                    .Register<Service1>()
+                    .Register<Service2>()
+                    .Register<IService3, Service3>()
+                    // Register the factories
                     .RegisterFactory(() => new InternalService1(), c => c.Internal())
                     .RegisterFactory(Service1.CreateService1WithoutContext)
                     .RegisterFactory(Service2.CreateService2WithoutContext)
@@ -213,6 +223,11 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup<int>()
+                    // Add the simple registration, these should be superseded by the factory mappings.
+                    .Register<Service1>()
+                    .Register<Service2>()
+                    .Register<IService3, Service3>()
+                    // Register the factories
                     .RegisterFactory(typeof(InternalService1), c => new InternalService1(), c => c.Internal())
                     .RegisterFactory(typeof(Service1), Service1.CreateService1WithContext)
                     .RegisterFactory(typeof(Service2), Service2.CreateService2WithContext)
@@ -259,6 +274,11 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup()
+                    // Add the simple registration, these should be superseded by the factory mappings.
+                    .Register<Service1>()
+                    .Register<Service2>()
+                    .Register<IService3, Service3>()
+                    // Register the factories
                     .RegisterFactory(typeof(InternalService1), () => new InternalService1(), c => c.Internal())
                     .RegisterFactory(typeof(Service1), Service1.CreateService1WithoutContext)
                     .RegisterFactory(typeof(Service2), Service2.CreateService2WithoutContext)
@@ -305,10 +325,15 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup<int>()
+                    // Add the simple registration, these should be superseded by the factory mappings.
+                    .Register<Service1>()
+                    .Register<Service2>()
+                    .Register<IService3, Service3>()
+                    // Register the factories
                     .RegisterFactory(typeof(InternalService1), c => new InternalService1(), c => c.Internal())
                     .RegisterFactory(Service1.CreateService1WithContext)
                     .RegisterFactory(typeof(Service2), Service2.CreateService2WithContext)
-                    .RegisterFactory<IService3>(Service3.CreateService3WithContext)
+                    .RegisterFactory<IService3, Service3>(Service3.CreateService3WithContext)
                     .Register(typeof(DependentService))
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
@@ -352,10 +377,15 @@ namespace Abioc
         {
             _container =
                 new RegistrationSetup()
+                    // Add the simple registration, these should be superseded by the factory mappings.
+                    .Register<Service1>()
+                    .Register<Service2>()
+                    .Register<IService3, Service3>()
+                    // Register the factories
                     .RegisterFactory(typeof(InternalService1), () => new InternalService1(), c => c.Internal())
                     .RegisterFactory(Service1.CreateService1WithoutContext)
                     .RegisterFactory(typeof(Service2), Service2.CreateService2WithoutContext)
-                    .RegisterFactory<IService3>(Service3.CreateService3WithoutContext)
+                    .RegisterFactory<IService3, Service3>(Service3.CreateService3WithoutContext)
                     .Register(typeof(DependentService))
                     .Construct(GetType().GetTypeInfo().Assembly, out string code);
 
