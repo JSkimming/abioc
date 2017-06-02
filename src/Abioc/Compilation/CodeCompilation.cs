@@ -67,10 +67,12 @@ namespace Abioc.Compilation
 
             Dictionary<Type, Func<ConstructionContext<TExtra>, object>> createMap = initialization.GetCreateMap();
 
+            // Get all mappings, where there are distinct non internal registrations.
             IEnumerable<(Type type, Func<ConstructionContext<TExtra>, object>[] compositions)> iocMappings =
-                from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
-                let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
-                select (kvp.Key, compositions);
+                from kvp in setup.Registrations
+                let regTypes = kvp.Value.DistinctPublicRegistrationTypes().ToList()
+                where regTypes.Count > 0
+                select (kvp.Key, regTypes.Select(type => createMap[type]).ToArray());
 
             return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container);
         }
@@ -114,10 +116,12 @@ namespace Abioc.Compilation
 
             Dictionary<Type, Func<object>> createMap = initialization.GetCreateMap();
 
+            // Get all mappings, where there are distinct non internal registrations.
             IEnumerable<(Type type, Func<object>[] compositions)> iocMappings =
-                from kvp in setup.Registrations.Where(kvp => kvp.Value.Any(r => !r.Internal))
-                let compositions = kvp.Value.Select(r => createMap[r.ImplementationType]).ToArray()
-                select (kvp.Key, compositions);
+                from kvp in setup.Registrations
+                let regTypes = kvp.Value.DistinctPublicRegistrationTypes().ToList()
+                where regTypes.Count > 0
+                select (kvp.Key, regTypes.Select(type => createMap[type]).ToArray());
 
             return iocMappings.ToDictionary(m => m.type, kvp => kvp.compositions).ToContainer(container);
         }
