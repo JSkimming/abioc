@@ -67,15 +67,16 @@ namespace Abioc.Composition
 
             // Get any registrations that have not been composed, e.g. an interface mapped to a class.
             // Only use single mappings (Count == 1), multiple mappings cannot be composed.
-            IEnumerable<(Type type, IRegistration registration)> typeMappings =
+            IEnumerable<(Type serviceType, Type implementationType)> typeMappings =
                 from kvp in registrations
-                where !context.Compositions.ContainsKey(kvp.Key) && kvp.Value.Count == 1
-                select (kvp.Key, kvp.Value.Single());
+                let regTypes = kvp.Value.DistinctRegistrationTypes().ToList()
+                where !context.Compositions.ContainsKey(kvp.Key) && regTypes.Count == 1
+                select (kvp.Key, regTypes[0]);
 
             // Re-reference the compositions under the type mappings.
-            foreach ((Type serviceType, IRegistration registration) in typeMappings)
+            foreach ((Type serviceType, Type implementationType) in typeMappings)
             {
-                context.AddComposition(serviceType, context.Compositions[registration.ImplementationType]);
+                context.AddComposition(serviceType, context.Compositions[implementationType]);
             }
 
             return context;

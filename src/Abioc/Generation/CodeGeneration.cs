@@ -8,6 +8,7 @@ namespace Abioc.Generation
     using System.Linq;
     using System.Text;
     using Abioc.Composition;
+    using Abioc.Registration;
 
     /// <summary>
     /// Generates the code from a <see cref="CompositionContainer"/>.
@@ -240,11 +241,13 @@ namespace Abioc.Generation
                 parameter,
                 contextVariable);
 
+            // Get the single mappings, i.e. where only one service is returned for a type.
             IEnumerable<(Type key, IComposition composition)> singleIocMappings =
                 from kvp in context.Registrations
-                where kvp.Value.Count(r => !r.Internal) == 1
+                let regTypes = kvp.Value.DistinctPublicRegistrationTypes().ToList()
+                where regTypes.Count == 1
                 orderby kvp.Key.GetHashCode()
-                select (kvp.Key, context.Compositions[kvp.Value.Single(r => !r.Internal).ImplementationType]);
+                select (kvp.Key, context.Compositions[regTypes[0]]);
 
             IEnumerable<string> caseSnippets = singleIocMappings.Select(m => GetCaseSnippet(m.key, m.composition));
             string caseStatements = string.Join(NewLine, caseSnippets);
@@ -307,15 +310,15 @@ namespace Abioc.Generation
                 parameter,
                 contextVariable);
 
-            IEnumerable<(Type key, IEnumerable<IComposition> compositions)> singleIocMappings =
+            // Get all mappings, where there are distinct non internal registrations.
+            IEnumerable<(Type key, IEnumerable<IComposition> compositions)> iocMappings =
                 from kvp in context.Registrations
-                where kvp.Value.Any(r => !r.Internal)
-                let compositions = kvp.Value.Where(r => !r.Internal)
-                    .Select(r => context.Compositions[r.ImplementationType])
+                let regTypes = kvp.Value.DistinctPublicRegistrationTypes().ToList()
+                where regTypes.Count > 0
                 orderby kvp.Key.GetHashCode()
-                select (kvp.Key, compositions);
+                select (kvp.Key, regTypes.Select(type => context.Compositions[type]));
 
-            IEnumerable<string> caseSnippets = singleIocMappings.Select(m => GetCaseSnippet(m.key, m.compositions));
+            IEnumerable<string> caseSnippets = iocMappings.Select(m => GetCaseSnippet(m.key, m.compositions));
             string caseStatements = string.Join(NewLine, caseSnippets);
             caseStatements = CodeGen.Indent(NewLine + caseStatements, 2);
             builder.Append(caseStatements);
