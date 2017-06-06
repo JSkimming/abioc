@@ -15,13 +15,13 @@ namespace Abioc.Composition.Visitors
     /// </summary>
     internal class SingleConstructorRegistrationVisitor : IRegistrationVisitor<SingleConstructorRegistration>
     {
-        private CompositionContainer _container;
+        private readonly CompositionContainer _container;
 
         /// <summary>
-        /// Initializes the <see cref="IRegistrationVisitor"/>.
+        /// Initializes a new instance of the <see cref="SingleConstructorRegistrationVisitor"/> class.
         /// </summary>
         /// <param name="container">The composition context.</param>
-        public void Initialize(CompositionContainer container)
+        public SingleConstructorRegistrationVisitor(CompositionContainer container)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));

@@ -16,86 +16,31 @@ namespace Abioc.Composition
     /// </summary>
     internal static class VisitorFactory
     {
-        private static readonly Lazy<Type[]> NonGenericVisitorTypes = new Lazy<Type[]>(GetNonGenericVisitorTypes);
+        private static readonly IReadOnlyList<Type> AllowedParameterTypes = new[]
+        {
+            typeof(CompositionContainer),
+            typeof(VisitorManager),
+        };
 
-        private static readonly Lazy<Type[]> GenericVisitorTypes = new Lazy<Type[]>(GetGenericVisitorTypes);
+        private static readonly Lazy<IReadOnlyList<Type>> InternalVisitorTypes =
+            new Lazy<IReadOnlyList<Type>>(GetInternalVisitorTypes);
 
-        private static readonly ConcurrentDictionary<Type, Func<object>[]> VisitorFactoryCache =
-            new ConcurrentDictionary<Type, Func<object>[]>();
+        private static readonly ConcurrentDictionary<Type, IReadOnlyList<object>> VisitorFactoryCache =
+            new ConcurrentDictionary<Type, IReadOnlyList<object>>();
 
         /// <summary>
-        /// Creates the visitors that are <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> to the specified type.
+        /// Returns all the concrete types in the <paramref name="assembly"/> that implement the
+        /// <see cref="IRegistrationVisitor"/> interface.
         /// </summary>
-        /// <typeparam name="TRegistration">The type of visitor.</typeparam>
+        /// <param name="assembly">The <see cref="Assembly"/>.</param>
         /// <returns>
-        /// The visitors that are <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> to the specified type.
+        /// All the concrete types in the <paramref name="assembly"/> that implement the
+        /// <see cref="IRegistrationVisitor"/> interface.
         /// </returns>
-        public static IEnumerable<IRegistrationVisitor<TRegistration>> CreateVisitors<TRegistration>()
-            where TRegistration : class, IRegistration
+        public static IEnumerable<Type> GetAllVisitorTypes(Assembly assembly)
         {
-            Type visitorType = typeof(IRegistrationVisitor<TRegistration>);
-
-            Func<object>[] nonTypedFactories =
-                VisitorFactoryCache.GetOrAdd(visitorType, t => CreateVisitorFactories<TRegistration>());
-
-            IEnumerable<Func<IRegistrationVisitor<TRegistration>>> factories =
-                nonTypedFactories.Cast<Func<IRegistrationVisitor<TRegistration>>>();
-
-            return factories.Select(f => f());
-        }
-
-        private static Func<object>[] CreateVisitorFactories<TRegistration>()
-            where TRegistration : class, IRegistration
-        {
-            TypeInfo visitorTypeInfo = typeof(IRegistrationVisitor<TRegistration>).GetTypeInfo();
-            TypeInfo registrationTypeInfo = typeof(TRegistration).GetTypeInfo();
-
-            // Non generic types are much simpler.
-            if (!registrationTypeInfo.IsGenericType)
-            {
-                // Get the non generic types that are assignable to the visitor type.
-                IEnumerable<Type> types = NonGenericVisitorTypes.Value.Where(visitorTypeInfo.IsAssignableFrom);
-
-                // Create the visitor factories.
-                return types.Select(CreateVisitorFactory<TRegistration>).Cast<Func<object>>().ToArray();
-            }
-
-            // Get the generic arguments of the registration type.
-            Type[] typeArguments = registrationTypeInfo.GenericTypeArguments;
-
-            // Get the generic types with the same number of type parameters.
-            IEnumerable<Type> genericTypeDefinitions =
-                GenericVisitorTypes.Value
-                    .Where(t => t.GetTypeInfo().GenericTypeParameters.Length == typeArguments.Length);
-
-            // Make the generic types and get the ones that are assignable to the visitor type.
-            IEnumerable<Type> genericTypes =
-                genericTypeDefinitions
-                    .Select(gt => gt.GetTypeInfo().MakeGenericType(typeArguments))
-                    .Where(visitorTypeInfo.IsAssignableFrom);
-
-            // Create the visitor factories.
-            return genericTypes.Select(CreateVisitorFactory<TRegistration>).Cast<Func<object>>().ToArray();
-        }
-
-        private static Func<IRegistrationVisitor<TRegistration>> CreateVisitorFactory<TRegistration>(Type type)
-            where TRegistration : class, IRegistration
-        {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            ConstructorInfo constructorInfo = type.GetTypeInfo().GetConstructor(Type.EmptyTypes);
-
-            Func<IRegistrationVisitor<TRegistration>> factory =
-                Expression.Lambda<Func<IRegistrationVisitor<TRegistration>>>(Expression.New(constructorInfo))
-                    .Compile();
-
-            return factory;
-        }
-
-        private static IEnumerable<Type> GetAllVisitorTypes()
-        {
-            Assembly assembly = typeof(IRegistrationVisitor).GetTypeInfo().Assembly;
+            if (assembly == null)
+                throw new ArgumentNullException(nameof(assembly));
 
             IEnumerable<Type> visitorAllTypes =
                 from t in assembly.GetTypes().Where(typeof(IRegistrationVisitor).GetTypeInfo().IsAssignableFrom)
@@ -106,163 +51,172 @@ namespace Abioc.Composition
             return visitorAllTypes;
         }
 
-        private static Type[] GetNonGenericVisitorTypes()
+        /// <summary>
+        /// Creates the visitors that are <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> to the specified type.
+        /// </summary>
+        /// <typeparam name="TRegistration">The type of visitor.</typeparam>
+        /// <param name="container">The <see cref="CompositionContainer"/>.</param>
+        /// <param name="manager">The <see cref="VisitorManager"/>.</param>
+        /// <returns>
+        /// The visitors that are <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> to the specified type.
+        /// </returns>
+        public static IEnumerable<IRegistrationVisitor<TRegistration>> CreateVisitors<TRegistration>(
+            CompositionContainer container,
+            VisitorManager manager)
+            where TRegistration : class, IRegistration
         {
-            return GetAllVisitorTypes()
-                .Where(t => !t.GetTypeInfo().ContainsGenericParameters)
-                .OrderBy(t => t.Name)
-                .ToArray();
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
+            if (manager == null)
+                throw new ArgumentNullException(nameof(manager));
+
+            Type visitorType = typeof(IRegistrationVisitor<TRegistration>);
+
+            IReadOnlyList<object> nonTypedFactories =
+                VisitorFactoryCache.GetOrAdd(visitorType, t => CreateVisitorFactories<TRegistration>());
+
+            IEnumerable<Func<CompositionContainer, VisitorManager, IRegistrationVisitor<TRegistration>>> factories =
+                nonTypedFactories
+                    .Cast<Func<CompositionContainer, VisitorManager, IRegistrationVisitor<TRegistration>>>();
+
+            return factories.Select(f => f(container, manager));
         }
 
-        private static Type[] GetGenericVisitorTypes()
+        private static Func<CompositionContainer, VisitorManager, IRegistrationVisitor<TRegistration>>
+            CreateVisitorFactory<TRegistration>(Type type)
+            where TRegistration : class, IRegistration
         {
-            return GetAllVisitorTypes()
-                .Where(t => t.GetTypeInfo().ContainsGenericParameters)
-                .OrderBy(t => t.Name)
-                .ToArray();
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            ConstructorInfo constructor = GetVisitorConstructor(type);
+            IReadOnlyList<ParameterExpression> constructorArguments = GetConstructorArguments(constructor).ToList();
+            NewExpression constructorExpression = Expression.New(constructor, constructorArguments);
+            IEnumerable<ParameterExpression> lambdaArguments = GetFactoryLambdaArguments(constructorArguments);
+
+            Expression<Func<CompositionContainer, VisitorManager, IRegistrationVisitor<TRegistration>>> lambda
+                = Expression.Lambda<Func<CompositionContainer, VisitorManager, IRegistrationVisitor<TRegistration>>>(
+                    constructorExpression, lambdaArguments);
+
+            Func<CompositionContainer, VisitorManager, IRegistrationVisitor<TRegistration>> factory =
+                lambda.Compile();
+
+            return factory;
         }
 
-        //// The following is redundant code, though I suspect some of it may make a return, so I'm keeping it here for
-        //// reference. I plan to clean this up at some point.
+        private static ConstructorInfo GetVisitorConstructor(Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
-        ////private static Type[] GetTypedVisitorTypes()
-        ////{
-        ////    IEnumerable<Type> types =
-        ////        from t in GetAllVisitorTypes()
-        ////        let info = t.GetTypeInfo()
-        ////        where info.ContainsGenericParameters
-        ////              && info.GenericTypeParameters.Length == 1
-        ////              && info.GenericTypeParameters[0].Name == "TImplementation"
-        ////        orderby t.Name
-        ////        select t;
+            ConstructorInfo[] constructors =
+                type.GetTypeInfo().GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 
-        ////    return types.ToArray();
-        ////}
+            // There must be a public constructor.
+            if (constructors.Length == 0)
+            {
+                string message = $"The registration visitor of type '{type}' has no public constructors.";
+                throw new CompositionException(message);
+            }
 
-        ////private static Type[] GetVisitorWithContextTypes()
-        ////{
-        ////    IEnumerable<Type> types =
-        ////        from t in GetAllVisitorTypes()
-        ////        let info = t.GetTypeInfo()
-        ////        where info.ContainsGenericParameters
-        ////              && info.GenericTypeParameters.Length == 1
-        ////              && info.GenericTypeParameters[0].Name == "TExtra"
-        ////        orderby t.Name
-        ////        select t;
+            // There must be just 1 public constructor.
+            if (constructors.Length > 1)
+            {
+                string message = $"The registration visitor of type '{type}' has {constructors.Length:N0} " +
+                                 "public constructors. There must be just 1.";
+                throw new CompositionException(message);
+            }
 
-        ////    return types.ToArray();
-        ////}
+            ConstructorInfo constructorInfo = constructors[0];
+            return constructorInfo;
+        }
 
-        ////private static Type[] GetTypedVisitorWithContextTypes()
-        ////{
-        ////    IEnumerable<Type> types =
-        ////        from t in GetAllVisitorTypes()
-        ////        let info = t.GetTypeInfo()
-        ////        where info.ContainsGenericParameters
-        ////              && info.GenericTypeParameters.Length == 2
-        ////              && info.GenericTypeParameters[0].Name == "TExtra"
-        ////              && info.GenericTypeParameters[0].Name == "TImplementation"
-        ////        orderby t.Name
-        ////        select t;
+        private static IEnumerable<ParameterExpression> GetConstructorArguments(
+            ConstructorInfo constructor)
+        {
+            if (constructor == null)
+                throw new ArgumentNullException(nameof(constructor));
 
-        ////    return types.ToArray();
-        ////}
+            ParameterInfo[] parameterInfos = constructor.GetParameters();
 
-        ////private static Dictionary<Type, List<IRegistrationVisitor>> GetVisitors(
-        ////    CompositionContext context)
-        ////{
-        ////    Assembly assembly = typeof(IRegistrationVisitor).GetTypeInfo().Assembly;
-        ////    IEnumerable<Type> visitorTypes =
-        ////        from t in assembly.GetTypes().Where(typeof(IRegistrationVisitor).GetTypeInfo().IsAssignableFrom)
-        ////        let ti = t.GetTypeInfo()
-        ////        where ti.IsClass && !ti.IsAbstract
-        ////        select t;
+            IReadOnlyList<ParameterInfo> invalidParameters =
+                parameterInfos.Where(p => !AllowedParameterTypes.Contains(p.ParameterType)).ToList();
 
-        ////    var visitors = new Dictionary<Type, List<IRegistrationVisitor>>();
+            if (invalidParameters.Count > 0)
+            {
+                string message =
+                    "The registration visitor constructor must only have parameters of type " +
+                    $"'{string.Join(", ", AllowedParameterTypes.Select(t => t.Name))}' but it has " +
+                    $"'{string.Join(", ", invalidParameters.Select(p => p.ToString()))}'.";
+                throw new CompositionException(message);
+            }
 
-        ////    foreach (var visitorType in visitorTypes)
-        ////    {
-        ////        TypeInfo typeInfo = visitorType.GetTypeInfo();
+            foreach (ParameterInfo parameterInfo in parameterInfos)
+            {
+                yield return Expression.Parameter(parameterInfo.ParameterType, parameterInfo.Name);
+            }
+        }
 
-        ////        IEnumerable<Type> interfaceTypes =
-        ////            typeInfo
-        ////                .GetInterfaces()
-        ////                .Where(i => i.GetTypeInfo().IsGenericType
-        ////                            && typeof(IRegistrationVisitor<>) == i.GetGenericTypeDefinition());
+        private static IEnumerable<ParameterExpression> GetFactoryLambdaArguments(
+            IReadOnlyCollection<ParameterExpression> constructorArguments)
+        {
+            if (constructorArguments == null)
+                throw new ArgumentNullException(nameof(constructorArguments));
 
-        ////        if (typeInfo.ContainsGenericParameters)
-        ////        {
-        ////            Type[] parameters = typeInfo.GenericTypeParameters;
-        ////            Type[] arguments = typeInfo.GenericTypeArguments;
-        ////        }
+            foreach (Type parameterType in AllowedParameterTypes)
+            {
+                ParameterExpression argument = constructorArguments.SingleOrDefault(a => a.Type == parameterType);
 
-        ////        var visitor = (IRegistrationVisitor)Activator.CreateInstance(visitorType);
-        ////        visitor.Initialize(context);
+                if (argument != null)
+                {
+                    yield return argument;
+                }
+                else
+                {
+                    yield return Expression.Parameter(parameterType, "unused_" + Guid.NewGuid().ToString("N"));
+                }
+            }
+        }
 
-        ////        foreach (Type interfaceType in interfaceTypes)
-        ////        {
-        ////            List<IRegistrationVisitor> list;
-        ////            if (!visitors.TryGetValue(interfaceType, out list))
-        ////            {
-        ////                list = new List<IRegistrationVisitor>(1);
-        ////                visitors[interfaceType] = list;
-        ////            }
+        private static IReadOnlyList<Type> GetInternalVisitorTypes()
+        {
+            Assembly assembly = typeof(IRegistrationVisitor).GetTypeInfo().Assembly;
+            IReadOnlyList<Type> internalVisitorTypes = GetAllVisitorTypes(assembly).ToArray();
+            return internalVisitorTypes;
+        }
 
-        ////            list.Add(visitor);
-        ////        }
-        ////    }
+        private static IReadOnlyList<object> CreateVisitorFactories<TRegistration>()
+            where TRegistration : class, IRegistration
+        {
+            TypeInfo visitorTypeInfo = typeof(IRegistrationVisitor<TRegistration>).GetTypeInfo();
+            TypeInfo registrationTypeInfo = typeof(TRegistration).GetTypeInfo();
 
-        ////    return visitors;
-        ////}
+            // Non generic types are much simpler.
+            if (!registrationTypeInfo.IsGenericType)
+            {
+                // Get the non generic types that are assignable to the visitor type.
+                IEnumerable<Type> types = InternalVisitorTypes.Value.Where(visitorTypeInfo.IsAssignableFrom);
 
-        ////private static IRegistrationVisitor CreateVisitor(Type visitorType)
-        ////{
-        ////    if (visitorType == null)
-        ////        throw new ArgumentNullException(nameof(visitorType));
+                // Create the visitor factories.
+                return types.Select(CreateVisitorFactory<TRegistration>).ToArray();
+            }
 
-        ////    var visitor = (IRegistrationVisitor)Activator.CreateInstance(visitorType);
-        ////    return visitor;
-        ////}
+            // Get the generic arguments of the registration type.
+            Type[] typeArguments = registrationTypeInfo.GenericTypeArguments;
 
-        ////private static IRegistrationVisitor CreateVisitorWithContext(Type visitorType, Type extraType)
-        ////{
-        ////    if (visitorType == null)
-        ////        throw new ArgumentNullException(nameof(visitorType));
-        ////    if (extraType == null)
-        ////        throw new ArgumentNullException(nameof(extraType));
+            // Get the generic types with the same number of type parameters.
+            IEnumerable<Type> genericTypeDefinitions =
+                InternalVisitorTypes.Value
+                    .Where(t => t.GetTypeInfo().GenericTypeParameters.Length == typeArguments.Length);
 
-        ////    TypeInfo typeInfo = visitorType.GetTypeInfo();
-        ////    Type genericType = typeInfo.MakeGenericType(extraType);
-        ////    return CreateVisitor(genericType);
-        ////}
+            // Make the generic types and get the ones that are assignable to the visitor type.
+            IEnumerable<Type> genericTypes =
+                genericTypeDefinitions
+                    .Select(gt => gt.GetTypeInfo().MakeGenericType(typeArguments))
+                    .Where(visitorTypeInfo.IsAssignableFrom);
 
-        ////private static IRegistrationVisitor CreateTypedVisitor(Type visitorType, Type implementationType)
-        ////{
-        ////    if (visitorType == null)
-        ////        throw new ArgumentNullException(nameof(visitorType));
-        ////    if (implementationType == null)
-        ////        throw new ArgumentNullException(nameof(implementationType));
-
-        ////    TypeInfo typeInfo = visitorType.GetTypeInfo();
-        ////    Type genericType = typeInfo.MakeGenericType(implementationType);
-        ////    return CreateVisitor(genericType);
-        ////}
-
-        ////private static IRegistrationVisitor CreateTypedVisitorWithContext(
-        ////    Type visitorType,
-        ////    Type extraType,
-        ////    Type implementationType)
-        ////{
-        ////    if (visitorType == null)
-        ////        throw new ArgumentNullException(nameof(visitorType));
-        ////    if (extraType == null)
-        ////        throw new ArgumentNullException(nameof(extraType));
-        ////    if (implementationType == null)
-        ////        throw new ArgumentNullException(nameof(implementationType));
-
-        ////    TypeInfo typeInfo = visitorType.GetTypeInfo();
-        ////    Type genericType = typeInfo.MakeGenericType(extraType, implementationType);
-        ////    return CreateVisitor(genericType);
-        ////}
+            // Create the visitor factories.
+            return genericTypes.Select(CreateVisitorFactory<TRegistration>).ToArray();
+        }
     }
 }

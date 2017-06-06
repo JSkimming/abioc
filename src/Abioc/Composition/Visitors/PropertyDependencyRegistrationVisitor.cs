@@ -15,22 +15,26 @@ namespace Abioc.Composition.Visitors
     /// A composition registration visitor for a <see cref="PropertyDependencyRegistration"/>.
     /// </summary>
     internal class PropertyDependencyRegistrationVisitor
-        : IRegistrationVisitor<PropertyDependencyRegistration>, IRegistrationVisitorEx
+        : IRegistrationVisitor<PropertyDependencyRegistration>
     {
-        private CompositionContainer _container;
+        private readonly CompositionContainer _container;
 
-        private VisitorManager _manager;
+        private readonly VisitorManager _manager;
 
         /// <summary>
-        /// Initializes the <see cref="IRegistrationVisitor"/>.
+        /// Initializes a new instance of the <see cref="PropertyDependencyRegistrationVisitor"/> class.
         /// </summary>
         /// <param name="container">The composition context.</param>
-        public void Initialize(CompositionContainer container)
+        /// <param name="manager">The visitor manager.</param>
+        public PropertyDependencyRegistrationVisitor(CompositionContainer container, VisitorManager manager)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
+            if (manager == null)
+                throw new ArgumentNullException(nameof(manager));
 
             _container = container;
+            _manager = manager;
         }
 
         /// <summary>
@@ -54,15 +58,6 @@ namespace Abioc.Composition.Visitors
             // Replace the inner composition.
             IComposition composition = new PropertyDependencyComposition(inner, propertiesToInject);
             _container.AddComposition(composition);
-        }
-
-        /// <inheritdoc />
-        void IRegistrationVisitorEx.InitializeEx(VisitorManager manager)
-        {
-            if (manager == null)
-                throw new ArgumentNullException(nameof(manager));
-
-            _manager = manager;
         }
 
         private static IEnumerable<PropertyInfo> GetPropertiesToInject(

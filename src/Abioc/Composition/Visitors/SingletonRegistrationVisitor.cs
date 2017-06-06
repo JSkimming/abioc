@@ -12,22 +12,26 @@ namespace Abioc.Composition.Visitors
     /// <summary>
     /// A composition registration visitor for a <see cref="SingletonRegistration"/>.
     /// </summary>
-    internal class SingletonRegistrationVisitor : IRegistrationVisitor<SingletonRegistration>, IRegistrationVisitorEx
+    internal class SingletonRegistrationVisitor : IRegistrationVisitor<SingletonRegistration>
     {
-        private CompositionContainer _container;
+        private readonly CompositionContainer _container;
 
-        private VisitorManager _manager;
+        private readonly VisitorManager _manager;
 
         /// <summary>
-        /// Initializes the <see cref="IRegistrationVisitor"/>.
+        /// Initializes a new instance of the <see cref="SingletonRegistrationVisitor"/> class.
         /// </summary>
         /// <param name="container">The composition context.</param>
-        public void Initialize(CompositionContainer container)
+        /// <param name="manager">The visitor manager.</param>
+        public SingletonRegistrationVisitor(CompositionContainer container, VisitorManager manager)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
+            if (manager == null)
+                throw new ArgumentNullException(nameof(manager));
 
             _container = container;
+            _manager = manager;
         }
 
         /// <summary>
@@ -48,15 +52,6 @@ namespace Abioc.Composition.Visitors
             // Replace the inner composition.
             IComposition composition = new SingletonComposition(inner);
             _container.AddComposition(composition);
-        }
-
-        /// <inheritdoc />
-        void IRegistrationVisitorEx.InitializeEx(VisitorManager manager)
-        {
-            if (manager == null)
-                throw new ArgumentNullException(nameof(manager));
-
-            _manager = manager;
         }
     }
 }

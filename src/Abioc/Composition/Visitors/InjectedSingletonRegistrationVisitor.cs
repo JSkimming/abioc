@@ -16,13 +16,14 @@ namespace Abioc.Composition.Visitors
     internal class InjectedSingletonRegistrationVisitor<TImplementation>
         : IRegistrationVisitor<InjectedSingletonRegistration<TImplementation>>
     {
-        private CompositionContainer _container;
+        private readonly CompositionContainer _container;
 
         /// <summary>
-        /// Initializes the <see cref="IRegistrationVisitor"/>.
+        /// Initializes a new instance of the <see cref="InjectedSingletonRegistrationVisitor{TImplementation}"/>
+        /// class.
         /// </summary>
         /// <param name="container">The composition context.</param>
-        public void Initialize(CompositionContainer container)
+        public InjectedSingletonRegistrationVisitor(CompositionContainer container)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));

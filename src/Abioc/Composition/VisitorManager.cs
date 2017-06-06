@@ -84,19 +84,14 @@ namespace Abioc.Composition
             Type visitorType = typeof(IRegistrationVisitor<TRegistration>);
             if (!manager._visitors.TryGetValue(visitorType, out IRegistrationVisitor[] visitors))
             {
-                IEnumerable<IRegistrationVisitor> newVisitors = VisitorFactory.CreateVisitors<TRegistration>();
+                IEnumerable<IRegistrationVisitor> newVisitors =
+                    VisitorFactory.CreateVisitors<TRegistration>(manager._container, manager);
                 visitors = newVisitors.ToArray();
 
                 if (visitors.Length == 0)
                 {
                     string message = $"There are no visitors for registrations of type '{visitorType}'.";
                     throw new CompositionException(message);
-                }
-
-                foreach (IRegistrationVisitor visitor in visitors)
-                {
-                    visitor.Initialize(manager._container);
-                    (visitor as IRegistrationVisitorEx)?.InitializeEx(manager);
                 }
 
                 manager._visitors[visitorType] = visitors;
