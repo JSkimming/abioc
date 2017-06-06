@@ -23,7 +23,7 @@ namespace Abioc
         }
 
         [Fact]
-        public void ItShouldThrowAnIoCCompilationException()
+        public void ItShouldThrowACompositionException()
         {
             // Arrange
             string expectedMessage =
@@ -49,7 +49,7 @@ namespace Abioc
         }
 
         [Fact]
-        public void ItShouldThrowAnIoCCompilationException()
+        public void ItShouldThrowACompositionException()
         {
             // Arrange
             string expectedMessage =

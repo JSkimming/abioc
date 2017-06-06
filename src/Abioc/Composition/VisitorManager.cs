@@ -25,6 +25,8 @@ namespace Abioc.Composition
 
         private readonly CompositionContainer _container;
 
+        private readonly VisitorFactory _factory;
+
         private readonly Dictionary<Type, IRegistrationVisitor[]> _visitors =
             new Dictionary<Type, IRegistrationVisitor[]>();
 
@@ -32,12 +34,16 @@ namespace Abioc.Composition
         /// Initializes a new instance of the <see cref="VisitorManager"/> class.
         /// </summary>
         /// <param name="container">The <see cref="CompositionContainer"/>.</param>
-        public VisitorManager(CompositionContainer container)
+        /// <param name="externalVisitorTypes">
+        /// The types of concrete classes that implement <see cref="IRegistrationVisitor"/> from an external assembly.
+        /// </param>
+        public VisitorManager(CompositionContainer container, IEnumerable<Type> externalVisitorTypes = null)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));
 
             _container = container;
+            _factory = new VisitorFactory(externalVisitorTypes);
         }
 
         private delegate void VisitRegistrationDelegate(VisitorManager manager, IRegistration registration);
@@ -60,7 +66,8 @@ namespace Abioc.Composition
             if (registrationType == null)
                 throw new ArgumentNullException(nameof(registrationType));
 
-            VisitRegistrationDelegate handler = VisitRegistrationDelegates.GetOrAdd(registrationType, CreateVisitorDelegate);
+            VisitRegistrationDelegate handler =
+                VisitRegistrationDelegates.GetOrAdd(registrationType, CreateVisitorDelegate);
             return handler;
         }
 
@@ -85,7 +92,7 @@ namespace Abioc.Composition
             if (!manager._visitors.TryGetValue(visitorType, out IRegistrationVisitor[] visitors))
             {
                 IEnumerable<IRegistrationVisitor> newVisitors =
-                    VisitorFactory.CreateVisitors<TRegistration>(manager._container, manager);
+                    manager._factory.CreateVisitors<TRegistration>(manager._container, manager);
                 visitors = newVisitors.ToArray();
 
                 if (visitors.Length == 0)

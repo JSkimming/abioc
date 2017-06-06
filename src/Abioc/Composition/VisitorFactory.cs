@@ -14,7 +14,7 @@ namespace Abioc.Composition
     /// <summary>
     /// Factory generator for <see cref="IRegistrationVisitor"/>
     /// </summary>
-    internal static class VisitorFactory
+    internal class VisitorFactory
     {
         private static readonly IReadOnlyList<Type> AllowedParameterTypes = new[]
         {
@@ -22,11 +22,27 @@ namespace Abioc.Composition
             typeof(VisitorManager),
         };
 
+        private static readonly ConcurrentDictionary<Type, IReadOnlyList<object>> VisitorFactoryCache =
+            new ConcurrentDictionary<Type, IReadOnlyList<object>>();
+
         private static readonly Lazy<IReadOnlyList<Type>> InternalVisitorTypes =
             new Lazy<IReadOnlyList<Type>>(GetInternalVisitorTypes);
 
-        private static readonly ConcurrentDictionary<Type, IReadOnlyList<object>> VisitorFactoryCache =
-            new ConcurrentDictionary<Type, IReadOnlyList<object>>();
+        private readonly IReadOnlyList<Type> _visitorTypes;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VisitorFactory"/> class.
+        /// </summary>
+        /// <param name="externalVisitorTypes">
+        /// The types of concrete classes that implement <see cref="IRegistrationVisitor"/> from an external assembly.
+        /// </param>
+        public VisitorFactory(IEnumerable<Type> externalVisitorTypes = null)
+        {
+            _visitorTypes =
+                externalVisitorTypes == null
+                    ? InternalVisitorTypes.Value
+                    : InternalVisitorTypes.Value.Concat(externalVisitorTypes).Distinct().ToList();
+        }
 
         /// <summary>
         /// Returns all the concrete types in the <paramref name="assembly"/> that implement the
@@ -60,7 +76,7 @@ namespace Abioc.Composition
         /// <returns>
         /// The visitors that are <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> to the specified type.
         /// </returns>
-        public static IEnumerable<IRegistrationVisitor<TRegistration>> CreateVisitors<TRegistration>(
+        public IEnumerable<IRegistrationVisitor<TRegistration>> CreateVisitors<TRegistration>(
             CompositionContainer container,
             VisitorManager manager)
             where TRegistration : class, IRegistration
@@ -185,7 +201,7 @@ namespace Abioc.Composition
             return internalVisitorTypes;
         }
 
-        private static IReadOnlyList<object> CreateVisitorFactories<TRegistration>()
+        private IReadOnlyList<object> CreateVisitorFactories<TRegistration>()
             where TRegistration : class, IRegistration
         {
             TypeInfo visitorTypeInfo = typeof(IRegistrationVisitor<TRegistration>).GetTypeInfo();
@@ -195,7 +211,7 @@ namespace Abioc.Composition
             if (!registrationTypeInfo.IsGenericType)
             {
                 // Get the non generic types that are assignable to the visitor type.
-                IEnumerable<Type> types = InternalVisitorTypes.Value.Where(visitorTypeInfo.IsAssignableFrom);
+                IEnumerable<Type> types = _visitorTypes.Where(visitorTypeInfo.IsAssignableFrom);
 
                 // Create the visitor factories.
                 return types.Select(CreateVisitorFactory<TRegistration>).ToArray();
@@ -206,8 +222,7 @@ namespace Abioc.Composition
 
             // Get the generic types with the same number of type parameters.
             IEnumerable<Type> genericTypeDefinitions =
-                InternalVisitorTypes.Value
-                    .Where(t => t.GetTypeInfo().GenericTypeParameters.Length == typeArguments.Length);
+                _visitorTypes.Where(t => t.GetTypeInfo().GenericTypeParameters.Length == typeArguments.Length);
 
             // Make the generic types and get the ones that are assignable to the visitor type.
             IEnumerable<Type> genericTypes =
