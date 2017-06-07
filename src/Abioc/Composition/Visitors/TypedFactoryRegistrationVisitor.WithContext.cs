@@ -19,13 +19,13 @@ namespace Abioc.Composition.Visitors
     internal class TypedFactoryRegistrationVisitor<TExtra, TImplementation>
         : IRegistrationVisitor<TypedFactoryRegistration<TExtra, TImplementation>>
     {
-        private CompositionContainer _container;
+        private readonly CompositionContainer _container;
 
         /// <summary>
-        /// Initializes the <see cref="IRegistrationVisitor"/>.
+        /// Initializes a new instance of the <see cref="TypedFactoryRegistrationVisitor{TExtra, TImplementation}"/> class.
         /// </summary>
         /// <param name="container">The composition context.</param>
-        public void Initialize(CompositionContainer container)
+        public TypedFactoryRegistrationVisitor(CompositionContainer container)
         {
             if (container == null)
                 throw new ArgumentNullException(nameof(container));

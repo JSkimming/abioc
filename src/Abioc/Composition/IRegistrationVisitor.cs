@@ -3,9 +3,6 @@
 
 namespace Abioc.Composition
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using Abioc.Registration;
 
     /// <summary>
@@ -13,10 +10,5 @@ namespace Abioc.Composition
     /// </summary>
     public interface IRegistrationVisitor
     {
-        /// <summary>
-        /// Initializes the <see cref="IRegistrationVisitor"/>.
-        /// </summary>
-        /// <param name="container">The composition context.</param>
-        void Initialize(CompositionContainer container);
     }
 }

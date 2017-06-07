@@ -41,8 +41,8 @@
       <HintPath>..\..\packages\FluentAssertions.4.19.2\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Moq, Version=4.7.12.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Moq.4.7.12\lib\net45\Moq.dll</HintPath>
+    <Reference Include="Moq, Version=4.7.25.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Moq.4.7.25\lib\net45\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -100,6 +100,7 @@
     <Compile Include="PropertyInjectionTests.cs" />
     <Compile Include="RegisterInternalTests.cs" />
     <Compile Include="RegistrationPrecedenceTests.cs" />
+    <Compile Include="RegistrationVisitorErrorTests.cs" />
     <Compile Include="RequireConstructionContextTests.cs" />
     <Compile Include="SingleClassTests.cs" />
     <Compile Include="SingletonTests.cs" />

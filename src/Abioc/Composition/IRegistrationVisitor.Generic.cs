@@ -3,9 +3,6 @@
 
 namespace Abioc.Composition
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using Abioc.Registration;
 
     /// <summary>
