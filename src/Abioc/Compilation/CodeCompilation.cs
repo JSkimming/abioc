@@ -230,6 +230,7 @@ namespace Abioc.Compilation
             }
         }
 
+#if NETSTANDARD1_5 || NETSTANDARD2_0
         // Workaround https://github.com/dotnet/roslyn/issues/12393#issuecomment-277933006
         // using this blog post
         // http://code.fitness/post/2017/02/using-csharpscript-with-netstandard.html
@@ -242,6 +243,7 @@ namespace Abioc.Compilation
             string path = Path.Combine(root, assemblyName);
             return path;
         }
+#endif
 
         private static void ProcessDiagnostics(SyntaxTree tree)
         {
