@@ -1,6 +1,10 @@
 language: csharp
 
 matrix:
+  fast_finish: true
+  allow_failures:
+  - os: osx
+
   include:
     - os: linux
       dist: trusty
@@ -15,4 +19,4 @@ branches:
   only:
   - master
 script:
-  - dotnet test -c Release test/Abioc.Tests/Abioc.TestsCore.csproj
+  - dotnet test -c Release -f netcoreapp2.0 test/Abioc.Tests/Abioc.Tests.csproj
