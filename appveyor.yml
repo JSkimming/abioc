@@ -44,15 +44,8 @@ assembly_info:
 #       build configuration       #
 #---------------------------------#
 
-before_build:
-  - NuGet restore abioc.sln
-
-build:
-  project: abioc.sln
-  verbosity: minimal
-
-after_build:
-  - msbuild src\Abioc\Abioc.csproj /nologo /verbosity:minimal /t:pack /p:Configuration=%CONFIGURATION%;PackageVersion=%APPVEYOR_BUILD_VERSION%;IncludeSource=true /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+build_script:
+  - dotnet pack -c %CONFIGURATION% --include-source /p:PackageVersion=%APPVEYOR_BUILD_VERSION%
 
 #---------------------------------#
 #      artifacts configuration    #
