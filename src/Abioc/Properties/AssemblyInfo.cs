@@ -8,13 +8,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-#if NET46
-[assembly: AssemblyTitle("abioc .NET Framework")]
-[assembly:InternalsVisibleTo("Abioc.Tests.Internal")]
-#else
 [assembly: AssemblyTitle("abioc .NET Standard")]
-#endif
-
 [assembly: AssemblyDescription("abioc")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
@@ -30,3 +24,5 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("0.0.0.1")]
 [assembly: AssemblyFileVersion("0.0.0.1")]
+
+[assembly: InternalsVisibleTo("Abioc.Tests.Internal")]

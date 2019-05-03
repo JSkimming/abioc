@@ -178,15 +178,9 @@ namespace Abioc.Compilation
             {
                 typeof(object).GetTypeInfo().Assembly.Location,
                 typeof(Enumerable).GetTypeInfo().Assembly.Location,
-#if NETSTANDARD2_0
                 GetSystemAssemblyPathByName("System.Collections.dll"),
                 GetSystemAssemblyPathByName("System.Runtime.dll"),
                 GetSystemAssemblyPathByName("netstandard.dll"),
-#elif NETSTANDARD1_5
-                GetSystemAssemblyPathByName("System.Collections.dll"),
-                GetSystemAssemblyPathByName("System.Runtime.dll"),
-                GetSystemAssemblyPathByName("mscorlib.dll"),
-#endif
                 typeof(CodeCompilation).GetTypeInfo().Assembly.Location,
             };
 
@@ -221,16 +215,11 @@ namespace Abioc.Compilation
                 }
 
                 stream.Seek(0, SeekOrigin.Begin);
-#if NETSTANDARD1_5
-                Assembly assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromStream(stream);
-#else
                 Assembly assembly = Assembly.Load(stream.ToArray());
-#endif
                 return assembly;
             }
         }
 
-#if NETSTANDARD1_5 || NETSTANDARD2_0
         // Workaround https://github.com/dotnet/roslyn/issues/12393#issuecomment-277933006
         // using this blog post
         // http://code.fitness/post/2017/02/using-csharpscript-with-netstandard.html
@@ -243,7 +232,6 @@ namespace Abioc.Compilation
             string path = Path.Combine(root, assemblyName);
             return path;
         }
-#endif
 
         private static void ProcessDiagnostics(SyntaxTree tree)
         {
