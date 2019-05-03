@@ -24,6 +24,10 @@ branches:
 # Operating system (build VM template)
 image: Visual Studio 2017
 
+environment:
+  COVERALLS_REPO_TOKEN:
+    secure: JyzzLMAuq8vr8vWYDiBSLMZML9wLe4qTeAwCEYVN3V/YJIcn1PkahReIW7vZBD6O
+
 # scripts that are called at very beginning, before repo cloning
 init:
   # This gives the login details for the build instance so you can RDP to it.
@@ -53,7 +57,8 @@ build_script:
 
 artifacts:
   - path: src\**\*.nupkg
-  - path: test\TestResults
+  - path: TestResults_*.7z
+    name: TestResults
 
 #---------------------------------#
 #       tests configuration       #
@@ -61,9 +66,13 @@ artifacts:
 
 test_script:
   - coverage.cmd %CONFIGURATION%
-  - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
-  - pip install codecov
+
+after_test:
+  - choco install codecov
   - codecov -f "test\TestResults\Test.Coverage.xml"
+  - dotnet tool install -g coveralls.net --version 1.0.0
+  - IF DEFINED COVERALLS_REPO_TOKEN csmacnz.coveralls --opencover -i "./test/TestResults/Test.Coverage.xml" --treatUploadErrorsAsWarnings
+  - 7z a -t7z -mx9 -bd TestResults_%APPVEYOR_BUILD_VERSION%.7z .\test\TestResults\*
 
 #---------------------------------#
 #     deployment configuration    #

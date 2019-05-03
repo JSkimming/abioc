@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net47;netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <RootNamespace>Abioc</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
