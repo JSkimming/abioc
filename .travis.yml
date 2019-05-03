@@ -7,16 +7,14 @@ matrix:
 
   include:
     - os: linux
-      dist: trusty
-      dotnet: 2.0.0
+      dotnet: 2.1
       mono: none
     - os: osx
-      osx_image: xcode8.2
-      dotnet: 2.0.0
+      dotnet: 2.1.301
       mono: none
 
 branches:
   only:
   - master
 script:
-  - dotnet test -c Release -f netcoreapp2.0 test/Abioc.Tests/Abioc.Tests.csproj
+  - dotnet test -c Release -f netcoreapp2.1 test/Abioc.Tests/Abioc.Tests.csproj
