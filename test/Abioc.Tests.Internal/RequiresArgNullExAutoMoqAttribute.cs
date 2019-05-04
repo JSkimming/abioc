@@ -12,7 +12,7 @@ namespace Abioc
     using Abioc.Generation;
     using AutoTest.ArgNullEx;
     using AutoTest.ArgNullEx.Xunit;
-    using Ploeh.AutoFixture;
+    using AutoFixture;
 
     [AttributeUsage(AttributeTargets.Method)]
     internal class RequiresArgNullExAutoMoqAttribute : RequiresArgumentNullExceptionAttribute
