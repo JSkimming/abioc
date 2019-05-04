@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoFixture.AutoMoq" Version="3.51.0" />
-    <PackageReference Include="AutoFixture.Xunit2" Version="3.51.0" />
+    <PackageReference Include="AutoFixture.Xunit2" Version="4.8.0" />
     <PackageReference Include="AutoTest.ArgumentNullException.Xunit" Version="0.8.0" />
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
