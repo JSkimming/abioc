@@ -26,10 +26,17 @@ orbs:
               command: dotnet restore
           - run:
               name: Build
-              command: dotnet build --no-restore -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests/Abioc.Tests.csproj
+              command: |
+                dotnet build --no-restore -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj
+                dotnet build --no-restore -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests/Abioc.Tests.csproj
           - run:
               name: Test
-              command: dotnet test --no-restore --no-build -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests/Abioc.Tests.csproj /p:CollectCoverage=true /p:Include="[Abioc]*" /p:Exclude="[*.Tests]*"
+              command: |
+                dotnet test --no-restore --no-build -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj /p:CollectCoverage=true /p:Include="[abioc]*" /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\"
+                dotnet test --no-restore --no-build -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests/Abioc.Tests.csproj /p:CollectCoverage=true /p:Include="[abioc]*" /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" /p:MergeWith="$(pwd)/test/Abioc.Tests.Internal/coverage.json"
+          - store_artifacts:
+              path: ./test/Abioc.Tests/coverage.json
+              destination: coverage.json
 
     executors:
 
