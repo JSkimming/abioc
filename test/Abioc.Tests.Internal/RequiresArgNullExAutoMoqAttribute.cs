@@ -9,6 +9,7 @@ namespace Abioc
     using System.Linq.Expressions;
     using System.Reflection;
     using Abioc.Composition.Compositions;
+    using Abioc.Filter;
     using Abioc.Generation;
     using AutoTest.ArgNullEx;
     using AutoTest.ArgNullEx.Xunit;
@@ -41,8 +42,10 @@ namespace Abioc
             fixture.Register<LambdaExpression>(fixture.Create<Expression<Action>>);
             fixture.Register<GenerationContext>(fixture.Create<GenerationContextWrapper>);
             fixture.Register<CompositionBase>(fixture.Create<TestComposition>);
+            fixture.Inject<IReadOnlyList<ParameterInfo>>(Array.Empty<ParameterInfo>());
 
             var argNullFixture = new ArgumentNullExceptionFixture(assemblyUnderTest, fixture);
+            argNullFixture.Filters.Add(new NotDelegate());
 
             return argNullFixture;
         }
