@@ -90,7 +90,7 @@ namespace Abioc
 
             // Assert
             action
-                .ShouldThrow<CompositionException>()
+                .Should().Throw<CompositionException>()
                 .WithMessage(expectedMessage);
         }
     }
@@ -118,7 +118,7 @@ namespace Abioc
 
             // Assert
             action
-                .ShouldThrow<CompositionException>()
+                .Should().Throw<CompositionException>()
                 .WithMessage(expectedMessage);
         }
     }
@@ -146,7 +146,7 @@ namespace Abioc
 
             // Assert
             action
-                .ShouldThrow<CompositionException>()
+                .Should().Throw<CompositionException>()
                 .WithMessage(expectedMessage);
         }
     }
@@ -159,7 +159,7 @@ namespace Abioc
         public void ItShouldNotThrowIfTheTheyRemainUnused()
         {
             // Act/Assert
-            TestAction.ShouldNotThrow();
+            TestAction.Should().NotThrow();
         }
     }
 

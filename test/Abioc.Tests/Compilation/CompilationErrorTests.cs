@@ -48,7 +48,7 @@ namespace Abioc.Compilation
             Action action = () => CodeCompilation.Compile(_setup, code, fieldValues, GetType().GetTypeInfo().Assembly);
 
             // Assert
-            CompilationException exception = action.ShouldThrow<CompilationException>().And;
+            CompilationException exception = action.Should().Throw<CompilationException>().And;
             _output.WriteLine(exception.ToString());
         }
     }

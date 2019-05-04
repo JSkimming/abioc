@@ -197,7 +197,7 @@ namespace Abioc
 
             // Assert
             action
-                .ShouldThrow<CompositionException>()
+                .Should().Throw<CompositionException>()
                 .WithMessage(expectedMessage);
         }
     }
