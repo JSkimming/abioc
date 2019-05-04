@@ -44,7 +44,7 @@ namespace Abioc.Registration
         public override Type ImplementationType { get; }
 
         /// <summary>
-        /// Gets the
+        /// Gets the <see cref="Factory"/> function.
         /// </summary>
         public Func<ConstructionContext<TExtra>, object> Factory { get; }
 

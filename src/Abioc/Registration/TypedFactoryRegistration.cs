@@ -36,7 +36,7 @@ namespace Abioc.Registration
         public override Type ImplementationType => typeof(TImplementation);
 
         /// <summary>
-        /// Gets the
+        /// Gets the <see cref="Factory"/> function.
         /// </summary>
         public Func<TImplementation> Factory { get; }
 
