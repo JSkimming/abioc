@@ -27,7 +27,7 @@ namespace Abioc.Registration
         /// <param name="serviceType">
         /// The type of the service to by satisfied during registration. The <paramref name="serviceType"/> should be
         /// satisfied by being <see cref="TypeInfo.IsAssignableFrom(TypeInfo)"/> the
-        /// <paramref name="entry"/>.<see cref="IRegistration.ImplementationType"/>
+        /// <paramref name="entry"/>.<see cref="IRegistration.ImplementationType"/>.
         /// </param>
         /// <param name="entry">The entry to be registered.</param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
@@ -305,7 +305,7 @@ namespace Abioc.Registration
         /// <typeparam name="TImplementation">The type of the fixed <paramref name="value"/>.</typeparam>
         /// <param name="value">
         /// The <see cref="InjectedSingletonRegistration{TImplementation}.Value"/> of type
-        /// <typeparamref name="TImplementation"/>
+        /// <typeparamref name="TImplementation"/>.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public TDerived RegisterFixed<TService, TImplementation>(TImplementation value)
@@ -320,7 +320,7 @@ namespace Abioc.Registration
         /// <typeparam name="TImplementation">The type of the fixed <paramref name="value"/>.</typeparam>
         /// <param name="value">
         /// The <see cref="InjectedSingletonRegistration{TImplementation}.Value"/> of type
-        /// <typeparamref name="TImplementation"/>
+        /// <typeparamref name="TImplementation"/>.
         /// </param>
         /// <returns><see langword="this"/> context to be used in a fluent configuration.</returns>
         public TDerived RegisterFixed<TImplementation>(TImplementation value)

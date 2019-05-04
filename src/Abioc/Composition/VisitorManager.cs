@@ -11,7 +11,7 @@ namespace Abioc.Composition
     using Abioc.Registration;
 
     /// <summary>
-    /// Factory generator for <see cref="IRegistrationVisitor"/>
+    /// Factory generator for <see cref="IRegistrationVisitor"/>.
     /// </summary>
     internal class VisitorManager
     {

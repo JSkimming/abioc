@@ -42,7 +42,7 @@ namespace Abioc.Generation
         /// Initializes a new instance of the <see cref="GenerationContextWrapper"/> class.
         /// </summary>
         /// <param name="inner">The inner <see cref="GenerationContext"/> wrapped by this instance.</param>
-        /// <param name="constructionContextDefinition">The <see cref="ConstructionContextDefinition"/></param>
+        /// <param name="constructionContextDefinition">The <see cref="ConstructionContextDefinition"/>.</param>
         private GenerationContextWrapper(
             GenerationContext inner,
             ConstructionContextDefinition constructionContextDefinition)

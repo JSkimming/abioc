@@ -25,7 +25,7 @@ namespace Abioc
         /// <see cref="ServiceType"/>.
         /// </summary>
         /// <remarks>
-        /// The <see cref="ImplementationType"/> should be assignable to the <see cref="ServiceType"/>
+        /// The <see cref="ImplementationType"/> should be assignable to the <see cref="ServiceType"/>.
         /// </remarks>
         public readonly Type ImplementationType;
 

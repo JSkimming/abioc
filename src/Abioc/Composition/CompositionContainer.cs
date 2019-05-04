@@ -105,7 +105,7 @@ namespace Abioc.Composition
         /// <summary>
         /// Adds the <paramref name="composition"/> to the <see cref="Compositions"/>.
         /// </summary>
-        /// <param name="type">The <see cref="Type"/> that is satisfied by the <paramref name="composition"/></param>
+        /// <param name="type">The <see cref="Type"/> that is satisfied by the <paramref name="composition"/>.</param>
         /// <param name="composition">The <see cref="IComposition"/> to add.</param>
         /// <exception cref="CompositionException">
         /// There is already a <see cref="IComposition"/> for the specified <paramref name="type"/> that is not the

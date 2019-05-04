@@ -21,7 +21,7 @@ namespace Abioc.Registration
         /// <param name="composer">The registration composer.</param>
         /// <param name="value">
         /// The <see cref="InjectedSingletonRegistration{TImplementation}.Value"/> of type
-        /// <typeparamref name="TImplementation"/>
+        /// <typeparamref name="TImplementation"/>.
         /// </param>
         /// <returns>The registration <paramref name="composer"/> to be used in a fluent configuration.</returns>
         public static RegistrationComposer<TImplementation> UseFixed<TImplementation>(
