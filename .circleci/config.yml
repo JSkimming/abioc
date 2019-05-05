@@ -27,16 +27,44 @@ orbs:
           - run:
               name: Build
               command: |
-                dotnet build --no-restore -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj
-                dotnet build --no-restore -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests/Abioc.Tests.csproj
+                dotnet build --no-restore -f << parameters.framework >> -c << parameters.build-config >> \
+                  ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj
+                dotnet build --no-restore -f << parameters.framework >> -c << parameters.build-config >> \
+                  ./test/Abioc.Tests/Abioc.Tests.csproj
           - run:
               name: Test
               command: |
-                dotnet test --no-restore --no-build -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj /p:CollectCoverage=true /p:Include="[abioc]*" /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\"
-                dotnet test --no-restore --no-build -f << parameters.framework >> -c << parameters.build-config >> ./test/Abioc.Tests/Abioc.Tests.csproj /p:CollectCoverage=true /p:Include="[abioc]*" /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" /p:MergeWith="$(pwd)/test/Abioc.Tests.Internal/coverage.json"
+                dotnet test --no-restore --no-build -f << parameters.framework >> -c << parameters.build-config >> \
+                  ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj \
+                  /p:CollectCoverage=true \
+                  /p:Include="[abioc]*" \
+                  /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
+                  /p:CoverletOutput="$(pwd)/test/TestResults/internal.coverage.json"
+                dotnet test --no-restore --no-build -f << parameters.framework >> -c << parameters.build-config >> \
+                  ./test/Abioc.Tests/Abioc.Tests.csproj \
+                  /p:CollectCoverage=true \
+                  /p:Include="[abioc]*" \
+                  /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
+                  /p:CoverletOutput="$(pwd)/test/TestResults/" \
+                  /p:CoverletOutputFormat=\"json,opencover\" \
+                  /p:MergeWith="$(pwd)/test/TestResults/internal.coverage.json"
+          - run:
+              name: Install ReportGenerator
+              command: dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./test/TestResults/tools
+          - run:
+              name: Generate Report
+              command: |
+                ./test/TestResults/tools/reportgenerator \
+                  -verbosity:Error \
+                  -reports:./test/TestResults/coverage.opencover.xml \
+                  -targetdir:./test/TestResults/Report \
+                  -reporttypes:Html
           - store_artifacts:
-              path: ./test/Abioc.Tests/coverage.json
+              path: ./test/TestResults/coverage.json
               destination: coverage.json
+          - store_artifacts:
+              path: ./test/TestResults/Report/
+              destination: report
 
     executors:
 
