@@ -22,8 +22,26 @@ RUN dotnet build --no-restore -f netcoreapp2.1 -c Debug ./test/Abioc.Tests.Inter
 RUN dotnet build --no-restore -f netcoreapp2.1 -c Debug ./test/Abioc.Tests/Abioc.Tests.csproj
 
 # Run unit tests
-RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj /p:CollectCoverage=true /p:Include="[abioc]*" /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\"
-RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 ./test/Abioc.Tests/Abioc.Tests.csproj /p:CollectCoverage=true /p:Include="[abioc]*" /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" /p:MergeWith="$(pwd)/test/Abioc.Tests.Internal/coverage.json"
+RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 \
+    ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj \
+    /p:CollectCoverage=true \
+    /p:Include="[abioc]*" \
+    /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
+    /p:CoverletOutput="$(pwd)/test/TestResults/internal.coverage.json"
+
+RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 \
+    ./test/Abioc.Tests/Abioc.Tests.csproj \
+    /p:CollectCoverage=true \
+    /p:Include="[abioc]*" \
+    /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
+    /p:CoverletOutput="$(pwd)/test/TestResults/" \
+    /p:CoverletOutputFormat=\"json,opencover\" \
+    /p:MergeWith="$(pwd)/test/TestResults/internal.coverage.json"
+
+RUN dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./test/TestResults/tools
+
+RUN ./test/TestResults/tools/reportgenerator -verbosity:Error -reports:./test/TestResults/coverage.opencover.xml \
+    -targetdir:./test/TestResults/Report -reporttypes:Html
 
 ########################################################################################################################
 # .NET Core 2.2
@@ -49,5 +67,23 @@ RUN dotnet build --no-restore -f netcoreapp2.1 -c Debug ./test/Abioc.Tests.Inter
 RUN dotnet build --no-restore -f netcoreapp2.1 -c Debug ./test/Abioc.Tests/Abioc.Tests.csproj
 
 # Run unit tests
-RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj /p:CollectCoverage=true /p:Include="[abioc]*" /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\"
-RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 ./test/Abioc.Tests/Abioc.Tests.csproj /p:CollectCoverage=true /p:Include="[abioc]*" /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" /p:MergeWith="$(pwd)/test/Abioc.Tests.Internal/coverage.json"
+RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 \
+    ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj \
+    /p:CollectCoverage=true \
+    /p:Include="[abioc]*" \
+    /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
+    /p:CoverletOutput="$(pwd)/test/TestResults/internal.coverage.json"
+
+RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 \
+    ./test/Abioc.Tests/Abioc.Tests.csproj \
+    /p:CollectCoverage=true \
+    /p:Include="[abioc]*" \
+    /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
+    /p:CoverletOutput="$(pwd)/test/TestResults/" \
+    /p:CoverletOutputFormat=\"json,opencover\" \
+    /p:MergeWith="$(pwd)/test/TestResults/internal.coverage.json"
+
+RUN dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./test/TestResults/tools
+
+RUN ./test/TestResults/tools/reportgenerator -verbosity:Error -reports:./test/TestResults/coverage.opencover.xml \
+    -targetdir:./test/TestResults/Report -reporttypes:Html
