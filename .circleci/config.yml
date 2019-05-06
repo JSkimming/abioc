@@ -35,6 +35,8 @@ orbs:
           - store_artifacts:
               path: ./test/TestResults/Report/
               destination: report
+          - store_test_results:
+              path: ./test/TestResults/output/
 
     executors:
 
