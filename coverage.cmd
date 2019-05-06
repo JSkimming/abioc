@@ -77,5 +77,5 @@
    EXIT /B 2
 )
 
-@echo "%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%\Report" -reporttypes:Html
-@"%report_exe%" -verbosity:Error "-reports:%coverage_results%" "-targetdir:%results_path%\Report" -reporttypes:Html
+@echo "%report_exe%" -verbosity:Info "-reports:%coverage_results%" "-targetdir:%results_path%\Report" -reporttypes:Html
+@"%report_exe%" -verbosity:Info "-reports:%coverage_results%" "-targetdir:%results_path%\Report" -reporttypes:Html
