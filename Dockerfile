@@ -1,6 +1,18 @@
 ########################################################################################################################
+# shellcheck - lining for bash scrips
+FROM nlknguyen/alpine-shellcheck:v0.4.6
+
+COPY ./ ./
+
+# Convert CRLF to CR as it causes shellcheck warnings
+RUN find . -type f -name '*.sh' -exec dos2unix {} \;
+
+# Run shell check on all the shell files.
+RUN find . -type f -name '*.sh' | wc -l && find . -type f -name '*.sh' | xargs shellcheck --external-sources
+
+########################################################################################################################
 # .NET Core 2.1
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1
+FROM mcr.microsoft.com/dotnet/core/sdk:2.1-alpine
 
 ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
 
@@ -17,35 +29,11 @@ RUN dotnet restore
 
 COPY . .
 
-# Build to ensure the tests are their own distinct step
-RUN dotnet build --no-restore -f netcoreapp2.1 -c Debug ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj
-RUN dotnet build --no-restore -f netcoreapp2.1 -c Debug ./test/Abioc.Tests/Abioc.Tests.csproj
-
-# Run unit tests
-RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 \
-    ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj \
-    /p:CollectCoverage=true \
-    /p:Include="[abioc]*" \
-    /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
-    /p:CoverletOutput="$(pwd)/test/TestResults/internal.coverage.json"
-
-RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 \
-    ./test/Abioc.Tests/Abioc.Tests.csproj \
-    /p:CollectCoverage=true \
-    /p:Include="[abioc]*" \
-    /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
-    /p:CoverletOutput="$(pwd)/test/TestResults/" \
-    /p:CoverletOutputFormat=\"json,opencover\" \
-    /p:MergeWith="$(pwd)/test/TestResults/internal.coverage.json"
-
-RUN dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./test/TestResults/tools
-
-RUN ./test/TestResults/tools/reportgenerator -verbosity:Error -reports:./test/TestResults/coverage.opencover.xml \
-    -targetdir:./test/TestResults/Report -reporttypes:Html
+RUN ./coverage.sh netcoreapp2.1 Debug
 
 ########################################################################################################################
 # .NET Core 2.2
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
 
 ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
 
@@ -62,28 +50,4 @@ RUN dotnet restore
 
 COPY . .
 
-# Build to ensure the tests are their own distinct step
-RUN dotnet build --no-restore -f netcoreapp2.1 -c Debug ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj
-RUN dotnet build --no-restore -f netcoreapp2.1 -c Debug ./test/Abioc.Tests/Abioc.Tests.csproj
-
-# Run unit tests
-RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 \
-    ./test/Abioc.Tests.Internal/Abioc.Tests.Internal.csproj \
-    /p:CollectCoverage=true \
-    /p:Include="[abioc]*" \
-    /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
-    /p:CoverletOutput="$(pwd)/test/TestResults/internal.coverage.json"
-
-RUN dotnet test --no-restore --no-build -c Debug -f netcoreapp2.1 \
-    ./test/Abioc.Tests/Abioc.Tests.csproj \
-    /p:CollectCoverage=true \
-    /p:Include="[abioc]*" \
-    /p:Exclude=\"[*.Tests]*,[Abioc.Tests.Internal]*\" \
-    /p:CoverletOutput="$(pwd)/test/TestResults/" \
-    /p:CoverletOutputFormat=\"json,opencover\" \
-    /p:MergeWith="$(pwd)/test/TestResults/internal.coverage.json"
-
-RUN dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./test/TestResults/tools
-
-RUN ./test/TestResults/tools/reportgenerator -verbosity:Error -reports:./test/TestResults/coverage.opencover.xml \
-    -targetdir:./test/TestResults/Report -reporttypes:Html
+RUN ./coverage.sh netcoreapp2.1 Debug
