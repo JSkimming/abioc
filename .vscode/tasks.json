@@ -1,0 +1,49 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "restore",
+            "command": "dotnet",
+            "type": "process",
+            "group": "build",
+            "args": [
+                "restore",
+                "abioc.sln"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "build",
+            "dependsOn": "restore",
+            "command": "dotnet",
+            "type": "process",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "args": [
+                "build",
+                "--no-restore",
+                "abioc.sln"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "test",
+            "dependsOn": "build",
+            "command": "dotnet",
+            "type": "process",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "args": [
+                "test",
+                "--no-restore",
+                "--no-build",
+                "abioc.sln"
+            ],
+            "problemMatcher": "$tsc"
+        },
+    ]
+}

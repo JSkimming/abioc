@@ -1,0 +1,10 @@
+{
+    "editor.rulers": [120],
+    "files.trimTrailingWhitespace": true,
+    "dotnet-test-explorer.testProjectPath": "test/*/",
+    "dotnet-test-explorer.useTreeView": false,
+    "cSpell.words": [
+        "abioc",
+        "xunit"
+    ]
+}
