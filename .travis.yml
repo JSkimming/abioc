@@ -16,5 +16,6 @@ matrix:
 branches:
   only:
   - master
+
 script:
   - ./coverage.sh netcoreapp2.1 Release
