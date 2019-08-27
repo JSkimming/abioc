@@ -33,6 +33,7 @@ exe dotnet test --no-restore --no-build -f "$framework" -c "$config" \
 "$testProj1" \
 --results-directory "$output/" \
 --logger "\"trx;LogFileName=$(basename "$testProj1" .csproj).trx\"" \
+--logger "\"Console;noprogress=true\"" \
 /p:CollectCoverage=true \
 /p:Include="$include" \
 /p:Exclude="$exclude" \
@@ -42,6 +43,7 @@ exe dotnet test --no-restore --no-build -f "$framework" -c "$config" \
 "$testProj2" \
 --results-directory "$output/" \
 --logger "\"trx;LogFileName=$(basename "$testProj2" .csproj).trx\"" \
+--logger "\"Console;noprogress=true\"" \
 /p:CollectCoverage=true \
 /p:Include="$include" \
 /p:Exclude="$exclude" \
