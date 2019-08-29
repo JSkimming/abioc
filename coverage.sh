@@ -54,7 +54,7 @@ exe dotnet test --no-restore --no-build -f "$framework" -c "$config" \
 # Install trx2junit if not already installed
 if [ ! -f "$tools/trx2junit" ]
 then
-   exe dotnet tool install trx2junit --tool-path "$tools"
+   exe dotnet tool install trx2junit --version 1.2.5 --tool-path "$tools"
 fi
 
 # Install ReportGenerator if not already installed
