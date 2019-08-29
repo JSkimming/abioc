@@ -31,5 +31,6 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet }}
     - run: dotnet --info
+    - run: env
     - name: Test Coverage
       run: ./coverage.sh netcoreapp2.1 ${{ matrix.config }}
