@@ -32,7 +32,7 @@ jobs:
         dotnet-version: ${{ matrix.dotnet }}
     - run: dotnet --info
     - run: env
-    - run: export DOTNET_ROOT=/opt/hostedtoolcache/dncs/2.1.801/x64/sdk
+    - run: echo 'export DOTNET_ROOT="/opt/hostedtoolcache/dncs/2.1.801/x64/sdk"' >> $BASH_ENV
     - run: env
     - name: Test Coverage
       run: ./coverage.sh netcoreapp2.1 ${{ matrix.config }}
