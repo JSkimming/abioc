@@ -34,22 +34,22 @@ exe dotnet test --no-restore --no-build -f "$framework" -c "$config" \
 --results-directory "$output/" \
 --logger "\"trx;LogFileName=$(basename "$testProj1" .csproj).trx\"" \
 --logger "\"Console;noprogress=true\"" \
-/p:CollectCoverage=true \
-/p:Include="$include" \
-/p:Exclude="$exclude" \
-/p:CoverletOutput="$output/internal.coverage.json"
+-p:CollectCoverage=true \
+-p:Include="$include" \
+-p:Exclude="$exclude" \
+-p:CoverletOutput="$output/internal.coverage.json"
 
 exe dotnet test --no-restore --no-build -f "$framework" -c "$config" \
 "$testProj2" \
 --results-directory "$output/" \
 --logger "\"trx;LogFileName=$(basename "$testProj2" .csproj).trx\"" \
 --logger "\"Console;noprogress=true\"" \
-/p:CollectCoverage=true \
-/p:Include="$include" \
-/p:Exclude="$exclude" \
-/p:MergeWith="$output/internal.coverage.json" \
-/p:CoverletOutput="$output/" \
-/p:CoverletOutputFormat="\"json,opencover,cobertura\""
+-p:CollectCoverage=true \
+-p:Include="$include" \
+-p:Exclude="$exclude" \
+-p:MergeWith="$output/internal.coverage.$framework.json" \
+-p:CoverletOutput="$output/" \
+-p:CoverletOutputFormat="\"json,opencover,cobertura\""
 
 # Install trx2junit if not already installed
 if [ ! -f "$tools/trx2junit" ]
@@ -69,6 +69,6 @@ exe "$tools/trx2junit" "$output"/*.trx
 # Generate the reports
 exe "$tools/reportgenerator" \
 "-verbosity:Info" \
-"-reports:$output/coverage.opencover.xml" \
+"-reports:$output/coverage.$framework.opencover.xml" \
 "-targetdir:$output/Report" \
 "-reporttypes:Html"

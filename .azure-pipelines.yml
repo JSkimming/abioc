@@ -58,30 +58,30 @@ jobs:
   steps:
 
   - task: UseDotNet@2
+    displayName: Install .NET Core SDK $(sdkVersion)
     inputs:
       version: $(sdkVersion)
-    displayName: Install .NET Core SDK
 
   - task: ShellScript@2
+    displayName: Test Coverage
     inputs:
       scriptPath: ./coverage.sh
       args: "$(framework) $(config)"
-    displayName: Test Coverage
 
   - task: PublishTestResults@2
+    displayName: Publish test results
     inputs:
       testResultsFormat: VSTest
       testResultsFiles: "**/*.trx"
       failTaskOnFailedTests: true
       buildConfiguration: $(config)
       publishRunAttachments: true
-    displayName: Publish test results
 
   - task: PublishCodeCoverageResults@1
+    displayName: Publish code coverage
     inputs:
       codeCoverageTool: Cobertura
-      summaryFileLocation: ./test/TestResults/output/coverage.cobertura.xml
-    displayName: Publish code coverage
+      summaryFileLocation: ./test/TestResults/output/coverage.$(framework).cobertura.xml
 
 - job: CmdBuild
   displayName: "Build"
