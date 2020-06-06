@@ -22,8 +22,8 @@ jobs:
         - Debug
         - Release
         dotnet:
-        - "2.1.801"
-        - "2.2.401"
+        - 2.1.x
+        - 2.2.x
     name: ${{ matrix.os }} ${{ matrix.dotnet }} ${{ matrix.config }}
     steps:
     - uses: actions/checkout@v1
